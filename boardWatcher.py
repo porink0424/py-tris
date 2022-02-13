@@ -10,7 +10,7 @@ def GetBoardWithColor(img):
     for i in range(BOARD_HEIGHT):
         for j in range(BOARD_WIDTH):
             posX, posY = GetCenterPosition(i, j)
-            pixels.append(img.getpixel((posX, posY)))
+            pixels.append(img.getpixel((posX*2, posY*2)))
     
     # 盤面の色を判断する
     board = []
@@ -34,7 +34,7 @@ def GetFollowingMinos(img):
         while True:
             candidates = [] # 判断の結果を一時的に保存する配列を用意
             for posY in range(yRange[0], yRange[1]):
-                r,g,b = img.getpixel((posX, posY))
+                r,g,b = img.getpixel((posX*2, posY*2))
                 color = DetermineColor(r,g,b, (posX,posY))
 
                 # ピクセルごとに見ているので、同じミノであると連続的に判定されることになる
@@ -45,14 +45,6 @@ def GetFollowingMinos(img):
                     (len(candidates) == 0 or candidates[-1] is not color) # いままで登録されていなかった色だった場合
                 ):
                     candidates.append(color)
-            
-            # ピクセルごとに見ているので、途中で違うミノの色とかぶって誤判定を起こすことがある
-            # そのような場合は以下の経験則によりはじく
-            if (len(candidates) > 1):
-                if (candidates[0] is MINO.J and candidates[1] is MINO.I and candidates[1] is MINO.J):
-                    candidates = [candidates[0]]
-                elif (candidates[0] is MINO.O and candidates[1] is MINO.L and candidates[1] is MINO.O):
-                    candidates = [candidates[0]]
             
             # 正常時に判定できているときはcandidatesにはただ1つ要素が入るはず
             if (len(candidates) == 1):
@@ -74,7 +66,7 @@ def GetHoldMino(img):
     while True:
         candidates = [] # 判断の結果を一時的に保存する配列を用意
         for posY in range(HOLD_MINO_Y_RANGE[0], HOLD_MINO_Y_RANGE[1]):
-            r,g,b = img.getpixel((posX, posY))
+            r,g,b = img.getpixel((posX*2, posY*2))
             color = DetermineColor(r,g,b, (posX,posY))
         
             # ピクセルごとに見ているので、同じミノであると連続的に判定されることになる
@@ -85,23 +77,13 @@ def GetHoldMino(img):
                 (len(candidates) == 0 or candidates[-1] is not color) # いままで登録されていなかった色だった場合
             ):
                 candidates.append(color)
-            
-            # ピクセルごとに見ているので、途中で違うミノの色とかぶって誤判定を起こすことがある
-            # そのような場合は以下の経験則によりはじく
-            if (len(candidates) > 1):
-                if (candidates[0] is MINO.J and candidates[1] is MINO.I and candidates[1] is MINO.J):
-                    candidates = [candidates[0]]
-                elif (candidates[0] is MINO.O and candidates[1] is MINO.L and candidates[1] is MINO.O):
-                    candidates = [candidates[0]]
-            
-            # 正常時に判定できているときはcandidatesにはただ1つ要素が入るはず
-            if (len(candidates) == 1):
-                return candidates[0]
-            # 1つに絞れなかったのでposXを変えて再度判断
-            elif len(candidates) > 1:
-                print(*candidates) # debug
-            else:
-                posX -= 2
-                if posX < HOLD_MINO_BOX_X: # ホールドボックスのサイズを超えてしまっているので、ゲームが止まっているなどのほかの原因があるはず
-                    return MINO.JAMA
+        
+        # 正常時に判定できているときはcandidatesにはただ1つ要素が入るはず
+        if (len(candidates) == 1):
+            return candidates[0]
+        # 1つに絞れなかったのでposXを変えて再度判断
+        else:
+            posX -= 2
+            if posX < HOLD_MINO_BOX_X: # ホールドボックスのサイズを超えてしまっているので、ゲームが止まっているなどのほかの原因があるはず
+                return MINO.JAMA
     
