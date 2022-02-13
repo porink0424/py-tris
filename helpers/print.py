@@ -35,7 +35,6 @@ def PrintBoardWithColor(boardColor, followingMinos, holdMino, reset=False, elaps
         if 0 <= i < len(followingMinos): # NEXTミノを表示させる行
             print("  {}■{}".format(COLOR_CODES[followingMinos[i]], attr('reset')), flush=True)
         elif elapsedTime is not None and i == BOARD_HEIGHT - 1: # 最後の行に経過時間を掲載する
-            print("  elapsed time for one loop: {}(s)".format(elapsedTime), flush=True)
+            print("  elapsed time for one loop: {}(s)".format(round(elapsedTime, 5)), flush=True)
         else:
             print("", flush=True)
-

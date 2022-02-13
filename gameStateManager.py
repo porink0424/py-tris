@@ -17,6 +17,8 @@ def Resume():
 
 
 if __name__ == "__main__":
+    print("\n\nPy-tris Board Watcher\n\n")
+
     # windowサイズを固定する
     os.system(
         "osascript -e 'tell application \"Parallels Desktop\"' -e 'set bounds of front window to {0,0,1795,1100}' -e 'end tell'"
