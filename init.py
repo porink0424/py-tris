@@ -1,13 +1,15 @@
+from constants.position import WINDOW_X, WINDOW_Y, WINDOW_WIDTH, WINDOW_HEIGHT
 import pyautogui
 import os
 import time
 
-def init():
+def Init():
     pyautogui.PAUSE = 0
 
     # windowサイズを固定する
+    window = "{{{},{},{},{}}}".format(WINDOW_X, WINDOW_Y, WINDOW_WIDTH, WINDOW_HEIGHT)
     os.system(
-        "osascript -e 'tell application \"Parallels Desktop\"' -e 'set bounds of front window to {0,0,1795,1100}' -e 'end tell'"
+        f"osascript -e 'tell application \"Parallels Desktop\"' -e 'set bounds of front window to {window}' -e 'end tell'"
     )
 
     # windowをアクティブにする

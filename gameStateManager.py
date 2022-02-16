@@ -8,6 +8,7 @@ import mss.tools
 from PIL import Image
 import time
 import boardWatcher
+from init import Init
 
 
 # ポーズメニューからプレイ画面に復帰
@@ -16,6 +17,7 @@ def Resume():
 
 
 if __name__ == "__main__":
+    Init()
 
     print("\n\nPy-tris Board Watcher\n\n")
 
@@ -42,5 +44,3 @@ if __name__ == "__main__":
             followingMinos = boardWatcher.GetFollowingMinos(img)
             holdMino = boardWatcher.GetHoldMino(img)
             PrintBoardWithColor(boardColor, followingMinos, holdMino, True, a.Stop())
-
-    
