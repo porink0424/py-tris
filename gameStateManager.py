@@ -1,40 +1,36 @@
 from constants.position import BOARD_HEIGHT
+from constants.move import MOVE
 from helpers.print import PrintBoardWithColor
 from helpers.timer import Timer
-import pyautogui
+from helpers.input import PressEnter, Move
 import mss
 import mss.tools
 from PIL import Image
 import time
-import os
 import boardWatcher
 
 
 # ポーズメニューからプレイ画面に復帰
 def Resume():
-    pyautogui.press("Enter")
-
+    PressEnter()
 
 
 if __name__ == "__main__":
+
     print("\n\nPy-tris Board Watcher\n\n")
 
-    # windowサイズを固定する
-    os.system(
-        "osascript -e 'tell application \"Parallels Desktop\"' -e 'set bounds of front window to {0,0,1795,1100}' -e 'end tell'"
-    )
-
-    # windowをアクティブにする
-    pyautogui.click(100,100)
-    time.sleep(0.5)
-
     # ゲームの再開
-    # Resume()
+    Resume()
     time.sleep(0.5)
 
-    
     for _ in range(BOARD_HEIGHT):
         print("", flush=True)
+    
+    for _ in range(5):
+        Move(MOVE.RIGHT)
+        Move(MOVE.RIGHT)
+        Move(MOVE.DROP)
+        time.sleep(0.1)
 
     while True:
         with mss.mss() as sct:
