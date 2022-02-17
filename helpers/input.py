@@ -7,7 +7,7 @@ KEY_HOLD_TIME = 0.05
 def Move (move:MOVE):
     if move is MOVE.LEFT:
         pyautogui.keyDown("left")
-        time.sleep(KEY_HOLD_TIME)
+        time.sleep(KEY_HOLD_TIME) # 一定時間keyDownしていないと，認識されないことがある
         pyautogui.keyUp("left")
     elif move is MOVE.RIGHT:
         pyautogui.keyDown("right")
