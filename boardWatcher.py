@@ -4,7 +4,7 @@ from helpers.position import GetCenterPosition
 from helpers.color import DetermineColor
 
 # 盤面の状況を配列として返す
-def GetBoardWithColor(img):
+def GetMainBoardWithColor(img):
     # windowのなかのピクセルの色を読み取る
     pixels = []
     for i in range(BOARD_HEIGHT):
@@ -13,16 +13,16 @@ def GetBoardWithColor(img):
             pixels.append(img.getpixel((posX*2, posY*2))) # getpixelのバグ？で2倍しないと正しい部分のrgbをとってくれない
     
     # 盤面の色を判断する
-    board = []
+    mainBoard = []
     for i in range(BOARD_HEIGHT):
         row = []
         for j in range(BOARD_WIDTH):
             pixel = pixels[10*i + j]
             mino = DetermineColor(pixel[0], pixel[1], pixel[2], (i,j))
             row.append(mino)
-        board.append(row)
+        mainBoard.append(row)
     
-    return board
+    return mainBoard
 
 # NEXT以降のミノを配列として返す（仮の実装。todo: もうちょい上手い方法はないか）
 def GetFollowingMinos(img):

@@ -1,8 +1,8 @@
-from constants.position import BOARD_HEIGHT
-from constants.move import MOVE
+from constants.position import BOARD_HEIGHT, WINDOW_X, WINDOW_Y, WINDOW_HEIGHT, WINDOW_WIDTH
+from constants.board import Board
 from helpers.print import PrintBoardWithColor
 from helpers.timer import Timer
-from helpers.input import PressEnter, Move
+from helpers.input import PressEnter
 import mss
 import mss.tools
 from PIL import Image
@@ -10,37 +10,38 @@ import time
 import boardWatcher
 from init import Init
 
-
-# ポーズメニューからプレイ画面に復帰
-def Resume():
-    PressEnter()
-
-
-if __name__ == "__main__":
-    Init()
-
+# ゲーム画面を認識して標準出力に出力する関数（無限ループ）
+def PytrisBoardWatcher ():
     print("\n\nPy-tris Board Watcher\n\n")
 
     # ゲームの再開
-    Resume()
+    PressEnter()
     time.sleep(0.5)
 
+    # 盤面を出力する分の行数を確保する
     for _ in range(BOARD_HEIGHT):
         print("", flush=True)
     
-    for _ in range(5):
-        Move(MOVE.RIGHT)
-        Move(MOVE.RIGHT)
-        Move(MOVE.DROP)
-        time.sleep(0.1)
+    # boardオブジェクトの生成
+    board = Board()
 
+    # メインループ
     while True:
         with mss.mss() as sct:
             a = Timer()
-            region = {'top': 0, 'left': 0, 'width': 1795, 'height': 1100}
+            # キャプチャする範囲は1P側の半分で十分
+            region = {'top': WINDOW_Y, 'left': WINDOW_X, 'width': WINDOW_WIDTH / 2, 'height': WINDOW_HEIGHT}
             img = sct.grab(region)
             img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
-            boardColor = boardWatcher.GetBoardWithColor(img)
-            followingMinos = boardWatcher.GetFollowingMinos(img)
-            holdMino = boardWatcher.GetHoldMino(img)
-            PrintBoardWithColor(boardColor, followingMinos, holdMino, True, a.Stop())
+            board.mainBoard = boardWatcher.GetMainBoardWithColor(img)
+            board.followingMinos = boardWatcher.GetFollowingMinos(img)
+            board.holdMino = boardWatcher.GetHoldMino(img)
+            PrintBoardWithColor(board, True, a.Stop())
+
+
+if __name__ == "__main__":
+    # ゲームの初期設定
+    Init()
+    
+    PytrisBoardWatcher()
+    
