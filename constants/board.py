@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 from constants.mino import MINO
 from constants.position import BOARD_HEIGHT, BOARD_WIDTH, FOLLOWING_MINOS_COUNT
 
@@ -14,3 +14,10 @@ class Board():
         self.followingMinos = followingMinos if followingMinos is not None else [MINO.NONE for _ in range(FOLLOWING_MINOS_COUNT)]
         self.holdMino = holdMino if holdMino is not None else MINO.NONE
         self.canHold = canHold
+    
+    # mainBoardの任意の場所にブロックを足す
+    def AddMinoToMainBoard (self, pos:Tuple[int], mino:MINO):
+        self.mainBoard[pos[1]][pos[0]] = mino
+    
+    def DeleteMinoInMainBoard (self, pos:Tuple[int]):
+        self.mainBoard[pos[1]][pos[0]] = MINO.NONE

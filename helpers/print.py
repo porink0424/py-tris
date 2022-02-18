@@ -1,7 +1,8 @@
 from constants.board import Board
 from constants.position import BOARD_WIDTH, BOARD_HEIGHT
-from constants.mino import MINO
+from constants.mino import MINO, DirectedMino, GetOccupiedPositions
 from colored import fg, attr
+import copy
 
 COLOR_CODES = {
     MINO.T : fg(5),
@@ -39,3 +40,15 @@ def PrintBoardWithColor(board:Board, reset=False, elapsedTime=None):
             print("  elapsed time for one loop: {}(s)".format(round(elapsedTime, 5)), flush=True)
         else:
             print("", flush=True)
+
+# directedMinoをboardに反映した状態で出力させる
+def PrintBoardWithColorWithDirectedMino(board:Board, directedMino:DirectedMino, reset=False, elapsedTime=None):
+    # directedMinoをcopiedBoard上に再現
+    copiedBoard = copy.deepcopy(board)
+    occupiedPositions = GetOccupiedPositions(directedMino)
+    for position in occupiedPositions:
+        if 0 <= position[1] < BOARD_HEIGHT:
+            copiedBoard.mainBoard[position[1]][position[0]] = directedMino.mino
+    
+    # 出力
+    PrintBoardWithColor(copiedBoard)

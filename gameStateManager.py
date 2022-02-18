@@ -1,6 +1,8 @@
+from constants.mino import DIRECTION, DirectedMino, MINO
 from constants.position import BOARD_HEIGHT, WINDOW_X, WINDOW_Y, WINDOW_HEIGHT, WINDOW_WIDTH
 from constants.board import Board
-from helpers.print import PrintBoardWithColor
+from constants.move import MOVE
+from helpers.print import PrintBoardWithColor, PrintBoardWithColorWithDirectedMino
 from helpers.timer import Timer
 from helpers.input import PressEnter
 import mss
@@ -8,6 +10,7 @@ import mss.tools
 from PIL import Image
 import time
 import boardWatcher
+import decisionMaker
 from init import Init
 
 # ゲーム画面を認識して標準出力に出力する関数（無限ループ）
@@ -43,5 +46,44 @@ if __name__ == "__main__":
     # ゲームの初期設定
     Init()
     
-    PytrisBoardWatcher()
+    # PytrisBoardWatcher()
+
+    board = Board()
+
+    for i in range(10):
+        board.AddMinoToMainBoard((i,10), MINO.JAMA)
+        board.AddMinoToMainBoard((i,11), MINO.JAMA)
+    board.DeleteMinoInMainBoard((6,10))
+    board.AddMinoToMainBoard((7,8), MINO.JAMA)
+
+    directedMino = DirectedMino(MINO.T, DIRECTION.N, (5,0))
+
+    # print("\n\n")
+    # PrintBoardWithColorWithDirectedMino(board, directedMino)
+    # print("\n\n")
+
+
+    # rotatedMinos = decisionMaker.GetRotatedMinos(board, directedMino)
+
+
+    # for mino, path in rotatedMinos:
+    #     if mino is not None:
+    #         print("\n\n")
+    #         PrintBoardWithColorWithDirectedMino(board, mino)
+    #         print("\n\n")
+
+    a = Timer()
+
+    possibleMoves = decisionMaker.GetPossibleMoves(
+        board,
+        directedMino
+    )
+
+    print(a.Stop())
+
+    for mino, path in possibleMoves:
+        print("\n\n")
+        PrintBoardWithColorWithDirectedMino(board, mino)
+        print("\n\n")
+        print(path)
     
