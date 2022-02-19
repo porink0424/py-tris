@@ -1,5 +1,4 @@
-import pyautogui
-import time
+from lib.classes import *
 
 # デバッグ用：何かしらのpositionのデータを取りたいときに回すループ
 def DebugPosition():

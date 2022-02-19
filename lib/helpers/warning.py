@@ -1,4 +1,4 @@
-import warnings
+from lib.classes import *
 
 def Warn(msg):
     warnings.warn(msg)

@@ -1,17 +1,7 @@
-from constants.mino import DIRECTION, DirectedMino, MINO
-from constants.position import BOARD_HEIGHT, WINDOW_X, WINDOW_Y, WINDOW_HEIGHT, WINDOW_WIDTH
-from constants.board import Board
-from constants.move import MOVE
-from helpers.print import PrintBoardWithColor, PrintBoardWithColorWithDirectedMino
-from helpers.timer import Timer
-from helpers.input import PressEnter
-import mss
-import mss.tools
-from PIL import Image
-import time
+import initSettings
 import boardWatcher
 import decisionMaker
-from init import Init
+from lib import *
 
 # ゲーム画面を認識して標準出力に出力する関数（無限ループ）
 def PytrisBoardWatcher ():
@@ -42,9 +32,9 @@ def PytrisBoardWatcher ():
             PrintBoardWithColor(board, True, a.Stop())
 
 
-if __name__ == "__main__":
+def main():
     # ゲームの初期設定
-    Init()
+    initSettings.Init()
     
     # PytrisBoardWatcher()
 

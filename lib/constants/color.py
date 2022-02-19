@@ -1,4 +1,4 @@
-from constants.mino import MINO
+from lib.constants.mino import MINO
 
 # 各ミノのRGB値（調整中）
 # タプルの順番はR,G,Bの順番

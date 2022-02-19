@@ -1,10 +1,4 @@
-from typing import List, Set, Tuple, Union
-from constants.board import Board
-from constants.mino import DecodeDirectedMino, EncodeDirectedMino, GetNewDirection, GetOccupiedPositions, DirectedMino, MINO, DIRECTION
-from constants.move import MOVE
-from constants.position import BOARD_HEIGHT, BOARD_WIDTH
-from constants.rotateOffset import OFFSETS_EXCEPT_I, OFFSETS_I
-
+from lib import *
 
 # 占有しようとしている場所がちゃんと空白になっているかチェックする
 def isValidPlace(mainBoard, occupiedPositions:List[Tuple[int]]) -> bool:

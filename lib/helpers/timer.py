@@ -9,7 +9,7 @@
 # print(a.Stop())
 #
 
-import time
+from lib.classes import *
 
 class Timer:
     def __init__ (self):

@@ -1,6 +1,4 @@
-from typing import List, Tuple
-from constants.mino import MINO
-from constants.position import BOARD_HEIGHT, BOARD_WIDTH, FOLLOWING_MINOS_COUNT
+from lib.constants import *
 
 class Board():
     def __init__(

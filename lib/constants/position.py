@@ -1,5 +1,5 @@
 import subprocess
-from constants.name import TITLE
+from lib.constants.name import TITLE
 
 # windowサイズを取得
 process = subprocess.Popen(

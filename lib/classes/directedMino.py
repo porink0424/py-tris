@@ -1,46 +1,4 @@
-from enum import Enum, auto
-from typing import Tuple, List
-from constants.move import MOVE
-
-class MINO(Enum):
-    T = auto()
-    O = auto()
-    Z = auto()
-    I = auto()
-    L = auto()
-    S = auto()
-    J = auto()
-    JAMA = auto()
-    NONE = auto()
-
-class DIRECTION(Enum):
-    N = auto()
-    S = auto()
-    W = auto()
-    E = auto()
-
-# 方角と回転を受け取って，回転したあとの方角を出力する
-def GetNewDirection(direction, move):
-    if direction is DIRECTION.N:
-        if move is MOVE.L_ROT:
-            return DIRECTION.W
-        else:
-            return DIRECTION.E
-    elif direction is DIRECTION.E:
-        if move is MOVE.L_ROT:
-            return DIRECTION.N
-        else:
-            return DIRECTION.S
-    elif direction is DIRECTION.S:
-        if move is MOVE.L_ROT:
-            return DIRECTION.E
-        else:
-            return DIRECTION.W
-    else:
-        if move is MOVE.L_ROT:
-            return DIRECTION.S
-        else:
-            return DIRECTION.N
+from lib.constants import *
 
 # 1つのミノの情報を，方角と中心位置で持つクラス
 # 注意：Iミノは4×4の格子上に中心があるので，そのすぐ左上の点を中心の点としてみなしてデータを持つことにする

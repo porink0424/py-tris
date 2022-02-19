@@ -1,7 +1,4 @@
-from constants.mino import MINO
-from constants.position import BOARD_WIDTH, BOARD_HEIGHT, NEXT_MINOS_X, NEXT_MINOS_Y_RANGES, NEXT_MINOS_BOX_X, HOLD_MINO_X, HOLD_MINO_Y_RANGE, HOLD_MINO_BOX_X
-from helpers.position import GetCenterPosition
-from helpers.color import DetermineColor
+from lib import *
 
 # 盤面の状況を配列として返す
 def GetMainBoardWithColor(img):

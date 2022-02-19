@@ -1,6 +1,4 @@
-import pyautogui
-import time
-from constants.move import MOVE
+from lib.classes import *
 
 KEY_HOLD_TIME = 0.05
 

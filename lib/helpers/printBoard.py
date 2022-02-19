@@ -1,8 +1,4 @@
-from constants.board import Board
-from constants.position import BOARD_WIDTH, BOARD_HEIGHT
-from constants.mino import MINO, DirectedMino, GetOccupiedPositions
-from colored import fg, attr
-import copy
+from lib.classes import *
 
 COLOR_CODES = {
     MINO.T : fg(5),

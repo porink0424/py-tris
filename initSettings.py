@@ -1,6 +1,4 @@
-from constants.position import WINDOW_X, WINDOW_Y
-import pyautogui
-import time
+from lib import *
 
 def Init():
     # pyautoguiの遅延を0にする

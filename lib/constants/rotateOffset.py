@@ -1,7 +1,7 @@
 # 回転入れの際のオフセットの優先順位を定める
 
-from constants.mino import DIRECTION
-from constants.move import MOVE
+from lib.constants.direction import DIRECTION
+from lib.constants.move import MOVE
 
 OFFSETS_I = {
     DIRECTION.N : {
