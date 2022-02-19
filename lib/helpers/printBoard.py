@@ -47,4 +47,4 @@ def PrintBoardWithColorWithDirectedMino(board:Board, directedMino:DirectedMino, 
             copiedBoard.mainBoard[position[1]][position[0]] = directedMino.mino
     
     # 出力
-    PrintBoardWithColor(copiedBoard)
+    PrintBoardWithColor(copiedBoard, reset, elapsedTime)
