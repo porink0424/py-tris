@@ -1,6 +1,7 @@
 import initSettings
 import boardWatcher
 import decisionMaker
+import simulator
 from lib import *
 
 # ゲーム画面を認識して標準出力に出力する関数（無限ループ）
@@ -49,37 +50,42 @@ def main():
     board.DeleteMinoInMainBoard((6,10))
     board.AddMinoToMainBoard((7,8), MINO.JAMA)
 
-    # lineClearしてみる
-    print("\n\n")
-    PrintBoardWithColor(board)
-    print("\n\n")
+    # # lineClearしてみる
+    # print("\n\n")
+    # PrintBoardWithColor(board)
+    # print("\n\n")
 
-    a = Timer()
-    board.mainBoard, count = ClearLines(board.mainBoard)
-    print(a.Stop())
-
-    print("\n\n")
-    PrintBoardWithColor(board)
-    print("\n\n")
-
-    print(count)
-
-    # # 適当にミノを生成
-    # directedMino = DirectedMino(MINO.T, DIRECTION.N, (5,0))
-
-    # # おける全てのミノを見つける
     # a = Timer()
-
-    # possibleMoves = decisionMaker.GetPossibleMoves(
-    #     board,
-    #     directedMino
-    # )
-
+    # board.mainBoard, count = ClearLines(board.mainBoard)
     # print(a.Stop())
 
-    # for mino, path in possibleMoves:
-    #     print("\n\n")
-    #     PrintBoardWithColorWithDirectedMino(board, mino)
-    #     print("\n\n")
-    #     print(path)
+    # print("\n\n")
+    # PrintBoardWithColor(board)
+    # print("\n\n")
+
+    # print(count)
+
+    # 適当にミノを生成
+    directedMino = DirectedMino(MINO.T, DIRECTION.N, (5,0))
+
+    # おける全てのミノを見つける
+    a = Timer()
+
+    possibleMoves = decisionMaker.GetPossibleMoves(
+        board,
+        directedMino
+    )
+
+    print(a.Stop())
+
+    # print("\n\n")
+    # PrintBoardWithColorWithDirectedMino(board, directedMino)
+    # print("\n\n")
+
+    mino, path = possibleMoves[-1]
+    # print("\n\n")
+    # PrintBoardWithColorWithDirectedMino(board, mino)
+    # print("\n\n")
+    # print(path)
     
+    nextBoard = simulator.PutMino(path, directedMino, board)

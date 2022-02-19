@@ -1,4 +1,5 @@
 from lib.classes import *
+from lib.helpers.joinMino import JoinDirectedMinoToBoard
 
 COLOR_CODES = {
     MINO.T : fg(5),
@@ -39,12 +40,7 @@ def PrintBoardWithColor(board:Board, reset=False, elapsedTime=None):
 
 # directedMinoをboardに反映した状態で出力させる
 def PrintBoardWithColorWithDirectedMino(board:Board, directedMino:DirectedMino, reset=False, elapsedTime=None):
-    # directedMinoをcopiedBoard上に再現
-    copiedBoard = copy.deepcopy(board)
-    occupiedPositions = GetOccupiedPositions(directedMino)
-    for position in occupiedPositions:
-        if 0 <= position[1] < BOARD_HEIGHT:
-            copiedBoard.mainBoard[position[1]][position[0]] = directedMino.mino
+    joinedBoard = JoinDirectedMinoToBoard(directedMino, board)
     
     # 出力
-    PrintBoardWithColor(copiedBoard, reset, elapsedTime)
+    PrintBoardWithColor(joinedBoard, reset, elapsedTime)
