@@ -1,5 +1,5 @@
 # external modules for classes
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 # project's own modules
 from .color import *
