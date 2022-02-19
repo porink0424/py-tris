@@ -1,7 +1,7 @@
 from lib import *
 import minoMover
 
-DISPLAY_DELTA_TIME = 0.1
+DISPLAY_DELTA_TIME = 0.02
 
 # 1つのnowDirectedMinoを置く動きを再現して出力
 # 返り値としておいた後のboardを返す

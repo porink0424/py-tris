@@ -21,7 +21,7 @@ def PrintBoardWithColor(board:Board, reset=False, elapsedTime=None, displayAll=F
         resetHeight = BOARD_HEIGHT
     else:
         displayedRange = range(DISPLAYED_BOARD_HEIGHT, BOARD_HEIGHT)
-        resetHeight = DISPLAYED_BOARD_HEIGHT - BOARD_HEIGHT
+        resetHeight = BOARD_HEIGHT - DISPLAYED_BOARD_HEIGHT
     
 
     # リセットがTrueであればボードの高さ分戻る

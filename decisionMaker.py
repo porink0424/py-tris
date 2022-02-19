@@ -1,4 +1,5 @@
 from lib import *
+import evaluator
 
 # 占有しようとしている場所がちゃんと空白になっているかチェックする
 def isValidPlace(mainBoard, occupiedPositions:List[Tuple[int]]) -> bool:
@@ -203,3 +204,20 @@ def GetPossibleMoves(
         ))
     
     return possibleMoves
+
+# 実際に手を決める関数
+def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
+    possibleMoves = GetPossibleMoves(
+        board,
+        board.currentMino
+    )
+
+    # 簡易的に一番評価が高いものを選ぶ
+    maxValue, maxMino, maxPath = -10000000000, None, None
+    for mino, path in possibleMoves:
+        value = evaluator.Eval(mino, path, board)
+        if value >= maxValue:
+            maxMino, maxPath = mino, path
+            maxValue = value
+    
+    return maxValue, maxMino, maxPath

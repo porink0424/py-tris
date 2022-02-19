@@ -44,11 +44,11 @@ def main():
     # 適当に盤面を生成
     board = Board()
 
-    for i in range(10):
-        board.AddMinoToMainBoard((i,30), MINO.JAMA)
-        board.AddMinoToMainBoard((i,31), MINO.JAMA)
-    board.DeleteMinoInMainBoard((6,30))
-    board.AddMinoToMainBoard((7,28), MINO.JAMA)
+    # for i in range(10):
+    #     board.AddMinoToMainBoard((i,37), MINO.JAMA)
+    #     board.AddMinoToMainBoard((i,38), MINO.JAMA)
+    # board.DeleteMinoInMainBoard((6,37))
+    # board.AddMinoToMainBoard((7,35), MINO.JAMA)
 
     board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
     print("\n\n\n")
@@ -59,11 +59,7 @@ def main():
         board = simulator.AddFollowingMino(board, addedMino)
 
         # 思考ルーチン
-        possibleMoves = decisionMaker.GetPossibleMoves(
-            board,
-            board.currentMino
-        )
-        mino, path = possibleMoves[-1]
+        value, mino, path = decisionMaker.Decide(board)
 
         board = simulator.PutMino(path, board.currentMino, board)
 
@@ -75,5 +71,4 @@ def main():
             board.holdMino,
             True
         )
-
 
