@@ -1,5 +1,6 @@
 # external modules for main
 import time
+import random
 import pyautogui
 import mss
 import mss.tools

@@ -6,11 +6,11 @@ def isValidPlace(mainBoard, occupiedPositions:List[Tuple[int]]) -> bool:
         # 盤面の左右の外にはみ出ていないこと
         if not 0 <= place[0] < BOARD_WIDTH:
             return False
-        # 盤面の下の外にはみ出ていないこと
-        if not 0 <= place[1]:
+        # 盤面の上下の外にはみ出ていないこと
+        if not 0 <= place[1] < BOARD_HEIGHT:
             return False
         # placeの場所が空白であること
-        if place[0] < BOARD_HEIGHT and mainBoard[place[1]][place[0]] is not MINO.NONE:
+        if mainBoard[place[1]][place[0]] is not MINO.NONE:
             return False
     
     return True

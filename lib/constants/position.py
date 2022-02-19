@@ -1,5 +1,6 @@
 import subprocess
 from lib.constants.name import TITLE
+from lib.constants.direction import DIRECTION
 
 # windowサイズを取得
 process = subprocess.Popen(
@@ -22,6 +23,7 @@ WINDOW_HEIGHT = int(windowInfo[3]) - WINDOW_Y
 # 盤面の大きさ
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 40
+DISPLAYED_BOARD_HEIGHT = 20 # 実際に「表示」されている盤面の高さ
 FOLLOWING_MINOS_COUNT = 5
 
 # windowの位置・サイズ
@@ -53,3 +55,7 @@ NEXT_MINOS_BOX_X = int((657/1795) * WINDOW_WIDTH)
 HOLD_MINO_X = int((270/1795) * WINDOW_WIDTH)
 HOLD_MINO_Y_RANGE = (int((204/1056) * GAME_SCREEN_HEIGHT) + WINDOW_TITLE_BAR_HEIGHT, int((267/1056) * GAME_SCREEN_HEIGHT) + WINDOW_TITLE_BAR_HEIGHT)
 HOLD_MINO_BOX_X = int((169/1795) * WINDOW_WIDTH)
+
+# ミノの出現時の向き・位置
+FIRST_MINO_POS = (5,20)
+FIRST_MINO_DIRECTION = DIRECTION.N

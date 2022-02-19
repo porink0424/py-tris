@@ -45,47 +45,35 @@ def main():
     board = Board()
 
     for i in range(10):
-        board.AddMinoToMainBoard((i,10), MINO.JAMA)
-        board.AddMinoToMainBoard((i,11), MINO.JAMA)
-    board.DeleteMinoInMainBoard((6,10))
-    board.AddMinoToMainBoard((7,8), MINO.JAMA)
+        board.AddMinoToMainBoard((i,30), MINO.JAMA)
+        board.AddMinoToMainBoard((i,31), MINO.JAMA)
+    board.DeleteMinoInMainBoard((6,30))
+    board.AddMinoToMainBoard((7,28), MINO.JAMA)
 
-    # # lineClearしてみる
-    # print("\n\n")
-    # PrintBoardWithColor(board)
-    # print("\n\n")
+    board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
+    print("\n\n\n")
+    PrintBoardWithColor(board)
 
-    # a = Timer()
-    # board.mainBoard, count = ClearLines(board.mainBoard)
-    # print(a.Stop())
+    while True:
+        addedMino = simulator.GenerateMino()
+        board = simulator.AddFollowingMino(board, addedMino)
 
-    # print("\n\n")
-    # PrintBoardWithColor(board)
-    # print("\n\n")
+        # 思考ルーチン
+        possibleMoves = decisionMaker.GetPossibleMoves(
+            board,
+            board.currentMino
+        )
+        mino, path = possibleMoves[-1]
 
-    # print(count)
+        board = simulator.PutMino(path, board.currentMino, board)
 
-    # 適当にミノを生成
-    directedMino = DirectedMino(MINO.T, DIRECTION.N, (5,0))
+        newMainBoard, clearedRowCount = simulator.ClearLinesOfBoard(board)
+        board = Board(
+            newMainBoard,
+            None,
+            board.followingMinos,
+            board.holdMino,
+            True
+        )
 
-    # おける全てのミノを見つける
-    a = Timer()
 
-    possibleMoves = decisionMaker.GetPossibleMoves(
-        board,
-        directedMino
-    )
-
-    print(a.Stop())
-
-    # print("\n\n")
-    # PrintBoardWithColorWithDirectedMino(board, directedMino)
-    # print("\n\n")
-
-    mino, path = possibleMoves[-1]
-    # print("\n\n")
-    # PrintBoardWithColorWithDirectedMino(board, mino)
-    # print("\n\n")
-    # print(path)
-    
-    nextBoard = simulator.PutMino(path, directedMino, board)
