@@ -36,8 +36,11 @@ def main():
     # ゲームの初期設定
     initSettings.Init()
     
+    # # 盤面監視モード
     # PytrisBoardWatcher()
 
+
+    # 適当に盤面を生成
     board = Board()
 
     for i in range(10):
@@ -46,34 +49,37 @@ def main():
     board.DeleteMinoInMainBoard((6,10))
     board.AddMinoToMainBoard((7,8), MINO.JAMA)
 
-    directedMino = DirectedMino(MINO.T, DIRECTION.N, (5,0))
-
-    # print("\n\n")
-    # PrintBoardWithColorWithDirectedMino(board, directedMino)
-    # print("\n\n")
-
-
-    # rotatedMinos = decisionMaker.GetRotatedMinos(board, directedMino)
-
-
-    # for mino, path in rotatedMinos:
-    #     if mino is not None:
-    #         print("\n\n")
-    #         PrintBoardWithColorWithDirectedMino(board, mino)
-    #         print("\n\n")
+    # lineClearしてみる
+    print("\n\n")
+    PrintBoardWithColor(board)
+    print("\n\n")
 
     a = Timer()
-
-    possibleMoves = decisionMaker.GetPossibleMoves(
-        board,
-        directedMino
-    )
-
+    board.mainBoard, count = ClearLines(board.mainBoard)
     print(a.Stop())
 
-    for mino, path in possibleMoves:
-        print("\n\n")
-        PrintBoardWithColorWithDirectedMino(board, mino)
-        print("\n\n")
-        print(path)
+    print("\n\n")
+    PrintBoardWithColor(board)
+    print("\n\n")
+
+    print(count)
+
+    # # 適当にミノを生成
+    # directedMino = DirectedMino(MINO.T, DIRECTION.N, (5,0))
+
+    # # おける全てのミノを見つける
+    # a = Timer()
+
+    # possibleMoves = decisionMaker.GetPossibleMoves(
+    #     board,
+    #     directedMino
+    # )
+
+    # print(a.Stop())
+
+    # for mino, path in possibleMoves:
+    #     print("\n\n")
+    #     PrintBoardWithColorWithDirectedMino(board, mino)
+    #     print("\n\n")
+    #     print(path)
     

@@ -2,6 +2,7 @@
 from .color import *
 from .debug import *
 from .input import *
+from .lineClear import *
 from .position import *
 from .printBoard import *
 from .timer import *

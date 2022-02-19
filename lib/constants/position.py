@@ -21,7 +21,7 @@ WINDOW_HEIGHT = int(windowInfo[3]) - WINDOW_Y
 
 # 盤面の大きさ
 BOARD_WIDTH = 10
-BOARD_HEIGHT = 20
+BOARD_HEIGHT = 40
 FOLLOWING_MINOS_COUNT = 5
 
 # windowの位置・サイズ
