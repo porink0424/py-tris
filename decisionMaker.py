@@ -187,6 +187,9 @@ def GetPossibleMoves(
 
     # 結果出力
     possibleMoves = []
+    # 方向は異なるが占領する場所は同じになるミノが存在するので，これらを重複して数えないために利用する
+    # 例えばzミノはNとSで位置をずらせば同じ場所を占領するようになる
+    encodedPlacesList = set()
     for key in reachableNodes:
         # 最後には必ずMOVE.DROPをつける
         # 最後にMOVE.DROPをつけるので，最後の連続するMOVE.DOWNは消去できる
@@ -198,10 +201,26 @@ def GetPossibleMoves(
             else:
                 break
         path = path[:len(path) - count] + [MOVE.DROP]
-        possibleMoves.append((
-            DecodeDirectedMino(key),
-            path
-        ))
+        decodedMino = DecodeDirectedMino(key)
+        encodedPlaces = EncodePlacesOccupiedByDirectedMino(decodedMino)
+        if encodedPlaces in encodedPlacesList:
+            # possibleMovesの中から同じ位置を占領することになるdirectedMinoを探索
+            sameMino, samePath = None, None
+            for mino, path in possibleMoves:
+                if (
+                    EncodePlacesOccupiedByDirectedMino(mino) == encodedPlaces
+                ):
+                    sameMino, samePath = mino, path
+                    break
+            # 今回考えているpathの方が短かったら入れ替え
+            possibleMoves.remove((sameMino, samePath))
+            possibleMoves.append((decodedMino, path))
+        if encodedPlaces not in encodedPlacesList:
+            possibleMoves.append((
+                decodedMino,
+                path
+            ))
+            encodedPlacesList.add(encodedPlaces)
     
     return possibleMoves
 
@@ -252,7 +271,7 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
     maxValue, maxMino, maxPath = -10000000000, None, None
     for mino, path in possibleMoves:
         # 評価値計算
-        value = Search(board, mino, path, 3-1)
+        value = Search(board, mino, path, 2-1)
         if value >= maxValue:
             maxMino, maxPath = mino, path
             maxValue = value

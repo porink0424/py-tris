@@ -54,6 +54,18 @@ def main():
     print("\n\n\n")
     PrintBoardWithColor(board)
 
+
+
+    # board = simulator.AddFollowingMino(board, MINO.T)
+    # possibleMoves = decisionMaker.GetPossibleMoves(board, board.currentMino)
+    # for mino, path in possibleMoves:
+    #     print("\n\n\n")
+    #     PrintBoardWithColorWithDirectedMino(board, mino)
+    #     print("\n\n\n")
+    # asdfad
+
+
+
     while True:
         addedMino = simulator.GenerateMino()
         board = simulator.AddFollowingMino(board, addedMino)

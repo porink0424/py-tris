@@ -19,6 +19,14 @@ def DecodeDirectedMino (encodedDirectedMino:str) -> DirectedMino:
         (int(lis[2]), int(lis[3]))
     )
 
+# 受け取ったdirectedMinoが占領する場所に関するstringを返す
+def EncodePlacesOccupiedByDirectedMino (directedMino:DirectedMino) -> str:
+    occupiedPositions = GetOccupiedPositions(directedMino)
+    ret = ""
+    for i,j in occupiedPositions:
+        ret += str(i) + "," + str(j) + ","
+    return ret
+
 # directedMinoを受け取り，そのミノが占領するmainBoard上の位置を返す
 def GetOccupiedPositions (directedMino:DirectedMino) -> List[Tuple[int]]:
     if directedMino.mino is MINO.T:
