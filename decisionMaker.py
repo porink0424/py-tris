@@ -16,6 +16,13 @@ def isValidPlace(mainBoard, occupiedPositions:List[Tuple[int]]) -> bool:
     
     return True
 
+# おこうとしている位置のどこかのブロックの下にちゃんと既存のブロックがあって，おくことができる場所であるかをチェックする
+def CanPut(mainBoard, occupiedPositions:List[Tuple[int]]) -> bool:
+    for place in occupiedPositions:
+        if place[1] + 1 < BOARD_HEIGHT and mainBoard[place[1]+1][place[0]] is not MINO.NONE:
+            return True
+    return False
+
 # moveの方向にdirectedMinoを回転しようとしたとき，directedMinoが回転成功するならば実行後のdirectedMinoを，回転失敗するならばNoneを返す
 def Rotate (directedMino:DirectedMino, move:MOVE, mainBoard) -> Union[None, DirectedMino]:
     """
