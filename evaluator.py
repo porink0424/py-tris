@@ -31,32 +31,17 @@ def EvalMainBoard (mainBoard) -> float:
     return roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK
 
 
-# 経路の評価関数
-def EvalPath (moveList:List[MOVE]) -> float:
-    return 0
+# 経路・ライン数の評価関数
+def EvalPath (moveList:List[MOVE], clearedRowCount:int) -> float:
+    # 今はmoveListは無視している
+    return clearedRowCount * EVAL_LINE_CLEAR
 
 
-def Eval(directedMino:DirectedMino, moveList:List[MOVE], board:Board) -> float:
-    joinedBoard = JoinDirectedMinoToBoard(directedMino, board)
-
-    # ライン消去
-    newMainBoard, clearedRowCount = ClearLines(joinedBoard.mainBoard)
-    clearedBoard = Board(
-        newMainBoard,
-        joinedBoard.currentMino,
-        joinedBoard.followingMinos,
-        joinedBoard.holdMino,
-        joinedBoard.canHold,
-    )
-
+def Eval(moveList:List[MOVE], board:Board, clearedRowCount:int) -> float:
     # ライン消去後の盤面自体の評価
-    evalMainBoard = EvalMainBoard(clearedBoard.mainBoard)
+    evalMainBoard = EvalMainBoard(board.mainBoard)
 
     # 経路の評価
-    evalPath = EvalPath(moveList)
+    evalPath = EvalPath(moveList, clearedRowCount)
 
-    # # 評価値がうまく計算できているかのデバッグ用
-    # PrintBoardWithColorWithDirectedMino(board, directedMino)
-    # print(clearedRowCount * EVAL_LINE_CLEAR + evalMainBoard + evalPath)
-
-    return clearedRowCount * EVAL_LINE_CLEAR + evalMainBoard + evalPath
+    return evalMainBoard + evalPath

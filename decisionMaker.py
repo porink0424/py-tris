@@ -205,17 +205,54 @@ def GetPossibleMoves(
     
     return possibleMoves
 
+def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
+    # 最後のみ盤面自体の評価を行う
+    if limit == 0:
+        # ライン消去
+        joinedBoard = JoinDirectedMinoToBoard(mino, board)
+        newMainBoard, clearedRowCount = ClearLines(joinedBoard.mainBoard)
+        return evaluator.EvalPath(path, clearedRowCount) + evaluator.EvalMainBoard(newMainBoard)
+    
+    # ライン消去
+    joinedBoard = JoinDirectedMinoToBoard(mino, board)
+    newMainBoard, clearedRowCount = ClearLines(joinedBoard.mainBoard)
+    clearedBoard = Board(
+        newMainBoard,
+        DirectedMino(
+            board.followingMinos[0],
+            FIRST_MINO_DIRECTION,
+            FIRST_MINO_POS
+        ),
+        board.followingMinos[1:] + [MINO.NONE],
+        board.holdMino,
+        True
+    )
+
+    possibleMoves = GetPossibleMoves(
+        clearedBoard,
+        clearedBoard.currentMino
+    )
+
+    maxValue = -10000000000
+    for possibleMoveMino, possibleMovePath in possibleMoves:
+        value = Search(clearedBoard, possibleMoveMino, possibleMovePath, limit-1)
+        if value >= maxValue:
+            maxValue = value
+
+    return maxValue + evaluator.EvalPath(path, clearedRowCount)
+
 # 実際に手を決める関数
 def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
+
     possibleMoves = GetPossibleMoves(
         board,
         board.currentMino
     )
 
-    # 簡易的に一番評価が高いものを選ぶ
     maxValue, maxMino, maxPath = -10000000000, None, None
     for mino, path in possibleMoves:
-        value = evaluator.Eval(mino, path, board)
+        # 評価値計算
+        value = Search(board, mino, path, 3-1)
         if value >= maxValue:
             maxMino, maxPath = mino, path
             maxValue = value
