@@ -34,7 +34,7 @@ def EvalMainBoard (mainBoard) -> float:
 # 経路・ライン数の評価関数
 def EvalPath (moveList:List[MOVE], clearedRowCount:int) -> float:
     # 今はmoveListは無視している
-    return clearedRowCount * EVAL_LINE_CLEAR
+    return EVAL_LINE_CLEAR[clearedRowCount]
 
 
 def Eval(moveList:List[MOVE], board:Board, clearedRowCount:int) -> float:
