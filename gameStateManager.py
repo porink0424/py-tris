@@ -32,7 +32,6 @@ def PytrisBoardWatcher ():
             board.holdMino = boardWatcher.GetHoldMino(img)
             PrintBoardWithColor(board, True, a.Stop())
 
-
 def main():
     # ゲームの初期設定
     initSettings.Init()
@@ -54,8 +53,6 @@ def main():
     print("\n\n\n")
     PrintBoardWithColor(board)
 
-
-
     # board = simulator.AddFollowingMino(board, MINO.T)
     # possibleMoves = decisionMaker.GetPossibleMoves(board, board.currentMino)
     # for mino, path in possibleMoves:
@@ -65,8 +62,6 @@ def main():
     #     print(path)
     #     print("\n\n\n")
     # asdfad
-
-
 
     while True:
         addedMino = simulator.GenerateMino()

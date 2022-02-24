@@ -285,7 +285,7 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
         # ライン消去
         joinedBoard = JoinDirectedMinoToBoard(mino, board)
         newMainBoard, clearedRowCount = ClearLines(joinedBoard.mainBoard)
-        return evaluator.EvalPath(path, clearedRowCount) + evaluator.EvalMainBoard(newMainBoard)
+        return evaluator.EvalPath(path, clearedRowCount, joinedBoard.mainBoard, mino) + evaluator.EvalMainBoard(newMainBoard)
     
     # ライン消去
     joinedBoard = JoinDirectedMinoToBoard(mino, board)
@@ -313,7 +313,7 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
         if value >= maxValue:
             maxValue = value
 
-    return maxValue + evaluator.EvalPath(path, clearedRowCount)
+    return maxValue + evaluator.EvalPath(path, clearedRowCount, joinedBoard.mainBoard, mino)
 
 # 実際に手を決める関数
 def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
