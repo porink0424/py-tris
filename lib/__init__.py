@@ -5,7 +5,7 @@ import pyautogui
 import mss
 import mss.tools
 from PIL import Image
-from typing import List, Set, Tuple, Union
+from typing import List, Set, Tuple, Union, Dict
 
 # my own modules
 from .helpers import *

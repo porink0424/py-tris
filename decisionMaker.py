@@ -21,6 +21,8 @@ def CanPut(mainBoard, occupiedPositions:List[Tuple[int]]) -> bool:
     for place in occupiedPositions:
         if place[1] + 1 < BOARD_HEIGHT and mainBoard[place[1]+1][place[0]] is not MINO.NONE:
             return True
+        elif place[1] + 1 == BOARD_HEIGHT:
+            return True
     return False
 
 # moveの方向にdirectedMinoを回転しようとしたとき，directedMinoが回転成功するならば実行後のdirectedMinoを，回転失敗するならばNoneを返す
@@ -140,6 +142,28 @@ def Drop(mainBoard, directedMino:DirectedMino) -> int:
             break
     
     return dropCount
+
+def AddToReachableNodes (encodedNode, path:List[MOVE], reachableNodes:Dict[str, List[MOVE]]) -> None:
+    if encodedNode not in reachableNodes: # まだreachableNodesに登録されていないものは，登録する
+        reachableNodes[encodedNode] = path
+    else:
+        # すでに登録されていた場合，pathが今までのものより短ければ登録する
+        oldPath = reachableNodes[encodedNode]
+        if len(path) < len(oldPath):
+            reachableNodes[encodedNode] = path
+
+# MOVE.DROPを使うことにより，pathの簡易化を行う
+def SimplifyPath (path:List[MOVE]) -> List[MOVE]:
+    # 最後には必ずMOVE.DROPをつける
+    # 最後にMOVE.DROPをつけるので，最後の連続するMOVE.DOWNは消去できる
+    count = 0
+    while count < len(path):
+        if path[-(count + 1)] is MOVE.DOWN:
+            count += 1
+        else:
+            break
+    simplifiedPath = path[:len(path) - count] + [MOVE.DROP]
+    return simplifiedPath
         
 # boardとそこに置きたいminoを入力して，
 # (ミノがおける場所，そこにたどり着く方法)
@@ -173,7 +197,7 @@ def GetPossibleMoves(
                 encodedDroppedNode = EncodeDirectedMino(droppedNode)
                 if encodedDroppedNode not in reachableNodes:
                     unrotatedNodes.append(droppedNode)
-                    reachableNodes[encodedDroppedNode] = reachableNodes[encodedUnmovedNode] + path + [MOVE.DOWN for _ in range(dropCount)]
+                AddToReachableNodes(encodedDroppedNode, reachableNodes[encodedUnmovedNode] + path + [MOVE.DOWN for _ in range(dropCount)], reachableNodes)
         
         while unrotatedNodes:
             unrotatedNode = unrotatedNodes.pop()
@@ -190,7 +214,7 @@ def GetPossibleMoves(
                 if encodedDroppedNode not in reachableNodes:
                     unmovedNodes.append(droppedNode)
                     unrotatedNodes.append(droppedNode) # 回転は複数回やることによって生まれる盤面もある
-                    reachableNodes[encodedDroppedNode] = reachableNodes[encodedUnrotatedNode] + path + [MOVE.DOWN for _ in range(dropCount)]
+                AddToReachableNodes(encodedDroppedNode, reachableNodes[encodedUnrotatedNode] + path + [MOVE.DOWN for _ in range(dropCount)], reachableNodes)
 
     # 結果出力
     possibleMoves = []
@@ -198,16 +222,7 @@ def GetPossibleMoves(
     # 例えばzミノはNとSで位置をずらせば同じ場所を占領するようになる
     encodedPlacesList = set()
     for key in reachableNodes:
-        # 最後には必ずMOVE.DROPをつける
-        # 最後にMOVE.DROPをつけるので，最後の連続するMOVE.DOWNは消去できる
-        path = reachableNodes[key]
-        count = 0
-        while count < len(path):
-            if path[-(count + 1)] is MOVE.DOWN:
-                count += 1
-            else:
-                break
-        path = path[:len(path) - count] + [MOVE.DROP]
+        path = SimplifyPath(reachableNodes[key])
         decodedMino = DecodeDirectedMino(key)
         encodedPlaces = EncodePlacesOccupiedByDirectedMino(decodedMino)
         if encodedPlaces in encodedPlacesList:
@@ -222,12 +237,13 @@ def GetPossibleMoves(
             # 今回考えているpathの方が短かったら入れ替え
             possibleMoves.remove((sameMino, samePath))
             possibleMoves.append((decodedMino, path))
-        if encodedPlaces not in encodedPlacesList:
-            possibleMoves.append((
-                decodedMino,
-                path
-            ))
-            encodedPlacesList.add(encodedPlaces)
+        else:
+            if CanPut(board.mainBoard, GetOccupiedPositions(decodedMino)): # 空中に浮いたりしていないことをチェック
+                possibleMoves.append((
+                    decodedMino,
+                    path
+                ))
+                encodedPlacesList.add(encodedPlaces)
     
     return possibleMoves
 
