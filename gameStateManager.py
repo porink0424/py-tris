@@ -62,6 +62,8 @@ def main():
     #     print("\n\n\n")
     #     PrintBoardWithColorWithDirectedMino(board, mino)
     #     print("\n\n\n")
+    #     print(path)
+    #     print("\n\n\n")
     # asdfad
 
 

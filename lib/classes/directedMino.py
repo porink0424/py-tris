@@ -21,7 +21,7 @@ def DecodeDirectedMino (encodedDirectedMino:str) -> DirectedMino:
 
 # 受け取ったdirectedMinoが占領する場所に関するstringを返す
 def EncodePlacesOccupiedByDirectedMino (directedMino:DirectedMino) -> str:
-    occupiedPositions = GetOccupiedPositions(directedMino)
+    occupiedPositions = sorted(GetOccupiedPositions(directedMino))
     ret = ""
     for i,j in occupiedPositions:
         ret += str(i) + "," + str(j) + ","
