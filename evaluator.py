@@ -69,7 +69,7 @@ def IsTSpin (joinedMainBoard, directedMino:DirectedMino, moveList:List[MOVE]) ->
 
 # Tスピン-miniであるかどうかの判定
 # Tスピンであることは前提として判定を省略する
-def IsTSpinMini () -> bool:
+def IsTSpinMini (joinedMainBoard, directedMino:DirectedMino, moveList:List[MOVE]) -> bool:
     """
     T-Spin Miniの判定条件
     ①T-Spinの条件を満たしていること
@@ -77,14 +77,52 @@ def IsTSpinMini () -> bool:
     ③SRSにおける回転補正の4番目(回転中心移動が(±1, ±2))でないこと
     """
 
-    # todo: 実装
-    return False
+    # ②の判定
+    pos = directedMino.pos
+    if directedMino.direction is DIRECTION.N:
+        if (
+            (pos[0] - 1 < 0 or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1][pos[0]-1] is not MINO.NONE) and # 左上が空いていない
+            (pos[0] + 1 >= BOARD_WIDTH or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1][pos[0]+1] is not MINO.NONE) # 右上が空いていない
+        ):
+            return False
+    elif directedMino.direction is DIRECTION.E:
+        if (
+            (pos[0] + 1 >= BOARD_WIDTH or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1][pos[0]+1] is not MINO.NONE) and # 右下が空いていない
+            (pos[0] + 1 >= BOARD_WIDTH or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1][pos[0]+1] is not MINO.NONE) # 右上が空いていない
+        ):
+            return False
+    elif directedMino.direction is DIRECTION.S:
+        if (
+            (pos[0] + 1 >= BOARD_WIDTH or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1][pos[0]+1] is not MINO.NONE) and # 右下が空いていない
+            (pos[0] - 1 < 0 or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1][pos[0]-1] is not MINO.NONE) # 左下が空いていない
+        ):
+            return False
+    else:
+        if (
+            (pos[0] - 1 < 0 or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1][pos[0]-1] is not MINO.NONE) and # 左上が空いていない
+            (pos[0] - 1 < 0 or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1][pos[0]-1] is not MINO.NONE) # 左下が空いていない
+        ):
+            return False
+    
+    # ③の判定
+    lastRotate = moveList[-2] # DROPの前の最後の回転を取得
+    reversedLastRotate = MOVE.R_ROT if lastRotate is MOVE.L_ROT else MOVE.L_ROT
+    # joinedMainBoardからdirectedMinoの部分のブロックを消去
+    occupiedPositions = GetOccupiedPositions(directedMino)
+    deletedMainBoard = copy.deepcopy(joinedMainBoard)
+    for pos in occupiedPositions:
+        deletedMainBoard[pos[1]][pos[0]] = MINO.NONE
+    # 回転補正が4番目であるならMiniではない
+    if GetRotateNum(directedMino, reversedLastRotate, deletedMainBoard) == 4:
+        return False
+    
+    return True
 
 # 経路・ライン数の評価関数
 def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard, directedMino:DirectedMino) -> float:
     t_spin = 0
     if IsTSpin(joinedMainBoard, directedMino, moveList):
-        if IsTSpinMini():
+        if IsTSpinMini(joinedMainBoard, directedMino, moveList):
             if clearedRowCount == 1:
                 t_spin = EVAL_T_SPIN_MINI_SINGLE
             elif clearedRowCount == 2:

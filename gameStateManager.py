@@ -43,11 +43,15 @@ def main():
     # 適当に盤面を生成
     board = Board()
 
+
+    # board.AddMinoToMainBoard((5 ,38), MINO.JAMA)
+    # board.AddMinoToMainBoard((5 ,37), MINO.JAMA)
+    # board.AddMinoToMainBoard((4 ,37), MINO.JAMA)
+    # board.AddMinoToMainBoard((1 ,37), MINO.JAMA)
+    # board.AddMinoToMainBoard((1 ,38), MINO.JAMA)
     # for i in range(10):
-    #     board.AddMinoToMainBoard((i,37), MINO.JAMA)
-    #     board.AddMinoToMainBoard((i,38), MINO.JAMA)
-    # board.DeleteMinoInMainBoard((6,37))
-    # board.AddMinoToMainBoard((7,35), MINO.JAMA)
+    #     board.AddMinoToMainBoard((i ,39), MINO.JAMA)
+
 
     board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
     print("\n\n\n")

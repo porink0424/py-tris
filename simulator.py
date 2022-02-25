@@ -12,15 +12,17 @@ def PutMino (moveList:List[MOVE], nowDirectedMino:DirectedMino, board:Board) -> 
     for move in moveList:
         PrintBoardWithColorWithDirectedMino(board, nextDirectedMino, True)
         nextDirectedMino = minoMover.MoveOneStep(move, nextDirectedMino, board)
-
-        # debug: Tスピン時に音を鳴らす
-        if evaluator.IsTSpin(board.mainBoard, nextDirectedMino, [move, MOVE.DROP]):
-            playsound.playsound('sound/tspin.mp3')
-
         time.sleep(DISPLAY_DELTA_TIME)
     
     # 最終状態の出力
     PrintBoardWithColorWithDirectedMino(board, nextDirectedMino, True)
+
+    # debug: Tスピン時に音を鳴らす
+    if evaluator.IsTSpin(board.mainBoard, nextDirectedMino, moveList[-2:]):
+        if evaluator.IsTSpinMini(board.mainBoard, nextDirectedMino, moveList[-2:]):
+            os.system("Say -v Samantha 'T spin mini'")
+        else:
+            os.system("Say -v Samantha 'T spin'")
 
     return JoinDirectedMinoToBoard(nextDirectedMino, board)
 
