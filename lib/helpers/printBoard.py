@@ -31,18 +31,34 @@ def PrintBoardWithColor(board:Board, reset=False, elapsedTime=None, displayAll=F
     # 盤面の状況を出力
     alreadyDisplayedLineCount = 0
     for i in displayedRange:
-        if alreadyDisplayedLineCount == 0: # HOLDミノを表示させる行
-            print("{}■{}  ".format(COLOR_CODES[board.holdMino], attr('reset')), end="", flush=True)
+        if alreadyDisplayedLineCount < SHAPE_HEIGHT: # HOLDミノを表示させる行
+            mino = board.holdMino
+            for j in range(SHAPE_WIDTH):
+                if SHAPE[mino][alreadyDisplayedLineCount][j] == 1:
+                    print("{}■{}".format(COLOR_CODES[mino], attr('reset')), end="", flush=True)
+                else:
+                    print("{}■{}".format(COLOR_CODES[MINO.NONE], attr('reset')), end="", flush=True)
+            print("", attr('reset'), end="", flush=True)
         else:
-            print("   ", end="", flush=True)
+            print("     ", end="", flush=True)
 
         row = board.mainBoard[i]
         for j in range(BOARD_WIDTH):
             color = row[j]
             print('{}■{}'.format(COLOR_CODES[color], attr('reset')), end="", flush=True)
         
-        if 0 <= alreadyDisplayedLineCount < len(board.followingMinos): # NEXTミノを表示させる行
-            print("  {}■{}".format(COLOR_CODES[board.followingMinos[alreadyDisplayedLineCount]], attr('reset')), flush=True)
+        if 0 <= alreadyDisplayedLineCount < len(board.followingMinos) * (SHAPE_HEIGHT + 1): # NEXTミノを表示させる行
+            if alreadyDisplayedLineCount % (SHAPE_HEIGHT + 1) != SHAPE_HEIGHT: # 空白の行ではない
+                mino = board.followingMinos[alreadyDisplayedLineCount // (SHAPE_HEIGHT + 1)]
+                print(" ", end="", flush=True)
+                for j in range(SHAPE_WIDTH):
+                    if SHAPE[mino][alreadyDisplayedLineCount % (SHAPE_HEIGHT + 1)][j] == 1:
+                        print("{}■{}".format(COLOR_CODES[mino], attr('reset')), end="", flush=True)
+                    else:
+                        print("{}■{}".format(COLOR_CODES[MINO.NONE], attr('reset')), end="", flush=True)
+                print("", flush=True)
+            else: # 空白の行
+                print("", flush=True)
         elif elapsedTime is not None and alreadyDisplayedLineCount == BOARD_HEIGHT - 1: # 最後の行に経過時間を掲載する
             print("  elapsed time for one loop: {}(s)".format(round(elapsedTime, 5)), flush=True)
         else:
