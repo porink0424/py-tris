@@ -12,6 +12,14 @@ Parallels Desktop & Windows10
 PuyoPuyo Tetris (in Steam)
 ```
 
+### Python Modules Required
+
+- pyautogui
+- playsound
+- mss
+- Pillow
+- colored
+
 ## Development Rules
 
 ### ファイル管理方法について
