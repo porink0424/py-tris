@@ -60,7 +60,9 @@ def IsTSpin (joinedMainBoard, directedMino:DirectedMino, moveList:List[MOVE]) ->
     if moveList[-1] is MOVE.DROP:
         if len(moveList) < 2: # DROPしかないので最後が回転ではない
             return False
-        elif moveList[-2] is not MOVE.L_ROT and moveList[-2] is not MOVE.R_ROT: # L_ROTでもR_ROTでもない場合は最後が回転ではない
+        if moveList[-2] is not MOVE.L_ROT and moveList[-2] is not MOVE.R_ROT: # L_ROTでもR_ROTでもない場合は最後が回転ではない
+            return False
+        if MOVE.DOWN not in moveList: # ただのROT→DROPというようなmoveListを除く
             return False
     else:
         Error("Invalid MoveList from IsTSpin.")

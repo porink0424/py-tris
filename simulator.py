@@ -18,8 +18,8 @@ def PutMino (moveList:List[MOVE], nowDirectedMino:DirectedMino, board:Board) -> 
     PrintBoardWithColorWithDirectedMino(board, nextDirectedMino, True)
 
     # debug: Tスピン時に音を鳴らす
-    if evaluator.IsTSpin(board.mainBoard, nextDirectedMino, moveList[-2:]):
-        if evaluator.IsTSpinMini(board.mainBoard, nextDirectedMino, moveList[-2:]):
+    if evaluator.IsTSpin(board.mainBoard, nextDirectedMino, moveList):
+        if evaluator.IsTSpinMini(board.mainBoard, nextDirectedMino, moveList):
             os.system("Say -v Samantha 'T spin mini'")
         else:
             os.system("Say -v Samantha 'T spin'")
