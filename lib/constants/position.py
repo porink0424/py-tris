@@ -45,7 +45,7 @@ else:
 
     # 各マスの大きさ
     recWidth = (TOP_RIGHT_X - TOP_LEFT_X) / (BOARD_WIDTH - 1)
-    recHeight = (TOP_RIGHT_Y - TOP_LEFT_Y) / (BOARD_HEIGHT - 1)
+    recHeight = (TOP_RIGHT_Y - TOP_LEFT_Y) / (DISPLAYED_BOARD_HEIGHT - 1)
 
     # NEXTミノ以降のミノが表示されている位置のx座標と、y座標の範囲
     NEXT_MINOS_X = int((730/1795) * WINDOW_WIDTH)

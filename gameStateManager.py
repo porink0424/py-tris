@@ -10,10 +10,9 @@ def PytrisBoardWatcher ():
 
     # ゲームの再開
     PressEnter()
-    time.sleep(0.5)
 
     # 盤面を出力する分の行数を確保する
-    for _ in range(BOARD_HEIGHT):
+    for _ in range(DISPLAYED_BOARD_HEIGHT):
         print("", flush=True)
     
     # boardオブジェクトの生成
@@ -36,8 +35,8 @@ def main():
     # ゲームの初期設定
     initSettings.Init()
     
-    # # 盤面監視モード
-    # PytrisBoardWatcher()
+    # 盤面監視モード
+    PytrisBoardWatcher()
 
 
     # 適当に盤面を生成

@@ -4,14 +4,14 @@ from lib import *
 def GetMainBoardWithColor(img):
     # windowのなかのピクセルの色を読み取る
     pixels = []
-    for i in range(BOARD_HEIGHT):
+    for i in range(DISPLAYED_BOARD_HEIGHT):
         for j in range(BOARD_WIDTH):
             posX, posY = GetCenterPosition(i, j)
             pixels.append(img.getpixel((posX*2, posY*2))) # getpixelのバグ？で2倍しないと正しい部分のrgbをとってくれない
     
     # 盤面の色を判断する
-    mainBoard = []
-    for i in range(BOARD_HEIGHT):
+    mainBoard = [[MINO.NONE for _ in range(BOARD_WIDTH)] for _ in range(BOARD_HEIGHT - DISPLAYED_BOARD_HEIGHT)]
+    for i in range(DISPLAYED_BOARD_HEIGHT):
         row = []
         for j in range(BOARD_WIDTH):
             pixel = pixels[10*i + j]
