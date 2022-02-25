@@ -3,22 +3,25 @@ from lib.constants.name import TITLE
 from lib.constants.direction import DIRECTION
 
 # windowサイズを取得
-process = subprocess.Popen(
-    f"osascript -e 'tell application \"{TITLE}\" to get the bounds of the front window'",
-    shell=True,
-    stdout=subprocess.PIPE,
-    stderr=subprocess.PIPE,
-)
-stdout, stderr = process.communicate()
-windowInfo = stdout    \
-    .decode("utf-8")   \
-    .replace("\n", "") \
-    .split(",")
+try:
+    process = subprocess.Popen(
+        f"osascript -e 'tell application \"{TITLE}\" to get the bounds of the front window'",
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    stdout, stderr = process.communicate()
+    windowInfo = stdout    \
+        .decode("utf-8")   \
+        .replace("\n", "") \
+        .split(",")
 
-WINDOW_X = int(windowInfo[0])
-WINDOW_Y = int(windowInfo[1])
-WINDOW_WIDTH = int(windowInfo[2]) - WINDOW_X
-WINDOW_HEIGHT = int(windowInfo[3]) - WINDOW_Y
+    WINDOW_X = int(windowInfo[0])
+    WINDOW_Y = int(windowInfo[1])
+    WINDOW_WIDTH = int(windowInfo[2]) - WINDOW_X
+    WINDOW_HEIGHT = int(windowInfo[3]) - WINDOW_Y
+except:
+    pass
 
 # 盤面の大きさ
 BOARD_WIDTH = 10
