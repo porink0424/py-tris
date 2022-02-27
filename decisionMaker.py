@@ -144,26 +144,32 @@ def GetPossibleMoves(
     # 回転できるところまで回転する
 
     for mino, path in droppedMinos:
-        # ひたすら右回転してみる
         rightRotatedMino = mino
-        rightRotateCount = 1
-        while True:
-            rightRotatedMino = Rotate(rightRotatedMino, MOVE.R_ROT, board.mainBoard)
-            if rightRotatedMino is not None and EncodeDirectedMino(rightRotatedMino) not in reachableNodes: # 回転可能かつまだ到達してない部分
-                reachableNodes[EncodeDirectedMino(rightRotatedMino)] = path + [MOVE.R_ROT for _ in range(rightRotateCount)]
-                rightRotateCount += 1
-            else:
-                break
-        
-        # ひたすら左回転してみる
         leftRotatedMino = mino
+        hasRightRotateEnded = False
+        hasLeftRotateEnded = False
+        rightRotateCount = 1
         leftRotateCount = 1
         while True:
-            leftRotatedMino = Rotate(leftRotatedMino, MOVE.L_ROT, board.mainBoard)
-            if leftRotatedMino is not None and EncodeDirectedMino(leftRotatedMino) not in reachableNodes: # 回転可能かつまだ到達してない部分
-                reachableNodes[EncodeDirectedMino(leftRotatedMino)] = path + [MOVE.L_ROT for _ in range(leftRotateCount)]
-                leftRotateCount += 1
-            else:
+            # 回転数が少なくなるように、R_ROT, L_ROTを交互に実行する
+            if not hasRightRotateEnded:
+                rightRotatedMino = Rotate(rightRotatedMino, MOVE.R_ROT, board.mainBoard)
+                if rightRotatedMino is not None and EncodeDirectedMino(rightRotatedMino) not in reachableNodes: # 回転可能かつまだ到達してない部分
+                    reachableNodes[EncodeDirectedMino(rightRotatedMino)] = path + [MOVE.R_ROT for _ in range(rightRotateCount)]
+                    rightRotateCount += 1
+                else:
+                    hasRightRotateEnded = True
+            
+            if not hasLeftRotateEnded:
+                leftRotatedMino = Rotate(leftRotatedMino, MOVE.L_ROT, board.mainBoard)
+                if leftRotatedMino is not None and EncodeDirectedMino(leftRotatedMino) not in reachableNodes: # 回転可能かつまだ到達してない部分
+                    reachableNodes[EncodeDirectedMino(leftRotatedMino)] = path + [MOVE.L_ROT for _ in range(leftRotateCount)]
+                    leftRotateCount += 1
+                else:
+                    hasLeftRotateEnded = True
+            
+            # どちらの方向にも回転できなくなったら終了
+            if hasRightRotateEnded and hasLeftRotateEnded:
                 break
 
     # 結果出力
