@@ -247,12 +247,20 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
         board.currentMino
     )
 
+    # 評価値計算
     maxValue, maxMino, maxPath = -10000000000, None, None
-    for mino, path in possibleMoves:
-        # 評価値計算
-        value = Search(board, mino, path, 2-1)
-        if value >= maxValue:
-            maxMino, maxPath = mino, path
-            maxValue = value
-    
+    processes = []
+
+    with ProcessPoolExecutor() as executor:
+        for mino, path in possibleMoves:
+            processes.append(executor.submit(Search, board, mino, path, 1-1))
+        
+        for i in range(len(processes)):
+            mino, path = possibleMoves[i]
+            process = processes[i]
+            value = process.result()
+            if value >= maxValue:
+                maxMino, maxPath = mino, path
+                maxValue = value
+
     return maxValue, maxMino, maxPath
