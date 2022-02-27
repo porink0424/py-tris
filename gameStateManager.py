@@ -35,8 +35,8 @@ def main():
     # ゲームの初期設定
     initSettings.Init()
     
-    # 盤面監視モード
-    PytrisBoardWatcher()
+    # # 盤面監視モード
+    # PytrisBoardWatcher()
 
 
     # 適当に盤面を生成

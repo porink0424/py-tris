@@ -28,7 +28,20 @@ def EvalMainBoard (mainBoard) -> float:
             if mainBoard[rowIdx][colIdx] is MINO.NONE:
                 blankUnderBlock += 1
     
-    return roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK
+    # 盤面の高さを見る
+    height = 0
+    for i in range(BOARD_HEIGHT):
+        isFound = False
+        for j in range(BOARD_WIDTH):
+            if mainBoard[BOARD_HEIGHT - 1 - i][j] is not MINO.NONE:
+                isFound = True
+                break
+        if not isFound:
+            height = i
+            break
+    
+    
+    return roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK + height * EVAL_HEIGHT
 
 # Tスピンの判定
 def IsTSpin (joinedMainBoard, directedMino:DirectedMino, moveList:List[MOVE]) -> bool:
