@@ -3,5 +3,5 @@ __pycache__
 
 # outputs files of cython
 *.c
-*.o
 *.so
+build/*
