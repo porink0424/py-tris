@@ -1,5 +1,49 @@
 from lib import *
 import evaluator
+from functools import total_ordering
+import heapq
+
+# Beam Search用のclass
+@total_ordering
+class State():
+    board = None
+    eval = None
+    accum_path_value = None
+    def __init__(self, board:Board, mino:DirectedMino, path:List[MOVE], accum_path_value:int):
+        # ライン消去
+        joinedBoard = JoinDirectedMinoToBoard(mino, board)
+        newMainBoard, clearedRowCount = ClearLines(joinedBoard.mainBoard)
+        # ミノを置いた後の盤面の生成
+        clearedBoard = Board(
+            newMainBoard,
+            DirectedMino(
+                board.followingMinos[0],
+                FIRST_MINO_DIRECTION,
+                FIRST_MINO_POS
+            ),
+            board.followingMinos[1:] + [MINO.NONE],
+            board.holdMino,
+            True
+        )
+        self.board = clearedBoard
+        # 評価値の計算
+        self.accum_path_value = accum_path_value + evaluator.EvalPath(path, clearedRowCount, joinedBoard.mainBoard, mino)
+        self.eval = self.accum_path_value + evaluator.EvalMainBoard(newMainBoard)
+        
+    def __eq__(self, other):
+        return self.eval == other.eval
+
+    def __lt__(self, other):
+        return self.eval < other.eval
+
+    #　ありうる次の盤面をすべて生成する。
+    def next_states(self):
+        possibleMoves = GetPossibleMoves(
+            self.board,
+            self.board.currentMino
+        )
+        next_states = [State(self.board, next_mino, next_path, self.accum_path_value)  for next_mino, next_path in possibleMoves]
+        return next_states
 
 # minoを今の位置からdirectionを変えずに左右に動かして得られるminoのリストを返す
 def GetSideMovedMinos (board:Board, mino:DirectedMino) -> List[Tuple[DirectedMino, List[MOVE]]]:
@@ -204,40 +248,31 @@ def GetPossibleMoves(
     return possibleMoves
 
 def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
-    # 最後のみ盤面自体の評価を行う
-    if limit == 0:
-        # ライン消去
-        joinedBoard = JoinDirectedMinoToBoard(mino, board)
-        newMainBoard, clearedRowCount = ClearLines(joinedBoard.mainBoard)
-        return evaluator.EvalPath(path, clearedRowCount, joinedBoard.mainBoard, mino) + evaluator.EvalMainBoard(newMainBoard)
+    BEAM_WIDTH = 1000
+    state_queue = [] 
+    heapq.heapify(state_queue)
+    init_state = State(board, mino, path, 0)
+    heapq.heappush(state_queue, init_state)
+
+    for _ in range(limit):
+        next_state_queue = []
+        heapq.heapify(next_state_queue)
+        while len(state_queue) > 0:
+
+            now_state = heapq.heappop(state_queue)
+            for next_state in now_state.next_states():
+                heapq.heappush(next_state_queue, next_state)
+            
+            while len(next_state_queue) > BEAM_WIDTH:
+                heapq.heappop(next_state_queue)
+
+        state_queue = next_state_queue
     
-    # ライン消去
-    joinedBoard = JoinDirectedMinoToBoard(mino, board)
-    newMainBoard, clearedRowCount = ClearLines(joinedBoard.mainBoard)
-    clearedBoard = Board(
-        newMainBoard,
-        DirectedMino(
-            board.followingMinos[0],
-            FIRST_MINO_DIRECTION,
-            FIRST_MINO_POS
-        ),
-        board.followingMinos[1:] + [MINO.NONE],
-        board.holdMino,
-        True
-    )
+    while len(state_queue) > 1:
+        heapq.heappop(state_queue)
 
-    possibleMoves = GetPossibleMoves(
-        clearedBoard,
-        clearedBoard.currentMino
-    )
-
-    maxValue = -10000000000
-    for possibleMoveMino, possibleMovePath in possibleMoves:
-        value = Search(clearedBoard, possibleMoveMino, possibleMovePath, limit-1)
-        if value >= maxValue:
-            maxValue = value
-
-    return maxValue + evaluator.EvalPath(path, clearedRowCount, joinedBoard.mainBoard, mino)
+    final_state = heapq.heappop(state_queue)
+    return final_state.eval
 
 # 実際に手を決める関数
 def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
@@ -249,18 +284,11 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
 
     # 評価値計算
     maxValue, maxMino, maxPath = -10000000000, None, None
-    threads = []
-
-    with ThreadPoolExecutor() as executor:
-        for mino, path in possibleMoves:
-            threads.append(executor.submit(Search, board, mino, path, 2-1))
-        
-        for i in range(len(threads)):
-            mino, path = possibleMoves[i]
-            thread = threads[i]
-            value = thread.result()
-            if value >= maxValue:
-                maxMino, maxPath = mino, path
-                maxValue = value
-    print("                     ", a.Stop())
+    for mino, path in possibleMoves:
+        # 評価値計算
+        value = Search(board, mino, path, 2-1)
+        if value >= maxValue:
+            maxMino, maxPath = mino, path
+            maxValue = value
+    
     return maxValue, maxMino, maxPath
