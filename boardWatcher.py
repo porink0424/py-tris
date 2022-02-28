@@ -1,5 +1,17 @@
 from lib import *
 
+# 指定した1ブロック分の情報を取得する
+# 0.005s 程度かかる
+def GetPixelColor (pos:Tuple[int]):
+    with mss.mss() as sct:
+        posX, posY = GetCenterPosition(pos[1], pos[0])
+        region = {'top': WINDOW_Y + posY, 'left': WINDOW_X + posX, 'width': 1, 'height': 1}
+        img = sct.grab(region)
+        img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
+        pixel = img.getpixel((0,0))
+    mino = DetermineColor(pixel[0], pixel[1], pixel[2], pos)
+    return mino
+
 # 盤面の状況を配列として返す
 def GetMainBoardWithColor(img):
     # windowのなかのピクセルの色を読み取る
