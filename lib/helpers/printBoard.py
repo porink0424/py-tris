@@ -20,8 +20,8 @@ def PrintBoardWithColor(board:Board, reset=False, elapsedTime=None, displayAll=F
         displayedRange = range(BOARD_HEIGHT)
         resetHeight = BOARD_HEIGHT
     else:
-        displayedRange = range(DISPLAYED_BOARD_HEIGHT, BOARD_HEIGHT)
-        resetHeight = BOARD_HEIGHT - DISPLAYED_BOARD_HEIGHT
+        displayedRange = range(DISPLAYED_BOARD_HEIGHT)
+        resetHeight = DISPLAYED_BOARD_HEIGHT
     
 
     # リセットがTrueであればボードの高さ分戻る
@@ -42,7 +42,7 @@ def PrintBoardWithColor(board:Board, reset=False, elapsedTime=None, displayAll=F
         else:
             print("     ", end="", flush=True)
 
-        row = board.mainBoard[i]
+        row = board.mainBoard[i + BOARD_HEIGHT - DISPLAYED_BOARD_HEIGHT]
         for j in range(BOARD_WIDTH):
             color = row[j]
             print('{}■{}'.format(COLOR_CODES[color], attr('reset')), end="", flush=True)

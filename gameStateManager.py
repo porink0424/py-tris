@@ -36,7 +36,7 @@ def main():
     initSettings.Init()
     
     # # 盤面監視モード
-    # PytrisBoardWatcher()
+    PytrisBoardWatcher()
 
     # 適当に盤面を生成
     board = Board()
