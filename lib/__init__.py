@@ -11,4 +11,5 @@ from typing import List, Set, Tuple, Union, Dict
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 
 # my own modules
+from .warning import *
 from .helpers import *
