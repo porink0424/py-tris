@@ -241,7 +241,7 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
 
 # 実際に手を決める関数
 def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
-
+    a = Timer()
     possibleMoves = GetPossibleMoves(
         board,
         board.currentMino
@@ -249,18 +249,18 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
 
     # 評価値計算
     maxValue, maxMino, maxPath = -10000000000, None, None
-    processes = []
+    threads = []
 
-    with ProcessPoolExecutor() as executor:
+    with ThreadPoolExecutor() as executor:
         for mino, path in possibleMoves:
-            processes.append(executor.submit(Search, board, mino, path, 1-1))
+            threads.append(executor.submit(Search, board, mino, path, 2-1))
         
-        for i in range(len(processes)):
+        for i in range(len(threads)):
             mino, path = possibleMoves[i]
-            process = processes[i]
-            value = process.result()
+            thread = threads[i]
+            value = thread.result()
             if value >= maxValue:
                 maxMino, maxPath = mino, path
                 maxValue = value
-
+    print("                     ", a.Stop())
     return maxValue, maxMino, maxPath

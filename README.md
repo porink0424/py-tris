@@ -20,6 +20,21 @@ mss==6.1.0
 playsound==1.3.0
 Pillow==8.1.0
 colored==1.4.3
+cython=0.29.28
+```
+
+## Usage
+
+### コンパイル
+
+```
+python setup.py build_ext --inplace
+```
+
+### 実行
+
+```
+python main.py
 ```
 
 ## Development Rules
