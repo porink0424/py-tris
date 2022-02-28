@@ -40,7 +40,6 @@ def EvalMainBoard (mainBoard) -> float:
             height = i
             break
     
-    
     return roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK + height * EVAL_HEIGHT
 
 # Tスピンの判定

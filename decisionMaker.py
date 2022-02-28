@@ -90,7 +90,7 @@ def GetPossibleMoves(
     board:Board,
     directedMino:DirectedMino,
 ) -> List[Tuple[DirectedMino, List[MOVE]]]:
-    
+
     # 到達できるミノをエンコードしたものと，到達するための経路を結ぶ辞書
     reachableNodes = {
         EncodeDirectedMino(directedMino) : []
@@ -241,7 +241,6 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
 
 # 実際に手を決める関数
 def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
-    a = Timer()
     possibleMoves = GetPossibleMoves(
         board,
         board.currentMino
@@ -262,5 +261,5 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
             if value >= maxValue:
                 maxMino, maxPath = mino, path
                 maxValue = value
-    print("                     ", a.Stop())
+
     return maxValue, maxMino, maxPath

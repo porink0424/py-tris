@@ -38,10 +38,8 @@ def main():
     # # 盤面監視モード
     # PytrisBoardWatcher()
 
-
     # 適当に盤面を生成
     board = Board()
-
 
     # board.AddMinoToMainBoard((5 ,38), MINO.JAMA)
     # board.AddMinoToMainBoard((5 ,37), MINO.JAMA)
@@ -50,7 +48,6 @@ def main():
     # board.AddMinoToMainBoard((1 ,38), MINO.JAMA)
     # for i in range(10):
     #     board.AddMinoToMainBoard((i ,39), MINO.JAMA)
-
 
     board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
     print("\n\n\n")
@@ -83,4 +80,3 @@ def main():
             board.holdMino,
             True
         )
-

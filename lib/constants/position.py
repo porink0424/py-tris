@@ -4,12 +4,12 @@ from lib.constants.direction import DIRECTION
 
 # 盤面の大きさ
 BOARD_WIDTH = 10
-BOARD_HEIGHT = 40
+BOARD_HEIGHT = 20
 DISPLAYED_BOARD_HEIGHT = 20 # 実際に「表示」されている盤面の高さ
 FOLLOWING_MINOS_COUNT = 5
 
 # ミノの出現時の向き・位置
-FIRST_MINO_POS = (5,20)
+FIRST_MINO_POS = (5, BOARD_HEIGHT - DISPLAYED_BOARD_HEIGHT)
 FIRST_MINO_DIRECTION = DIRECTION.N
 
 # windowサイズを取得
