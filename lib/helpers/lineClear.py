@@ -21,3 +21,19 @@ def ClearLines(mainBoard:List[List[MINO]]) -> Tuple[List[List[MINO]], int]:
             newMainBoard.append(mainBoard[i])
     
     return newMainBoard[(-BOARD_HEIGHT):], len(clearedRowIdx)
+
+# mainBoard内で横一列が揃っている場合に、何ライン除去したかという情報を返す。
+# 実際に変更はしない
+def ClearLinesCalc(mainBoard:List[List[MINO]]) -> int:
+    # クリアされたrowのインデックスを保存していく
+    clearedRowCnt = 0
+    for i in range(len(mainBoard)):
+        # 横一列が揃っているかチェック
+        canClearLine = True
+        for mino in mainBoard[i]:
+            if mino is MINO.NONE:
+                canClearLine = False
+                break
+        if canClearLine:
+            clearedRowCnt += 1
+    return clearedRowCnt

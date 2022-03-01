@@ -6,35 +6,48 @@ import heapq
 # Beam Search用のclass
 @total_ordering
 class State():
+    mino = None 
     board = None
     eval = None
     accum_path_value = None
+
+    #　評価値の計算だけ行う
     def __init__(self, board:Board, mino:DirectedMino, path:List[MOVE], accum_path_value:int):
+        self.board = board
+        self.mino = mino 
         # ライン消去
-        joinedBoard = JoinDirectedMinoToBoard(mino, board)
-        newMainBoard, clearedRowCount = ClearLines(joinedBoard.mainBoard)
-        # ミノを置いた後の盤面の生成
-        clearedBoard = Board(
-            newMainBoard,
-            DirectedMino(
-                board.followingMinos[0],
-                FIRST_MINO_DIRECTION,
-                FIRST_MINO_POS
-            ),
-            board.followingMinos[1:] + [MINO.NONE],
-            board.holdMino,
-            True
-        )
-        self.board = clearedBoard
+        JoinDirectedMinoToBoard_uncopy(mino, board)
+        clearedRowCount = ClearLinesCalc(board.mainBoard)
         # 評価値の計算
-        self.accum_path_value = accum_path_value + evaluator.EvalPath(path, clearedRowCount, joinedBoard.mainBoard, mino)
-        self.eval = self.accum_path_value + evaluator.EvalMainBoard(newMainBoard)
+        self.accum_path_value = accum_path_value + evaluator.EvalPath(path, clearedRowCount, board.mainBoard, mino)
+        self.eval = self.accum_path_value + evaluator.EvalMainBoard(board.mainBoard, clearedRowCount)
+        # Boardを元に戻す
+        RemoveDirectedMinoFromBoard_uncopy(mino, board)
         
     def __eq__(self, other):
         return self.eval == other.eval
 
     def __lt__(self, other):
         return self.eval < other.eval
+    
+    # 実際に遷移する
+    def transit(self):
+        # ライン消去
+        joinedBoard = JoinDirectedMinoToBoard(self.mino, self.board)
+        newMainBoard, _ = ClearLines(joinedBoard.mainBoard)
+        # ミノを置いた後の盤面の生成
+        clearedBoard = Board(
+            newMainBoard,
+            DirectedMino(
+                self.board.followingMinos[0],
+                FIRST_MINO_DIRECTION,
+                FIRST_MINO_POS
+            ),
+            self.board.followingMinos[1:] + [MINO.NONE],
+            self.board.holdMino,
+            True
+        )
+        self.board = clearedBoard
 
     #　ありうる次の盤面をすべて生成する。
     def next_states(self):
@@ -42,7 +55,7 @@ class State():
             self.board,
             self.board.currentMino
         )
-        next_states = [State(self.board, next_mino, next_path, self.accum_path_value)  for next_mino, next_path in possibleMoves]
+        next_states = [State(self.board, next_mino, next_path, self.accum_path_value) for next_mino, next_path in possibleMoves]
         return next_states
 
 # minoを今の位置からdirectionを変えずに左右に動かして得られるminoのリストを返す
@@ -248,10 +261,11 @@ def GetPossibleMoves(
     return possibleMoves
 
 def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
-    BEAM_WIDTH = 1000
+    BEAM_WIDTH = 3
     state_queue = [] 
     heapq.heapify(state_queue)
     init_state = State(board, mino, path, 0)
+    init_state.transit()
     heapq.heappush(state_queue, init_state)
 
     for _ in range(limit):
@@ -267,6 +281,9 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
                 heapq.heappop(next_state_queue)
 
         state_queue = next_state_queue
+        # 実際に遷移
+        for state in state_queue:
+            state.transit()
     
     while len(state_queue) > 1:
         heapq.heappop(state_queue)
@@ -286,7 +303,7 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
     maxValue, maxMino, maxPath = -10000000000, None, None
     for mino, path in possibleMoves:
         # 評価値計算
-        value = Search(board, mino, path, 2-1)
+        value = Search(board, mino, path, 5-1)
         if value >= maxValue:
             maxMino, maxPath = mino, path
             maxValue = value

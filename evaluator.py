@@ -2,7 +2,8 @@ from lib import *
 from params.eval import *
 
 # 盤面自体の評価関数
-def EvalMainBoard (mainBoard) -> float:
+# mainBoardはミノを埋め込んだだけでまだRowを消していない盤面
+def EvalMainBoard (mainBoard, cleardRowCount:int) -> float:
     # 凸凹具合を見る
     # 前の列との差分をみて，その差分の合計を凸凹具合とする
 
@@ -39,7 +40,7 @@ def EvalMainBoard (mainBoard) -> float:
         if not isFound:
             height = i
             break
-    
+    height -= cleardRowCount
     
     return roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK + height * EVAL_HEIGHT
 
