@@ -31,12 +31,9 @@ def PytrisBoardWatcher ():
             board.holdMino = boardWatcher.GetHoldMino(img)
             PrintBoard(board, True, a.Stop())
 
-def main():
-    # ゲームの初期設定
-    initSettings.Init()
-    
-    # # 盤面監視モード
-    # PytrisBoardWatcher()
+# simulator上で思考を再現する（無限ループ）
+def PytrisSimulator ():
+    print("\n\nPy-tris Simulator\n\n")
 
     # 適当に盤面を生成
     board = Board()
@@ -70,3 +67,13 @@ def main():
             board.holdMino,
             True
         )
+
+def main():
+    # ゲームの初期設定
+    initSettings.Init()
+    
+    # # 盤面監視モード
+    PytrisBoardWatcher()
+
+    # simulatorモード
+    PytrisSimulator()
