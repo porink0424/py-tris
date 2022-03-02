@@ -241,7 +241,6 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
 
 # 実際に手を決める関数
 def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
-    a = Timer()
     possibleMoves = GetPossibleMoves(
         board,
         board.currentMino
@@ -263,6 +262,4 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
                 maxMino, maxPath = mino, path
                 maxValue = value
     
-    print("                                  ", a.Stop())
-
     return maxValue, maxMino, maxPath

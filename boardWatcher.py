@@ -40,7 +40,6 @@ def GetCurrentMino():
     while True:
         mino = GetPixelColor(pos)
         if mino is not MINO.NONE and mino is not MINO.JAMA:
-            print("debug:", mino)
             return mino
         pos = (pos[0], pos[1]+1)
         if pos[1]+1 > DISPLAYED_BOARD_HEIGHT:

@@ -92,7 +92,6 @@ def PytrisMover ():
     while True:
         # 思考ルーチン
         value, mino, path = decisionMaker.Decide(board)
-        print("debug path:", path)
 
         # 移動
         directedMino = minoMover.InputMove(path, board.currentMino, board.mainBoard)
@@ -107,7 +106,6 @@ def PytrisMover ():
             board.holdMino,
             True
         )
-        PrintBoard(board, False)
 
         # 次の状態の盤面を用意
         while True: # 次のfollowingMinosを認識
