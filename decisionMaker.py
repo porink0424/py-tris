@@ -207,13 +207,13 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
     # 最後のみ盤面自体の評価を行う
     if limit == 0:
         # ライン消去
-        joinedBoard = JoinDirectedMinoToBoard(mino, board)
-        newMainBoard, clearedRowCount = ClearLines(joinedBoard.mainBoard)
-        return evaluator.EvalPath(path, clearedRowCount, joinedBoard.mainBoard, mino) + evaluator.EvalMainBoard(newMainBoard)
+        joinedMainBoard = JoinDirectedMinoToBoard(mino, board.mainBoard)
+        newMainBoard, clearedRowCount = ClearLines(joinedMainBoard)
+        return evaluator.EvalPath(path, clearedRowCount, joinedMainBoard, mino) + evaluator.EvalMainBoard(newMainBoard)
     
     # ライン消去
-    joinedBoard = JoinDirectedMinoToBoard(mino, board)
-    newMainBoard, clearedRowCount = ClearLines(joinedBoard.mainBoard)
+    joinedMainBoard = JoinDirectedMinoToBoard(mino, board.mainBoard)
+    newMainBoard, clearedRowCount = ClearLines(joinedMainBoard)
     clearedBoard = Board(
         newMainBoard,
         DirectedMino(
@@ -237,10 +237,11 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
         if value >= maxValue:
             maxValue = value
 
-    return maxValue + evaluator.EvalPath(path, clearedRowCount, joinedBoard.mainBoard, mino)
+    return maxValue + evaluator.EvalPath(path, clearedRowCount, joinedMainBoard, mino)
 
 # 実際に手を決める関数
 def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
+    a = Timer()
     possibleMoves = GetPossibleMoves(
         board,
         board.currentMino
@@ -252,7 +253,7 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
 
     with ThreadPoolExecutor() as executor:
         for mino, path in possibleMoves:
-            threads.append(executor.submit(Search, board, mino, path, 2-1))
+            threads.append(executor.submit(Search, board, mino, path, 3-1))
         
         for i in range(len(threads)):
             mino, path = possibleMoves[i]
@@ -261,5 +262,7 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
             if value >= maxValue:
                 maxMino, maxPath = mino, path
                 maxValue = value
+    
+    print("                                  ", a.Stop())
 
     return maxValue, maxMino, maxPath

@@ -3,7 +3,7 @@ from lib.constants.name import TITLE
 from lib.constants.direction import DIRECTION
 
 # 盤面の大きさ
-BOARD_WIDTH = 10
+BOARD_WIDTH = 10 # WIDTHは固定。動かすことはできない
 BOARD_HEIGHT = 40
 DISPLAYED_BOARD_HEIGHT = 20 # 実際に「表示」されている盤面の高さ
 FOLLOWING_MINOS_COUNT = 5

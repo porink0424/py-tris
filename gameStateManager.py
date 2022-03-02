@@ -26,10 +26,10 @@ def PytrisBoardWatcher ():
             region = {'top': WINDOW_Y, 'left': WINDOW_X, 'width': WINDOW_WIDTH / 2, 'height': WINDOW_HEIGHT}
             img = sct.grab(region)
             img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
-            board.mainBoard = boardWatcher.GetMainBoardWithColor(img)
+            board.mainBoard = boardWatcher.GetMainBoard(img)
             board.followingMinos = boardWatcher.GetFollowingMinos(img)
             board.holdMino = boardWatcher.GetHoldMino(img)
-            PrintBoardWithColor(board, True, a.Stop())
+            PrintBoard(board, True, a.Stop())
 
 def main():
     # ゲームの初期設定
@@ -41,17 +41,17 @@ def main():
     # 適当に盤面を生成
     board = Board()
 
-    # board.AddMinoToMainBoard((5 ,38), MINO.JAMA)
-    # board.AddMinoToMainBoard((5 ,37), MINO.JAMA)
-    # board.AddMinoToMainBoard((4 ,37), MINO.JAMA)
-    # board.AddMinoToMainBoard((1 ,37), MINO.JAMA)
-    # board.AddMinoToMainBoard((1 ,38), MINO.JAMA)
+    # board.AddBlockToMainBoard((5 ,38))
+    # board.AddBlockToMainBoard((5 ,37))
+    # board.AddBlockToMainBoard((4 ,37))
+    # board.AddBlockToMainBoard((1 ,37))
+    # board.AddBlockToMainBoard((1 ,38))
     # for i in range(10):
-    #     board.AddMinoToMainBoard((i ,39), MINO.JAMA)
+    #     board.AddBlockToMainBoard((i ,39))
 
     board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
     print("\n\n\n")
-    PrintBoardWithColor(board)
+    PrintBoard(board)
 
     while True:
         addedMino = simulator.GenerateMino()
