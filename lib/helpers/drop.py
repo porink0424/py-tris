@@ -2,7 +2,7 @@ from lib.classes import *
 from lib.helpers.check import isValidPlace
 
 # 受け取ったdirectedMinoをいけるところまで下に落とす。何個分おとせるかを返す
-def Drop(mainBoard, directedMino:DirectedMino) -> int:
+def Drop(mainBoard:List[int], directedMino:DirectedMino) -> int:
     dropCount = 0
     occupiedPositions = GetOccupiedPositions(directedMino)
 

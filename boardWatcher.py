@@ -1,7 +1,7 @@
 from lib import *
 
 # 盤面の状況を配列として返す
-def GetMainBoardWithColor(img):
+def GetMainBoard(img):
     # windowのなかのピクセルの色を読み取る
     pixels = []
     for i in range(DISPLAYED_BOARD_HEIGHT):
@@ -10,13 +10,13 @@ def GetMainBoardWithColor(img):
             pixels.append(img.getpixel((posX*2, posY*2))) # getpixelのバグ？で2倍しないと正しい部分のrgbをとってくれない
     
     # 盤面の色を判断する
-    mainBoard = [[MINO.NONE for _ in range(BOARD_WIDTH)] for _ in range(BOARD_HEIGHT - DISPLAYED_BOARD_HEIGHT)]
+    mainBoard = [0b0 for _ in range(BOARD_HEIGHT - DISPLAYED_BOARD_HEIGHT)]
     for i in range(DISPLAYED_BOARD_HEIGHT):
-        row = []
+        row = 0b0
         for j in range(BOARD_WIDTH):
             pixel = pixels[10*i + j]
-            mino = DetermineColor(pixel[0], pixel[1], pixel[2], (i,j))
-            row.append(mino)
+            if DetermineColor(pixel[0], pixel[1], pixel[2], (i,j)) is not MINO.NONE:
+                row |= 0b1000000000 >> j
         mainBoard.append(row)
     
     return mainBoard
