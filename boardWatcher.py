@@ -33,6 +33,19 @@ def GetMainBoard(img):
     
     return mainBoard
 
+# 現在のミノを取得
+# FIRST_MINO_POSの位置から現在のミノの情報を取得することを試みる。そこで見つかれなければ、見る場所を真下に移していく。
+def GetCurrentMino():
+    pos = (FIRST_MINO_POS[0], FIRST_MINO_POS[1] - (BOARD_HEIGHT - DISPLAYED_BOARD_HEIGHT))
+    while True:
+        mino = GetPixelColor(pos)
+        if mino is not MINO.NONE and mino is not MINO.JAMA:
+            print("debug:", mino)
+            return mino
+        pos = (pos[0], pos[1]+1)
+        if pos[1]+1 > DISPLAYED_BOARD_HEIGHT:
+            pos = (FIRST_MINO_POS[0], FIRST_MINO_POS[1] - (BOARD_HEIGHT - DISPLAYED_BOARD_HEIGHT))
+
 # NEXT以降のミノを配列として返す（仮の実装。todo: もうちょい上手い方法はないか）
 def GetFollowingMinos(img):
     followingMinos = []

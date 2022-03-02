@@ -1,6 +1,7 @@
 import initSettings
 import boardWatcher
 import decisionMaker
+import minoMover
 import simulator
 from lib import *
 
@@ -68,12 +69,68 @@ def PytrisSimulator ():
             True
         )
 
+# 実機上で思考を再現する（無限ループ、シングルスレッド）
+# Start Overを押せる状態からはじめないとバグる
+def PytrisMover ():
+    # ゲームの再開
+    PressEnter()
+    time.sleep(3.7)
+
+    # 現在の盤面の状況を読み取る
+    with mss.mss() as sct:
+        region = {'top': WINDOW_Y, 'left': WINDOW_X, 'width': WINDOW_WIDTH / 2, 'height': WINDOW_HEIGHT}
+        img = sct.grab(region)
+    img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
+    board = Board(
+        None,
+        DirectedMino(boardWatcher.GetCurrentMino(), DIRECTION.N, FIRST_MINO_POS),
+        boardWatcher.GetFollowingMinos(img),
+        boardWatcher.GetHoldMino(img),
+        True
+    )
+
+    while True:
+        # 思考ルーチン
+        value, mino, path = decisionMaker.Decide(board)
+        print("debug path:", path)
+
+        # 移動
+        directedMino = minoMover.InputMove(path, board.currentMino, board.mainBoard)
+
+        # ライン消去
+        joinedMainBoard = JoinDirectedMinoToBoard(directedMino, board.mainBoard)
+        newMainBoard, clearedRowCount = ClearLines(joinedMainBoard)
+        board = Board(
+            newMainBoard,
+            None,
+            board.followingMinos,
+            board.holdMino,
+            True
+        )
+        PrintBoard(board, False)
+
+        # 次の状態の盤面を用意
+        while True: # 次のfollowingMinosを認識
+            with mss.mss() as sct:
+                region = {'top': WINDOW_Y, 'left': WINDOW_X, 'width': WINDOW_WIDTH / 2, 'height': WINDOW_HEIGHT}
+                img = sct.grab(region)
+            img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
+            followingMinos = boardWatcher.GetFollowingMinos(img)
+            if followingMinos != board.followingMinos: # followingMinosが変わったら次へ
+                break
+        board = simulator.AddFollowingMino(board, followingMinos[-1])
+
+
+
 def main():
     # ゲームの初期設定
     initSettings.Init()
     
     # # 盤面監視モード
-    PytrisBoardWatcher()
+    # PytrisBoardWatcher()
 
-    # simulatorモード
-    PytrisSimulator()
+    # # simulatorモード
+    # PytrisSimulator()
+
+    # 実機確認モード
+    PytrisMover()
