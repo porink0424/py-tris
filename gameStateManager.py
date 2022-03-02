@@ -36,7 +36,7 @@ def main():
     initSettings.Init()
     
     # # 盤面監視モード
-    PytrisBoardWatcher()
+    # PytrisBoardWatcher()
 
     # 適当に盤面を生成
     board = Board()
@@ -52,16 +52,6 @@ def main():
     board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
     print("\n\n\n")
     PrintBoardWithColor(board)
-
-    # board = simulator.AddFollowingMino(board, MINO.T)
-    # possibleMoves = decisionMaker.GetPossibleMoves(board, board.currentMino)
-    # for mino, path in possibleMoves:
-    #     print("\n\n\n")
-    #     PrintBoardWithColorWithDirectedMino(board, mino)
-    #     print("\n\n\n")
-    #     print(path)
-    #     print("\n\n\n")
-    # asdfad
 
     while True:
         addedMino = simulator.GenerateMino()
