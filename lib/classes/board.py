@@ -9,7 +9,6 @@ class Board():
         followingMinos : List[MINO] = None,
         holdMino : MINO = None,
         canHold:bool = True,
-        minoCounter : Union[int, None] = None,
         minoBagContents : Union[List[MINO], None] = None
     ) -> None:
         self.mainBoard = mainBoard if mainBoard is not None else [[MINO.NONE for _ in range(BOARD_WIDTH)] for _ in range(BOARD_HEIGHT)]
@@ -17,7 +16,6 @@ class Board():
         self.currentMino = currentMino if currentMino is not None else None
         self.holdMino = holdMino if holdMino is not None else MINO.NONE
         self.canHold = canHold
-        self.minoCounter = minoCounter # 0
         self.minoBagContents = minoBagContents # ReturnFullBag()
 
     # mainBoardの任意の場所にブロックを足す
