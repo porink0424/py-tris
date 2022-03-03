@@ -27,11 +27,11 @@ def Rotate (directedMino:DirectedMino, move:MOVE, mainBoard:List[int]) -> Union[
         offsets = OFFSETS_EXCEPT_I[directedMino.direction][move]
 
     # SRSに従って上記の1~5を順番に実行する
-    for i in range(len(offsets)):
+    for offset0, offset1 in offsets:
         newDirectedMino = DirectedMino(
             directedMino.mino,
             GetNewDirection(directedMino.direction, move),
-            (directedMino.pos[0] + offsets[i][0], directedMino.pos[1] + offsets[i][1])
+            (directedMino.pos[0] + offset0, directedMino.pos[1] + offset1)
         )
         occupiedPositons = GetOccupiedPositions(newDirectedMino)
         if isValidPlace(mainBoard, occupiedPositons):

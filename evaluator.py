@@ -9,10 +9,12 @@ def EvalMainBoard (mainBoard, cleardRowCount:int) -> float:
     
     # 各列において，上から順に見ていって，一番最初にブロックがある部分のrowIdxを格納する
     topRowIdx = [BOARD_HEIGHT for _ in range(BOARD_WIDTH)]
-    for rowIdx in range(BOARD_HEIGHT-1, -1, -1):
-        for colIdx in range(BOARD_WIDTH):
+    for colIdx in range(BOARD_WIDTH):
+        for rowIdx in range(BOARD_HEIGHT):
             if mainBoard[rowIdx] & (0b1000000000 >> colIdx) > 0:
                 topRowIdx[colIdx] = rowIdx
+                break
+
     roughness = 0
     for i in range(len(topRowIdx) - 1):
         roughness += abs(topRowIdx[i] - topRowIdx[i+1])
@@ -46,14 +48,14 @@ def IsTSpin (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:List
 
     # ①の判定
     count = 0
-    pos = directedMino.pos
-    if pos[0] - 1 < 0 or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1] & (0b1000000000 >> (pos[0]-1)) > 0: # 左上
+    pos0, pos1 = directedMino.pos
+    if pos0 - 1 < 0 or pos1 - 1 < 0 or joinedMainBoard[pos1-1] & (0b1000000000 >> (pos0-1)) > 0: # 左上
         count += 1
-    if pos[0] - 1 < 0 or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1] & (0b1000000000 >> (pos[0]-1)) > 0: # 左下
+    if pos0 - 1 < 0 or pos1 + 1 >= BOARD_HEIGHT or joinedMainBoard[pos1+1] & (0b1000000000 >> (pos0-1)) > 0: # 左下
         count += 1
-    if pos[0] + 1 >= BOARD_WIDTH or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1] & (0b1000000000 >> (pos[0]+1)) > 0: # 右下
+    if pos0 + 1 >= BOARD_WIDTH or pos1 + 1 >= BOARD_HEIGHT or joinedMainBoard[pos1+1] & (0b1000000000 >> (pos0+1)) > 0: # 右下
         count += 1
-    if pos[0] + 1 >= BOARD_WIDTH or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1] & (0b1000000000 >> (pos[0]+1)) > 0: # 右上
+    if pos0 + 1 >= BOARD_WIDTH or pos1 - 1 < 0 or joinedMainBoard[pos1-1] & (0b1000000000 >> (pos0+1)) > 0: # 右上
         count += 1
     if count <= 2:
         return False
@@ -82,29 +84,29 @@ def IsTSpinMini (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:
     """
 
     # ②の判定
-    pos = directedMino.pos
+    pos0, pos1 = directedMino.pos
     if directedMino.direction is DIRECTION.N:
         if (
-            (pos[0] - 1 < 0 or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1] & (0b1000000000 >> (pos[0]-1)) > 0) and # 左上が空いていない
-            (pos[0] + 1 >= BOARD_WIDTH or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1] & (0b1000000000 >> (pos[0]+1)) > 0) # 右上が空いていない
+            (pos0 - 1 < 0 or pos1 - 1 < 0 or joinedMainBoard[pos1-1] & (0b1000000000 >> (pos0-1)) > 0) and # 左上が空いていない
+            (pos0 + 1 >= BOARD_WIDTH or pos1 - 1 < 0 or joinedMainBoard[pos1-1] & (0b1000000000 >> (pos0+1)) > 0) # 右上が空いていない
         ):
             return False
     elif directedMino.direction is DIRECTION.E:
         if (
-            (pos[0] + 1 >= BOARD_WIDTH or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1] & (0b1000000000 >> (pos[0]+1)) > 0) and # 右下が空いていない
-            (pos[0] + 1 >= BOARD_WIDTH or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1] & (0b1000000000 >> (pos[0]+1)) > 0) # 右上が空いていない
+            (pos0 + 1 >= BOARD_WIDTH or pos1 + 1 >= BOARD_HEIGHT or joinedMainBoard[pos1+1] & (0b1000000000 >> (pos0+1)) > 0) and # 右下が空いていない
+            (pos0 + 1 >= BOARD_WIDTH or pos1 - 1 < 0 or joinedMainBoard[pos1-1] & (0b1000000000 >> (pos0+1)) > 0) # 右上が空いていない
         ):
             return False
     elif directedMino.direction is DIRECTION.S:
         if (
-            (pos[0] + 1 >= BOARD_WIDTH or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1] & (0b1000000000 >> (pos[0]+1)) > 0) and # 右下が空いていない
-            (pos[0] - 1 < 0 or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1] & (0b1000000000 >> (pos[0]-1)) > 0) # 左下が空いていない
+            (pos0 + 1 >= BOARD_WIDTH or pos1 + 1 >= BOARD_HEIGHT or joinedMainBoard[pos1+1] & (0b1000000000 >> (pos0+1)) > 0) and # 右下が空いていない
+            (pos0 - 1 < 0 or pos1 + 1 >= BOARD_HEIGHT or joinedMainBoard[pos1+1] & (0b1000000000 >> (pos0-1)) > 0) # 左下が空いていない
         ):
             return False
     else:
         if (
-            (pos[0] - 1 < 0 or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1] & (0b1000000000 >> (pos[0]-1)) > 0) and # 左上が空いていない
-            (pos[0] - 1 < 0 or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1] & (0b1000000000 >> (pos[0]-1)) > 0) # 左下が空いていない
+            (pos0 - 1 < 0 or pos1 - 1 < 0 or joinedMainBoard[pos1-1] & (0b1000000000 >> (pos0-1)) > 0) and # 左上が空いていない
+            (pos0 - 1 < 0 or pos1 + 1 >= BOARD_HEIGHT or joinedMainBoard[pos1+1] & (0b1000000000 >> (pos0-1)) > 0) # 左下が空いていない
         ):
             return False
     
@@ -114,8 +116,8 @@ def IsTSpinMini (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:
     # joinedMainBoardからdirectedMinoの部分のブロックを消去
     occupiedPositions = GetOccupiedPositions(directedMino)
     deletedMainBoard = copy.copy(joinedMainBoard)
-    for pos in occupiedPositions:
-        deletedMainBoard[pos[1]] &= 0b1111111111 ^ (0b1000000000 >> pos[0])
+    for pos0, pos1 in occupiedPositions:
+        deletedMainBoard[pos1] &= 0b1111111111 ^ (0b1000000000 >> pos0)
     # 回転補正が4番目であるならMiniではない
     if GetRotateNum(directedMino, reversedLastRotate, deletedMainBoard) == 4:
         return False

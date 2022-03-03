@@ -1,3 +1,4 @@
+from pip import main
 from lib.classes import *
 
 # mainBoard内で横一列が揃っている場合にそれを除去して，何ライン除去したかという情報と共に返す
@@ -22,9 +23,9 @@ def ClearLines(mainBoard:List[int]) -> Tuple[List[int], int]:
 def ClearLinesCalc(mainBoard:List[List[MINO]]) -> int:
     # クリアされたrowのインデックスを保存していく
     clearedRowCnt = 0
-    for i in range(len(mainBoard)):
+    for row in mainBoard:
         # 横一列が揃っているかチェック
-        if mainBoard[i] == 0b1111111111:
+        if row == 0b1111111111:
             clearedRowCnt += 1
         
     return clearedRowCnt
