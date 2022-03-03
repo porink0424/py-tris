@@ -16,13 +16,13 @@ class State():
         self.board = board
         self.mino = mino 
         # ライン消去
-        JoinDirectedMinoToBoard_uncopy(mino, board)
+        JoinDirectedMinoToBoard_uncopy(mino, board.mainBoard)
         clearedRowCount = ClearLinesCalc(board.mainBoard)
         # 評価値の計算
         self.accum_path_value = accum_path_value + evaluator.EvalPath(path, clearedRowCount, board.mainBoard, mino)
         self.eval = self.accum_path_value + evaluator.EvalMainBoard(board.mainBoard, clearedRowCount)
         # Boardを元に戻す
-        RemoveDirectedMinoFromBoard_uncopy(mino, board)
+        RemoveDirectedMinoFromBoard_uncopy(mino, board.mainBoard)
         
     def __eq__(self, other):
         return self.eval == other.eval
@@ -33,8 +33,8 @@ class State():
     # 実際に遷移する
     def transit(self):
         # ライン消去
-        joinedBoard = JoinDirectedMinoToBoard(self.mino, self.board)
-        newMainBoard, _ = ClearLines(joinedBoard.mainBoard)
+        joinedBoard = JoinDirectedMinoToBoard(self.mino, self.board.mainBoard)
+        newMainBoard, _ = ClearLines(joinedBoard)
         # ミノを置いた後の盤面の生成
         clearedBoard = Board(
             newMainBoard,
@@ -147,7 +147,7 @@ def GetPossibleMoves(
     board:Board,
     directedMino:DirectedMino,
 ) -> List[Tuple[DirectedMino, List[MOVE]]]:
-    
+
     # 到達できるミノをエンコードしたものと，到達するための経路を結ぶ辞書
     reachableNodes = {
         EncodeDirectedMino(directedMino) : []
@@ -293,7 +293,6 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
 
 # 実際に手を決める関数
 def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
-    a = Timer()
     possibleMoves = GetPossibleMoves(
         board,
         board.currentMino

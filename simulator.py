@@ -10,12 +10,12 @@ def PutMino (moveList:List[MOVE], nowDirectedMino:DirectedMino, board:Board) -> 
     # moveListに従って1つずつ動かしていく
     nextDirectedMino = nowDirectedMino
     for move in moveList:
-        PrintBoardWithColorWithDirectedMino(board, nextDirectedMino, True)
+        PrintBoardWithDirectedMino(board, nextDirectedMino, True)
         nextDirectedMino = minoMover.MoveOneStep(move, nextDirectedMino, board)
         time.sleep(DISPLAY_DELTA_TIME)
     
     # 最終状態の出力
-    PrintBoardWithColorWithDirectedMino(board, nextDirectedMino, True)
+    PrintBoardWithDirectedMino(board, nextDirectedMino, True)
 
     # debug: Tスピン時に音を鳴らす
     if evaluator.IsTSpin(board.mainBoard, nextDirectedMino, moveList):
@@ -24,13 +24,19 @@ def PutMino (moveList:List[MOVE], nowDirectedMino:DirectedMino, board:Board) -> 
         else:
             os.system("Say -v Samantha 'T spin'")
 
-    return JoinDirectedMinoToBoard(nextDirectedMino, board)
+    return Board(
+        JoinDirectedMinoToBoard(nextDirectedMino, board.mainBoard),
+        board.currentMino,
+        board.followingMinos,
+        board.holdMino,
+        board.canHold
+    )
 
 # ラインをクリアする
 def ClearLinesOfBoard(board:Board) -> Tuple[List[List[MINO]], int]:
     newMainBoard, clearedRowCount = ClearLines(board.mainBoard)
     time.sleep(DISPLAY_DELTA_TIME)
-    PrintBoardWithColor(Board(
+    PrintBoard(Board(
         newMainBoard,
         board.currentMino,
         board.followingMinos,

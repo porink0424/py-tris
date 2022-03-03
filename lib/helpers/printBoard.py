@@ -13,15 +13,18 @@ COLOR_CODES = {
     MINO.NONE : fg(0),
 }
 
-# 盤面の色の情報をもらって、それを色付けしながら出力
-def PrintBoardWithColor(board:Board, reset=False, elapsedTime=None, displayAll=False):
+COLOR_BLOCK = fg(15)
+COLOR_NONE = fg(0)
+
+# 盤面の情報をもらって、出力
+def PrintBoard(board:Board, reset=False, elapsedTime=None, displayAll=False):
     # 表示する行を制限するかどうかを定める
     if displayAll:
         displayedRange = range(BOARD_HEIGHT)
         resetHeight = BOARD_HEIGHT
     else:
-        displayedRange = range(DISPLAYED_BOARD_HEIGHT, BOARD_HEIGHT)
-        resetHeight = BOARD_HEIGHT - DISPLAYED_BOARD_HEIGHT
+        displayedRange = range(DISPLAYED_BOARD_HEIGHT)
+        resetHeight = DISPLAYED_BOARD_HEIGHT
     
 
     # リセットがTrueであればボードの高さ分戻る
@@ -42,10 +45,12 @@ def PrintBoardWithColor(board:Board, reset=False, elapsedTime=None, displayAll=F
         else:
             print("     ", end="", flush=True)
 
-        row = board.mainBoard[i]
+        row = board.mainBoard[i + BOARD_HEIGHT - DISPLAYED_BOARD_HEIGHT]
         for j in range(BOARD_WIDTH):
-            color = row[j]
-            print('{}■{}'.format(COLOR_CODES[color], attr('reset')), end="", flush=True)
+            if row & (0b1000000000 >> j) > 0:
+                print('{}■{}'.format(COLOR_BLOCK, attr('reset')), end="", flush=True)
+            else:
+                print('{}■{}'.format(COLOR_NONE, attr('reset')), end="", flush=True)
         
         if 0 <= alreadyDisplayedLineCount < len(board.followingMinos) * (SHAPE_HEIGHT + 1): # NEXTミノを表示させる行
             if alreadyDisplayedLineCount % (SHAPE_HEIGHT + 1) != SHAPE_HEIGHT: # 空白の行ではない
@@ -67,8 +72,14 @@ def PrintBoardWithColor(board:Board, reset=False, elapsedTime=None, displayAll=F
         alreadyDisplayedLineCount += 1
 
 # directedMinoをboardに反映した状態で出力させる
-def PrintBoardWithColorWithDirectedMino(board:Board, directedMino:DirectedMino, reset=False, elapsedTime=None):
-    joinedBoard = JoinDirectedMinoToBoard(directedMino, board)
+def PrintBoardWithDirectedMino(board:Board, directedMino:DirectedMino, reset=False, elapsedTime=None):
+    joinedMainBoard = JoinDirectedMinoToBoard(directedMino, board.mainBoard)
     
     # 出力
-    PrintBoardWithColor(joinedBoard, reset, elapsedTime)
+    PrintBoard(Board(
+        joinedMainBoard,
+        board.currentMino,
+        board.followingMinos,
+        board.holdMino,
+        board.canHold
+    ), reset, elapsedTime)

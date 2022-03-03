@@ -1,6 +1,7 @@
 import initSettings
 import boardWatcher
 import decisionMaker
+import minoMover
 import simulator
 from lib import *
 
@@ -26,45 +27,29 @@ def PytrisBoardWatcher ():
             region = {'top': WINDOW_Y, 'left': WINDOW_X, 'width': WINDOW_WIDTH / 2, 'height': WINDOW_HEIGHT}
             img = sct.grab(region)
             img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
-            board.mainBoard = boardWatcher.GetMainBoardWithColor(img)
+            board.mainBoard = boardWatcher.GetMainBoard(img)
             board.followingMinos = boardWatcher.GetFollowingMinos(img)
             board.holdMino = boardWatcher.GetHoldMino(img)
-            PrintBoardWithColor(board, True, a.Stop())
+            PrintBoard(board, True, a.Stop())
 
-def main():
-    # ゲームの初期設定
-    initSettings.Init()
-    
-    # # 盤面監視モード
-    # PytrisBoardWatcher()
-
+# simulator上で思考を再現する（無限ループ）
+def PytrisSimulator ():
+    print("\n\nPy-tris Simulator\n\n")
 
     # 適当に盤面を生成
     board = Board()
 
-
-    # board.AddMinoToMainBoard((5 ,38), MINO.JAMA)
-    # board.AddMinoToMainBoard((5 ,37), MINO.JAMA)
-    # board.AddMinoToMainBoard((4 ,37), MINO.JAMA)
-    # board.AddMinoToMainBoard((1 ,37), MINO.JAMA)
-    # board.AddMinoToMainBoard((1 ,38), MINO.JAMA)
+    # board.AddBlockToMainBoard((5 ,38))
+    # board.AddBlockToMainBoard((5 ,37))
+    # board.AddBlockToMainBoard((4 ,37))
+    # board.AddBlockToMainBoard((1 ,37))
+    # board.AddBlockToMainBoard((1 ,38))
     # for i in range(10):
-    #     board.AddMinoToMainBoard((i ,39), MINO.JAMA)
-
+    #     board.AddBlockToMainBoard((i ,39))
 
     board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
     print("\n\n\n")
-    PrintBoardWithColor(board)
-
-    # board = simulator.AddFollowingMino(board, MINO.T)
-    # possibleMoves = decisionMaker.GetPossibleMoves(board, board.currentMino)
-    # for mino, path in possibleMoves:
-    #     print("\n\n\n")
-    #     PrintBoardWithColorWithDirectedMino(board, mino)
-    #     print("\n\n\n")
-    #     print(path)
-    #     print("\n\n\n")
-    # asdfad
+    PrintBoard(board)
 
     while True:
         addedMino = simulator.GenerateMino()
@@ -84,3 +69,66 @@ def main():
             True
         )
 
+# 実機上で思考を再現する（無限ループ、シングルスレッド）
+# Start Overを押せる状態からはじめないとバグる
+def PytrisMover ():
+    # ゲームの再開
+    PressEnter()
+    time.sleep(3.7)
+
+    # 現在の盤面の状況を読み取る
+    with mss.mss() as sct:
+        region = {'top': WINDOW_Y, 'left': WINDOW_X, 'width': WINDOW_WIDTH / 2, 'height': WINDOW_HEIGHT}
+        img = sct.grab(region)
+    img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
+    board = Board(
+        None,
+        DirectedMino(boardWatcher.GetCurrentMino(), DIRECTION.N, FIRST_MINO_POS),
+        boardWatcher.GetFollowingMinos(img),
+        boardWatcher.GetHoldMino(img),
+        True
+    )
+
+    while True:
+        # 思考ルーチン
+        value, mino, path = decisionMaker.Decide(board)
+
+        # 移動
+        directedMino = minoMover.InputMove(path, board.currentMino, board.mainBoard)
+
+        # ライン消去
+        joinedMainBoard = JoinDirectedMinoToBoard(directedMino, board.mainBoard)
+        newMainBoard, clearedRowCount = ClearLines(joinedMainBoard)
+        board = Board(
+            newMainBoard,
+            None,
+            board.followingMinos,
+            board.holdMino,
+            True
+        )
+
+        # 次の状態の盤面を用意
+        while True: # 次のfollowingMinosを認識
+            with mss.mss() as sct:
+                region = {'top': WINDOW_Y, 'left': WINDOW_X, 'width': WINDOW_WIDTH / 2, 'height': WINDOW_HEIGHT}
+                img = sct.grab(region)
+            img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
+            followingMinos = boardWatcher.GetFollowingMinos(img)
+            if followingMinos != board.followingMinos: # followingMinosが変わったら次へ
+                break
+        board = simulator.AddFollowingMino(board, followingMinos[-1])
+
+
+
+def main():
+    # ゲームの初期設定
+    initSettings.Init()
+    
+    # # 盤面監視モード
+    # PytrisBoardWatcher()
+
+    # # simulatorモード
+    PytrisSimulator()
+
+    # 実機確認モード
+    # PytrisMover()

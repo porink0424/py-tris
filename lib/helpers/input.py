@@ -1,6 +1,6 @@
 from lib.classes import *
 
-KEY_HOLD_TIME = 0.05
+KEY_HOLD_TIME = 0.008
 
 def Move (move:MOVE):
     if move is MOVE.LEFT:
@@ -31,6 +31,15 @@ def Move (move:MOVE):
         pyautogui.keyDown("z")
         time.sleep(KEY_HOLD_TIME)
         pyautogui.keyUp("z")
+    time.sleep(KEY_HOLD_TIME)
+
+def HoldDown ():
+    pyautogui.keyDown("down")
+    time.sleep(KEY_HOLD_TIME)
+
+def ReleaseDown ():
+    pyautogui.keyUp("down")
+    time.sleep(KEY_HOLD_TIME)
 
 def PressEnter ():
     pyautogui.keyDown("Enter")

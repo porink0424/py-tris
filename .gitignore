@@ -1,2 +1,7 @@
 # python cache
 __pycache__
+
+# outputs files of cython
+*.c
+*.so
+build/*

@@ -37,6 +37,14 @@ python setup.py build_ext --inplace
 python main.py
 ```
 
+### 注意点
+
+開発時は、コンパイルせずにそのまま実行する方がデバッグがしやすい。コンパイルで出たファイルを消したい時は、rm.shを実行すればよい：
+
+```
+sh rm.sh
+```
+
 ## Development Rules
 
 ### ファイル管理方法について
