@@ -252,7 +252,7 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
 
     with ThreadPoolExecutor() as executor:
         for mino, path in possibleMoves:
-            threads.append(executor.submit(Search, board, mino, path, 1-1))
+            threads.append(executor.submit(Search, board, mino, path, 2-1))
         
         for i in range(len(threads)):
             mino, path = possibleMoves[i]

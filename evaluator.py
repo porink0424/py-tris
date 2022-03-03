@@ -27,7 +27,7 @@ def EvalMainBoard (mainBoard:List[int]) -> float:
     height = 0
     for i in range(BOARD_HEIGHT):
         if mainBoard[i] > 0:
-            height = BOARD_HEIGHT - 1
+            height = BOARD_HEIGHT - i
     
     return roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK + height * EVAL_HEIGHT
 
