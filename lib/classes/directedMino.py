@@ -30,99 +30,78 @@ def DecodeDirectedMino (encodedDirectedMino:int) -> DirectedMino:
     )
 
 # 受け取ったdirectedMinoが占領する場所に関するstringを返す
-def EncodePlacesOccupiedByDirectedMino (directedMino:DirectedMino) -> str:
-    occupiedPositions = sorted(GetOccupiedPositions(directedMino))
-    ret = ""
+def EncodePlacesOccupiedByDirectedMino (directedMino:DirectedMino) -> int:
+    occupiedPositions = GetOccupiedPositions(directedMino)
+    ret = 0
+    maxPos = BOARD_WIDTH * BOARD_HEIGHT
     for i,j in occupiedPositions:
-        ret += str(i) + "," + str(j) + ","
+        assert 0 <= i < BOARD_WIDTH
+        assert 0 <= j < BOARD_HEIGHT
+        ret = ret * maxPos + i * BOARD_HEIGHT + j
     return ret
 
-# directedMinoを受け取り，そのミノが占領するmainBoard上の位置を返す
+# directedMinoを受け取り，そのミノが占領するmainBoard上の位置をsortして返す
 def GetOccupiedPositions (directedMino:DirectedMino) -> List[Tuple[int]]:
+    pos0, pos1 = directedMino.pos
     if directedMino.mino is MINO.T:
         if directedMino.direction is DIRECTION.N:
-            pos = directedMino.pos
-            return [pos, (pos[0]-1, pos[1]), (pos[0]+1, pos[1]), (pos[0], pos[1]-1)]
+            return [(pos0-1, pos1), (pos0, pos1-1), (pos0, pos1), (pos0+1, pos1)]
         elif directedMino.direction is DIRECTION.E:
-            pos = directedMino.pos
-            return [pos, (pos[0], pos[1]+1), (pos[0]+1, pos[1]), (pos[0], pos[1]-1)]
+            return [(pos0, pos1-1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1)]
         elif directedMino.direction is DIRECTION.S:
-            pos = directedMino.pos
-            return [pos, (pos[0], pos[1]+1), (pos[0]+1, pos[1]), (pos[0]-1, pos[1])]
+            return [(pos0-1, pos1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1)]
         elif directedMino.direction is DIRECTION.W:
-            pos = directedMino.pos
-            return [pos, (pos[0], pos[1]+1), (pos[0], pos[1]-1), (pos[0]-1, pos[1])]
+            return [(pos0-1, pos1), (pos0, pos1-1), (pos0, pos1), (pos0, pos1+1)]
     
     elif directedMino.mino is MINO.S:
         if directedMino.direction is DIRECTION.N:
-            pos = directedMino.pos
-            return [pos, (pos[0], pos[1]-1), (pos[0]+1, pos[1]-1), (pos[0]-1, pos[1])]
+            return [(pos0-1, pos1), (pos0, pos1-1), (pos0, pos1), (pos0+1, pos1-1)]
         elif directedMino.direction is DIRECTION.E:
-            pos = directedMino.pos
-            return [pos, (pos[0]+1, pos[1]), (pos[0]+1, pos[1]+1), (pos[0], pos[1]-1)]
+            return [(pos0, pos1-1), (pos0, pos1), (pos0+1, pos1), (pos0+1, pos1+1)]
         elif directedMino.direction is DIRECTION.S:
-            pos = directedMino.pos
-            return [pos, (pos[0]+1, pos[1]), (pos[0], pos[1]+1), (pos[0]-1, pos[1]+1)]
+            return [(pos0-1, pos1+1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1)]
         elif directedMino.direction is DIRECTION.W:
-            pos = directedMino.pos
-            return [pos, (pos[0], pos[1]+1), (pos[0]-1, pos[1]), (pos[0]-1, pos[1]-1)]
+            return [(pos0-1, pos1-1), (pos0-1, pos1), (pos0, pos1), (pos0, pos1+1)]
     
     elif directedMino.mino is MINO.Z:
         if directedMino.direction is DIRECTION.N:
-            pos = directedMino.pos
-            return [pos, (pos[0], pos[1]-1), (pos[0]-1, pos[1]-1), (pos[0]+1, pos[1])]
+            return [(pos0-1, pos1-1), (pos0, pos1-1), (pos0, pos1), (pos0+1, pos1)]
         elif directedMino.direction is DIRECTION.E:
-            pos = directedMino.pos
-            return [pos, (pos[0]+1, pos[1]-1), (pos[0]+1, pos[1]), (pos[0], pos[1]+1)]
+            return [(pos0, pos1), (pos0, pos1+1), (pos0+1, pos1-1), (pos0+1, pos1)]
         elif directedMino.direction is DIRECTION.S:
-            pos = directedMino.pos
-            return [pos, (pos[0]-1, pos[1]), (pos[0], pos[1]+1), (pos[0]+1, pos[1]+1)]
+            return [(pos0-1, pos1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1+1)]
         elif directedMino.direction is DIRECTION.W:
-            pos = directedMino.pos
-            return [pos, (pos[0], pos[1]-1), (pos[0]-1, pos[1]), (pos[0]-1, pos[1]+1)]
+            return [(pos0-1, pos1), (pos0-1, pos1+1), (pos0, pos1-1), (pos0, pos1)]
     
     elif directedMino.mino is MINO.L:
         if directedMino.direction is DIRECTION.N:
-            pos = directedMino.pos
-            return [pos, (pos[0]-1, pos[1]), (pos[0]+1, pos[1]), (pos[0]+1, pos[1]-1)]
+            return [(pos0-1, pos1), (pos0, pos1), (pos0+1, pos1-1), (pos0+1, pos1)]
         elif directedMino.direction is DIRECTION.E:
-            pos = directedMino.pos
-            return [pos, (pos[0], pos[1]-1), (pos[0], pos[1]+1), (pos[0]+1, pos[1]+1)]
+            return [(pos0, pos1-1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1+1)]
         elif directedMino.direction is DIRECTION.S:
-            pos = directedMino.pos
-            return [pos, (pos[0]-1, pos[1]), (pos[0]-1, pos[1]+1), (pos[0]+1, pos[1])]
+            return [(pos0-1, pos1), (pos0-1, pos1+1), (pos0, pos1), (pos0+1, pos1)]
         elif directedMino.direction is DIRECTION.W:
-            pos = directedMino.pos
-            return [pos, (pos[0]-1, pos[1]-1), (pos[0], pos[1]-1), (pos[0], pos[1]+1)]
+            return [(pos0-1, pos1-1), (pos0, pos1-1), (pos0, pos1), (pos0, pos1+1)]
     
     elif directedMino.mino is MINO.J:
         if directedMino.direction is DIRECTION.N:
-            pos = directedMino.pos
-            return [pos, (pos[0]-1, pos[1]-1), (pos[0]-1, pos[1]), (pos[0]+1, pos[1])]
+            return [(pos0-1, pos1-1), (pos0-1, pos1), (pos0, pos1), (pos0+1, pos1)]
         elif directedMino.direction is DIRECTION.E:
-            pos = directedMino.pos
-            return [pos, (pos[0], pos[1]-1), (pos[0]+1, pos[1]-1), (pos[0], pos[1]+1)]
+            return [(pos0, pos1-1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1-1)]
         elif directedMino.direction is DIRECTION.S:
-            pos = directedMino.pos
-            return [pos, (pos[0]-1, pos[1]), (pos[0]+1, pos[1]), (pos[0]+1, pos[1]+1)]
+            return [(pos0-1, pos1), (pos0, pos1), (pos0+1, pos1), (pos0+1, pos1+1)]
         elif directedMino.direction is DIRECTION.W:
-            pos = directedMino.pos
-            return [pos, (pos[0], pos[1]-1), (pos[0]-1, pos[1]+1), (pos[0], pos[1]+1)]
+            return [(pos0-1, pos1+1), (pos0, pos1-1), (pos0, pos1), (pos0, pos1+1)]
     
     elif directedMino.mino is MINO.O:
-        pos = directedMino.pos
-        return [pos, (pos[0], pos[1]-1), (pos[0]+1, pos[1]), (pos[0]+1, pos[1]-1)]
+        return [(pos0, pos1-1), (pos0, pos1), (pos0+1, pos1-1), (pos0+1, pos1)]
 
     elif directedMino.mino is MINO.I:
         if directedMino.direction is DIRECTION.N:
-            pos = directedMino.pos
-            return [pos, (pos[0]-1, pos[1]), (pos[0]+1, pos[1]), (pos[0]+2, pos[1])]
+            return [(pos0-1, pos1), (pos0, pos1), (pos0+1, pos1), (pos0+2, pos1)]
         elif directedMino.direction is DIRECTION.E:
-            pos = directedMino.pos
-            return [(pos[0]+1, pos[1]-1), (pos[0]+1, pos[1]), (pos[0]+1, pos[1]+1), (pos[0]+1, pos[1]+2)]
+            return [(pos0+1, pos1-1), (pos0+1, pos1), (pos0+1, pos1+1), (pos0+1, pos1+2)]
         elif directedMino.direction is DIRECTION.S:
-            pos = directedMino.pos
-            return [(pos[0]-1, pos[1]+1), (pos[0], pos[1]+1), (pos[0]+1, pos[1]+1), (pos[0]+2, pos[1]+1)]
+            return [(pos0-1, pos1+1), (pos0, pos1+1), (pos0+1, pos1+1), (pos0+2, pos1+1)]
         elif directedMino.direction is DIRECTION.W:
-            pos = directedMino.pos
-            return [pos, (pos[0], pos[1]-1), (pos[0], pos[1]+1), (pos[0], pos[1]+2)]
+            return [(pos0, pos1-1), (pos0, pos1), (pos0, pos1+1), (pos0, pos1+2)]

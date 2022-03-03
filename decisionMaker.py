@@ -9,18 +9,18 @@ class State():
     mino = None 
     board = None
     eval = None
-    accum_path_value = None
+    accumPathValue = None
 
     #　評価値の計算だけ行う
-    def __init__(self, board:Board, mino:DirectedMino, path:List[MOVE], accum_path_value:int):
+    def __init__(self, board:Board, mino:DirectedMino, path:List[MOVE], accumPathValue:int):
         self.board = board
         self.mino = mino 
         # ライン消去
         JoinDirectedMinoToBoard_uncopy(mino, board.mainBoard)
         clearedRowCount = ClearLinesCalc(board.mainBoard)
         # 評価値の計算
-        self.accum_path_value = accum_path_value + evaluator.EvalPath(path, clearedRowCount, board.mainBoard, mino)
-        self.eval = self.accum_path_value + evaluator.EvalMainBoard(board.mainBoard, clearedRowCount)
+        self.accumPathValue = accumPathValue + evaluator.EvalPath(path, clearedRowCount, board.mainBoard, mino)
+        self.eval = self.accumPathValue + evaluator.EvalMainBoard(board.mainBoard, clearedRowCount)
         # Boardを元に戻す
         RemoveDirectedMinoFromBoard_uncopy(mino, board.mainBoard)
         
@@ -31,7 +31,7 @@ class State():
         return self.eval < other.eval
     
     # 実際に遷移する
-    def transit(self):
+    def Transit(self):
         # ライン消去
         joinedBoard = JoinDirectedMinoToBoard(self.mino, self.board.mainBoard)
         newMainBoard, _ = ClearLines(joinedBoard)
@@ -50,13 +50,13 @@ class State():
         self.board = clearedBoard
 
     #　ありうる次の盤面をすべて生成する。
-    def next_states(self):
+    def NextStates(self):
         possibleMoves = GetPossibleMoves(
             self.board,
             self.board.currentMino
         )
-        next_states = [State(self.board, next_mino, next_path, self.accum_path_value) for next_mino, next_path in possibleMoves]
-        return next_states
+        nextStates = [State(self.board, nextMino, nextPath, self.accumPathValue) for nextMino, nextPath in possibleMoves]
+        return nextStates
 
 # minoを今の位置からdirectionを変えずに左右に動かして得られるminoのリストを返す
 def GetSideMovedMinos (board:Board, mino:DirectedMino) -> List[Tuple[DirectedMino, List[MOVE]]]:
@@ -265,7 +265,7 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
     state_queue = [] 
     heapq.heapify(state_queue)
     init_state = State(board, mino, path, 0)
-    init_state.transit()
+    init_state.Transit()
     heapq.heappush(state_queue, init_state)
 
     for _ in range(limit):
@@ -274,7 +274,7 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
         while len(state_queue) > 0:
 
             now_state = heapq.heappop(state_queue)
-            for next_state in now_state.next_states():
+            for next_state in now_state.NextStates():
                 heapq.heappush(next_state_queue, next_state)
             
             while len(next_state_queue) > BEAM_WIDTH:
@@ -283,7 +283,7 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
         state_queue = next_state_queue
         # 実際に遷移
         for state in state_queue:
-            state.transit()
+            state.Transit()
     
     while len(state_queue) > 1:
         heapq.heappop(state_queue)
