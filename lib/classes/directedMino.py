@@ -9,17 +9,19 @@ class DirectedMino ():
         self.pos = pos
 
 def EncodeDirectedMino (directedMino:DirectedMino) -> int:
-    # 0 <= mino < 9
-    # 0 <= direction < 4
-    # 0 <= pos[0] < BOARD_WIDTH 
-    # 0 <= pos[1] < BOARD_HEIGHT
-    return ((directedMino.mino.value * 4 + directedMino.direction.value) * BOARD_WIDTH + directedMino.pos[0]) * BOARD_HEIGHT + directedMino.pos[1]
+    assert 0 <= directedMino.mino.value < 9
+    assert 0 <= directedMino.direction.value < 4
+    assert 0 <= directedMino.pos[0] + 1 < BOARD_WIDTH + 2
+    assert 0 <= directedMino.pos[1] + 1 < BOARD_HEIGHT + 2
+    return ((directedMino.mino.value * 4 + directedMino.direction.value) * (BOARD_WIDTH + 2) + directedMino.pos[0] + 1) * (BOARD_HEIGHT + 2) + directedMino.pos[1] + 1
 
 def DecodeDirectedMino (encodedDirectedMino:int) -> DirectedMino:
 
-    (encodedDirectedMino, pos1) = divmod(encodedDirectedMino, BOARD_HEIGHT)
-    (encodedDirectedMino, pos0) = divmod(encodedDirectedMino, BOARD_WIDTH)
+    (encodedDirectedMino, pos1) = divmod(encodedDirectedMino, BOARD_HEIGHT + 2)
+    (encodedDirectedMino, pos0) = divmod(encodedDirectedMino, BOARD_WIDTH + 2)
     (mino, direction) = divmod(encodedDirectedMino, 4)
+    pos1 -= 1
+    pos0 -= 1
 
     return DirectedMino(
         MINO(mino),
