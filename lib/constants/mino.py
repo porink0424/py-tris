@@ -10,3 +10,6 @@ class MINO(Enum):
     J = auto()
     JAMA = auto()
     NONE = auto()
+
+def ReturnFullBag() -> List[MINO]:
+    return [MINO.T, MINO.O, MINO.Z, MINO.I, MINO.L, MINO.S, MINO.J]
