@@ -74,22 +74,29 @@ def PytrisSimulator ():
 def PytrisMover ():
     # ゲームの再開
     PressEnter()
-    time.sleep(3.7)
+    time.sleep(4.5)
 
-    # 現在の盤面の状況を読み取る
-    with mss.mss() as sct:
-        region = {'top': WINDOW_Y, 'left': WINDOW_X, 'width': WINDOW_WIDTH / 2, 'height': WINDOW_HEIGHT}
-        img = sct.grab(region)
-    img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
-    board = Board(
-        None,
-        DirectedMino(boardWatcher.GetCurrentMino(), DIRECTION.N, FIRST_MINO_POS),
-        boardWatcher.GetFollowingMinos(img),
-        boardWatcher.GetHoldMino(img),
-        True
-    )
+    # 盤面を出力する分の行数を確保する
+    for _ in range(DISPLAYED_BOARD_HEIGHT):
+        print("", flush=True)
 
     while True:
+        # 盤面の状況を読み取る
+        with mss.mss() as sct:
+            region = {'top': WINDOW_Y, 'left': WINDOW_X, 'width': WINDOW_WIDTH / 2, 'height': WINDOW_HEIGHT}
+            img = sct.grab(region)
+            img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
+        currentMino = boardWatcher.GetCurrentMino(img)
+        mainBoard = boardWatcher.GetMainBoard(img)
+        deletedMainBoard = DeleteDirectedMinoFromMainBoard(currentMino, mainBoard)
+        board = Board(
+            deletedMainBoard,
+            DirectedMino(currentMino.mino, DIRECTION.N, FIRST_MINO_POS),
+            boardWatcher.GetFollowingMinos(img),
+            boardWatcher.GetHoldMino(img),
+            True
+        )
+
         # 思考ルーチン
         value, mino, path = decisionMaker.Decide(board)
 
@@ -99,24 +106,27 @@ def PytrisMover ():
         # ライン消去
         joinedMainBoard = JoinDirectedMinoToBoard(directedMino, board.mainBoard)
         newMainBoard, clearedRowCount = ClearLines(joinedMainBoard)
-        board = Board(
+
+        # AIが見ているはずの盤面の状況
+        nowAIsMainBoard = Board(
             newMainBoard,
             None,
             board.followingMinos,
             board.holdMino,
-            True
+            board.canHold
         )
+        PrintBoard(nowAIsMainBoard, True)
 
-        # 次の状態の盤面を用意
-        while True: # 次のfollowingMinosを認識
-            with mss.mss() as sct:
-                region = {'top': WINDOW_Y, 'left': WINDOW_X, 'width': WINDOW_WIDTH / 2, 'height': WINDOW_HEIGHT}
-                img = sct.grab(region)
-            img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
-            followingMinos = boardWatcher.GetFollowingMinos(img)
-            if followingMinos != board.followingMinos: # followingMinosが変わったら次へ
+        # currentMinoが更新されるのを待つ
+        while True:
+            currentMino = boardWatcher.GetCurrentMino()
+            if board.followingMinos[0] is currentMino.mino: # currentMinoが更新されたら次へ
                 break
-        board = simulator.AddFollowingMino(board, followingMinos[-1])
+    
+        # クリアしたライン数に応じて待ち時間を変える
+        FRAME_DELTA_TIME = 0.015
+        FRAME_COUNTS = [1, 30, 38, 38, 38]
+        time.sleep(FRAME_DELTA_TIME * FRAME_COUNTS[clearedRowCount])
 
 
 

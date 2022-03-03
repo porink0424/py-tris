@@ -13,5 +13,5 @@ def DetermineColor(r,g,b,pos,warn=False):
             return mino
     # どのミノにも対応していない色だった場合はミノがない場所であると判定する
     if warn:
-        Warn("No mino matched: r = {}, g = {}, b = {}, place = {}".format(r,g,b,pos))
+        Warn("                               No mino matched: r = {}, g = {}, b = {}, place = {}".format(r,g,b,pos))
     return MINO.NONE

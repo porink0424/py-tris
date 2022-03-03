@@ -1,7 +1,7 @@
 from lib.classes import *
 
-KEY_HOLD_TIME = 0.009
-KEY_RELEASE_TIME = 0.009
+KEY_HOLD_TIME = 0.01
+KEY_RELEASE_TIME = 0.01
 
 def Move (move:MOVE):
     if move is MOVE.LEFT:

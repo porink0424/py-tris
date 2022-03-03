@@ -88,6 +88,7 @@ def InputMove (moveList:List[MOVE], directedMino:DirectedMino, mainBoard:List[in
     
     # downを入力
     if downCount > 0:
+        HoldDown() # 目的の場所にたどり着くまで下を押し続ける
         nextDirectedMino = DirectedMino(nextDirectedMino.mino, nextDirectedMino.direction, (nextDirectedMino.pos[0], nextDirectedMino.pos[1] + downCount))
         occupiedPositions = GetOccupiedPositions(nextDirectedMino)
         while True:
@@ -100,7 +101,6 @@ def InputMove (moveList:List[MOVE], directedMino:DirectedMino, mainBoard:List[in
             if hasReached:
                 ReleaseDown()
                 break
-            HoldDown() # 目的の場所にたどり着くまで下を押し続ける
     
     # move2を入力
     for move in move2:
