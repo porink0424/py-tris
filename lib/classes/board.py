@@ -13,10 +13,10 @@ class Board():
     ) -> None:
         self.mainBoard = mainBoard if mainBoard is not None else [0x0 for _ in range(BOARD_HEIGHT)]
         self.followingMinos = followingMinos if followingMinos is not None else [MINO.NONE for _ in range(FOLLOWING_MINOS_COUNT)]
-        self.currentMino = currentMino if currentMino is not None else None
+        self.currentMino = currentMino
         self.holdMino = holdMino if holdMino is not None else MINO.NONE
         self.canHold = canHold
-        self.minoBagContents = minoBagContents # ReturnFullBag()
+        self.minoBagContents = minoBagContents
 
     # mainBoardの任意の場所にブロックを足す
     def AddBlockToMainBoard (self, pos:Tuple[int]):
