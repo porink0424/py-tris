@@ -297,6 +297,7 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
         board,
         board.currentMino
     )
+    a = Timer()
 
     # 評価値計算
     maxValue, maxMino, maxPath = -10000000000, None, None
@@ -306,5 +307,7 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
         if value >= maxValue:
             maxMino, maxPath = mino, path
             maxValue = value
+
+    print(f"                         {a.Stop()}")
     
     return maxValue, maxMino, maxPath

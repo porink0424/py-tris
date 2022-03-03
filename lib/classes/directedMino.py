@@ -8,15 +8,23 @@ class DirectedMino ():
         self.direction = direction
         self.pos = pos
 
-def EncodeDirectedMino (directedMino:DirectedMino) -> str:
-    return f"{directedMino.mino},{directedMino.direction},{directedMino.pos[0]},{directedMino.pos[1]}"
+def EncodeDirectedMino (directedMino:DirectedMino) -> int:
+    # 0 <= mino < 9
+    # 0 <= direction < 4
+    # 0 <= pos[0] < BOARD_WIDTH 
+    # 0 <= pos[1] < BOARD_HEIGHT
+    return ((directedMino.mino.value * 4 + directedMino.direction.value) * BOARD_WIDTH + directedMino.pos[0]) * BOARD_HEIGHT + directedMino.pos[1]
 
-def DecodeDirectedMino (encodedDirectedMino:str) -> DirectedMino:
-    lis = encodedDirectedMino.split(",")
+def DecodeDirectedMino (encodedDirectedMino:int) -> DirectedMino:
+
+    (encodedDirectedMino, pos1) = divmod(encodedDirectedMino, BOARD_HEIGHT)
+    (encodedDirectedMino, pos0) = divmod(encodedDirectedMino, BOARD_WIDTH)
+    (mino, direction) = divmod(encodedDirectedMino, 4)
+
     return DirectedMino(
-        eval(lis[0]),
-        eval(lis[1]),
-        (int(lis[2]), int(lis[3]))
+        MINO(mino),
+        DIRECTION(direction),
+        (int(pos0), int(pos1))
     )
 
 # 受け取ったdirectedMinoが占領する場所に関するstringを返す
