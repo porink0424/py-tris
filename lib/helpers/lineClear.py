@@ -2,7 +2,7 @@ from pip import main
 from lib.classes import *
 
 # mainBoard内で横一列が揃っている場合にそれを除去して，何ライン除去したかという情報と共に返す
-def ClearLines(mainBoard:List[int]) -> Tuple[List[int], int]:
+def ClearLines(mainBoard:List[int], topRowIdx:List[int]) -> Tuple[List[int], List[int], int]:
     # クリアされたrowのインデックスを保存していく
     clearedRowIdx = set()
     for i in range(BOARD_HEIGHT):
@@ -15,8 +15,13 @@ def ClearLines(mainBoard:List[int]) -> Tuple[List[int], int]:
     for i in range(BOARD_HEIGHT):
         if i not in clearedRowIdx:
             newMainBoard.append(mainBoard[i])
+
+    clearedRowCount = len(clearedRowIdx)
+    newTopRowIdx = copy.copy(topRowIdx)
+    for i in range(BOARD_WIDTH):
+        newTopRowIdx[i] += clearedRowCount
     
-    return newMainBoard[(-BOARD_HEIGHT):], len(clearedRowIdx)
+    return newMainBoard[(-BOARD_HEIGHT):], newTopRowIdx, clearedRowCount
 
 # mainBoard内で横一列が揃っている場合に、何ライン除去したかという情報を返す。
 # 実際に変更はしない

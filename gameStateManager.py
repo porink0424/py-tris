@@ -60,13 +60,14 @@ def PytrisSimulator ():
 
         board = simulator.PutMino(path, board.currentMino, board)
 
-        newMainBoard, clearedRowCount = simulator.ClearLinesOfBoard(board)
+        newMainBoard, newTopRowIdx, clearedRowCount = simulator.ClearLinesOfBoard(board)
         board = Board(
             newMainBoard,
             None,
             board.followingMinos,
             board.holdMino,
-            True
+            True,
+            newTopRowIdx
         )
 
 # 実機上で思考を再現する（無限ループ、シングルスレッド）
@@ -86,7 +87,8 @@ def PytrisMover ():
         DirectedMino(boardWatcher.GetCurrentMino(), DIRECTION.N, FIRST_MINO_POS),
         boardWatcher.GetFollowingMinos(img),
         boardWatcher.GetHoldMino(img),
-        True
+        True,
+        None
     )
 
     while True:
@@ -97,14 +99,15 @@ def PytrisMover ():
         directedMino = minoMover.InputMove(path, board.currentMino, board.mainBoard)
 
         # ライン消去
-        joinedMainBoard = JoinDirectedMinoToBoard(directedMino, board.mainBoard)
-        newMainBoard, clearedRowCount = ClearLines(joinedMainBoard)
+        joinedMainBoard, joinedTopRowIdx = JoinDirectedMinoToBoard(directedMino, board.mainBoard, board.topRowIdx)
+        newMainBoard, newTopRowIdx, clearedRowCount = ClearLines(joinedMainBoard)
         board = Board(
             newMainBoard,
             None,
             board.followingMinos,
             board.holdMino,
-            True
+            True,
+            newTopRowIdx
         )
 
         # 次の状態の盤面を用意

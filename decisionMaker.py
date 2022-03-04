@@ -16,13 +16,13 @@ class State():
         self.board = board
         self.mino = mino 
         # ライン消去
-        JoinDirectedMinoToBoard_uncopy(mino, board.mainBoard)
+        JoinDirectedMinoToBoardUncopy(mino, board.mainBoard, board.topRowIdx)
         clearedRowCount = ClearLinesCalc(board.mainBoard)
         # 評価値の計算
         self.accumPathValue = accumPathValue + evaluator.EvalPath(path, clearedRowCount, board.mainBoard, mino)
-        self.eval = self.accumPathValue + evaluator.EvalMainBoard(board.mainBoard, clearedRowCount)
+        self.eval = self.accumPathValue + evaluator.EvalMainBoard(board.mainBoard, clearedRowCount, board.topRowIdx)
         # Boardを元に戻す
-        RemoveDirectedMinoFromBoard_uncopy(mino, board.mainBoard)
+        RemoveDirectedMinoFromBoardUncopy(mino, board.mainBoard, board.topRowIdx)
         
     def __eq__(self, other):
         return self.eval == other.eval
@@ -33,8 +33,8 @@ class State():
     # 実際に遷移する
     def Transit(self):
         # ライン消去
-        joinedBoard = JoinDirectedMinoToBoard(self.mino, self.board.mainBoard)
-        newMainBoard, _ = ClearLines(joinedBoard)
+        joinedBoard, joinedTopRowIdx = JoinDirectedMinoToBoard(self.mino, self.board.mainBoard, self.board.topRowIdx)
+        newMainBoard, newTopRowIdx, _ = ClearLines(joinedBoard, joinedTopRowIdx)
         # ミノを置いた後の盤面の生成
         clearedBoard = Board(
             newMainBoard,
@@ -45,7 +45,8 @@ class State():
             ),
             self.board.followingMinos[1:] + [MINO.NONE],
             self.board.holdMino,
-            True
+            True,
+            newTopRowIdx
         )
         self.board = clearedBoard
 
@@ -192,7 +193,7 @@ def GetPossibleMoves(
     # ミノを全て下に落とす
 
     for mino, path in undroppedMinos:
-        dropCount = Drop(board.mainBoard, mino)
+        dropCount = Drop(mino, board.topRowIdx)
         mino.pos = (mino.pos[0], mino.pos[1] + dropCount)
         path += [MOVE.DOWN for _ in range(dropCount)]
         reachableNodes[EncodeDirectedMino(mino)] = path

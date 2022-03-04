@@ -24,7 +24,7 @@ def MoveOneStep (move:MOVE, directedMino:DirectedMino, board:Board) -> DirectedM
             (directedMino.pos[0], directedMino.pos[1] + 1)
         )
     elif move is MOVE.DROP:
-        dropCount = decisionMaker.Drop(board.mainBoard, directedMino)
+        dropCount = decisionMaker.Drop(directedMino, board.topRowIdx)
         return DirectedMino(
             directedMino.mino,
             directedMino.direction,

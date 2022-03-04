@@ -8,17 +8,27 @@ class Board():
         currentMino : Union[DirectedMino, None] = None,
         followingMinos : List[MINO] = None,
         holdMino : MINO = None,
-        canHold:bool = True
+        canHold:bool = True,
+        topRowIdx : List[int] = None
     ) -> None:
         self.mainBoard = mainBoard if mainBoard is not None else [0x0 for _ in range(BOARD_HEIGHT)]
         self.followingMinos = followingMinos if followingMinos is not None else [MINO.NONE for _ in range(FOLLOWING_MINOS_COUNT)]
         self.currentMino = currentMino if currentMino is not None else None
         self.holdMino = holdMino if holdMino is not None else MINO.NONE
         self.canHold = canHold
+        self.topRowIdx = topRowIdx if topRowIdx is not None else [BOARD_HEIGHT for _ in range(BOARD_WIDTH)]
     
     # mainBoardの任意の場所にブロックを足す
     def AddBlockToMainBoard (self, pos:Tuple[int]):
         self.mainBoard[pos[1]] |= 0b1000000000 >> pos[0]
+        self.topRowIdx[pos[0]] = min(self.topRowIdx[pos[0]], pos[1])
     
     def DeleteBlockInMainBoard (self, pos:Tuple[int]):
         self.mainBoard[pos[1]] &= 0b1111111111 ^ (0b1000000000 >> pos[0])
+        if pos[1] == self.topRowIdx[pos[0]]:
+            for rowIdx in range(pos[1], BOARD_HEIGHT):
+                if (self.mainBoard[rowIdx] & (0b1000000000 >> pos[0])) > 0:
+                    self.topRowIdx[pos[0]] = rowIdx
+                    break
+            else:
+                self.topRowIdx[pos[0]] = BOARD_HEIGHT

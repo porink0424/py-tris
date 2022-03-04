@@ -73,7 +73,7 @@ def PrintBoard(board:Board, reset=False, elapsedTime=None, displayAll=False):
 
 # directedMinoをboardに反映した状態で出力させる
 def PrintBoardWithDirectedMino(board:Board, directedMino:DirectedMino, reset=False, elapsedTime=None):
-    joinedMainBoard = JoinDirectedMinoToBoard(directedMino, board.mainBoard)
+    joinedMainBoard, joinedTopRowIdx = JoinDirectedMinoToBoard(directedMino, board.mainBoard, board.topRowIdx)
     
     # 出力
     PrintBoard(Board(
@@ -81,5 +81,6 @@ def PrintBoardWithDirectedMino(board:Board, directedMino:DirectedMino, reset=Fal
         board.currentMino,
         board.followingMinos,
         board.holdMino,
-        board.canHold
+        board.canHold,
+        joinedTopRowIdx
     ), reset, elapsedTime)

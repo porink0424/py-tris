@@ -3,18 +3,11 @@ from params.eval import *
 
 # 盤面自体の評価関数
 # mainBoardはミノを埋め込んだだけでまだRowを消していない盤面
-def EvalMainBoard (mainBoard, cleardRowCount:int) -> float:
+def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
     # 凸凹具合を見る
     # 前の列との差分をみて，その差分の合計を凸凹具合とする
     
     # 各列において，上から順に見ていって，一番最初にブロックがある部分のrowIdxを格納する
-    topRowIdx = [BOARD_HEIGHT for _ in range(BOARD_WIDTH)]
-    for colIdx in range(BOARD_WIDTH):
-        for rowIdx in range(BOARD_HEIGHT):
-            if mainBoard[rowIdx] & (0b1000000000 >> colIdx) > 0:
-                topRowIdx[colIdx] = rowIdx
-                break
-
     roughness = 0
     for i in range(len(topRowIdx) - 1):
         roughness += abs(topRowIdx[i] - topRowIdx[i+1])

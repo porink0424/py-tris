@@ -24,17 +24,19 @@ def PutMino (moveList:List[MOVE], nowDirectedMino:DirectedMino, board:Board) -> 
         else:
             os.system("Say -v Samantha 'T spin'")
 
+    joinedMainBoard, joinedTopRowIdx = JoinDirectedMinoToBoard(nextDirectedMino, board.mainBoard, board.topRowIdx)
     return Board(
-        JoinDirectedMinoToBoard(nextDirectedMino, board.mainBoard),
+        joinedMainBoard,
         board.currentMino,
         board.followingMinos,
         board.holdMino,
-        board.canHold
+        board.canHold,
+        joinedTopRowIdx
     )
 
 # ラインをクリアする
 def ClearLinesOfBoard(board:Board) -> Tuple[List[List[MINO]], int]:
-    newMainBoard, clearedRowCount = ClearLines(board.mainBoard)
+    newMainBoard, newTopRowIdx, clearedRowCount = ClearLines(board.mainBoard, board.topRowIdx)
     time.sleep(DISPLAY_DELTA_TIME)
     PrintBoard(Board(
         newMainBoard,
@@ -42,9 +44,10 @@ def ClearLinesOfBoard(board:Board) -> Tuple[List[List[MINO]], int]:
         board.followingMinos,
         board.holdMino,
         board.canHold,
+        newTopRowIdx
     ), True)
     time.sleep(DISPLAY_DELTA_TIME)
-    return newMainBoard, clearedRowCount
+    return newMainBoard, newTopRowIdx, clearedRowCount
 
 # 次のミノを付け足し，押し出してネクストのミノをcurrentMinoにする
 def AddFollowingMino (board:Board, addedMino:MINO) -> Board:
@@ -57,7 +60,8 @@ def AddFollowingMino (board:Board, addedMino:MINO) -> Board:
         ),
         board.followingMinos[1:] + [addedMino],
         board.holdMino,
-        True
+        True,
+        board.topRowIdx
     )
 
 # 7種1巡の法則に従ってランダムでミノを生成する
