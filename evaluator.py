@@ -15,7 +15,7 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
     # ブロックの下にある空白をカウントする
     blankUnderBlock = 0
     for colIdx in range(BOARD_WIDTH):
-        for rowIdx in range(topRowIdx[colIdx], BOARD_HEIGHT):
+        for rowIdx in range(topRowIdx[colIdx] + cleardRowCount, BOARD_HEIGHT):
             if mainBoard[rowIdx] & (0b1000000000 >> colIdx) == 0:
                 blankUnderBlock += 1
     
@@ -23,7 +23,7 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
     minTopRowIdx = BOARD_HEIGHT
     for idx in topRowIdx:
         minTopRowIdx = min(minTopRowIdx, idx)
-    height = BOARD_HEIGHT - minTopRowIdx
+    height = BOARD_HEIGHT - minTopRowIdx - cleardRowCount
     
     return roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK + height * EVAL_HEIGHT
 

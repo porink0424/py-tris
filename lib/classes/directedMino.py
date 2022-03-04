@@ -8,6 +8,9 @@ class DirectedMino ():
         self.direction = direction
         self.pos = pos
 
+# 0 <= x < Aのとき
+# (x, y) <-> y * A + x
+# の1対1の対応関係を考えてEncodeする。
 def EncodeDirectedMino (directedMino:DirectedMino) -> int:
     assert 0 <= directedMino.mino.value < 9
     assert 0 <= directedMino.direction.value < 4
@@ -15,11 +18,12 @@ def EncodeDirectedMino (directedMino:DirectedMino) -> int:
     assert 0 <= directedMino.pos[1] + 1 < BOARD_HEIGHT + 2
     return ((directedMino.mino.value * 4 + directedMino.direction.value) * (BOARD_WIDTH + 2) + directedMino.pos[0] + 1) * (BOARD_HEIGHT + 2) + directedMino.pos[1] + 1
 
+# Encodeの方法に基づいてDecode
 def DecodeDirectedMino (encodedDirectedMino:int) -> DirectedMino:
 
-    (encodedDirectedMino, pos1) = divmod(encodedDirectedMino, BOARD_HEIGHT + 2)
-    (encodedDirectedMino, pos0) = divmod(encodedDirectedMino, BOARD_WIDTH + 2)
-    (mino, direction) = divmod(encodedDirectedMino, 4)
+    encodedDirectedMino, pos1 = divmod(encodedDirectedMino, BOARD_HEIGHT + 2)
+    encodedDirectedMino, pos0 = divmod(encodedDirectedMino, BOARD_WIDTH + 2)
+    mino, direction = divmod(encodedDirectedMino, 4)
     pos1 -= 1
     pos0 -= 1
 
@@ -52,6 +56,9 @@ def GetOccupiedPositions (directedMino:DirectedMino) -> List[Tuple[int]]:
 
 # よく使われる関数GetOccupiedPositionsを高速化するために前計算しておく。
 # occupiedPositions[7][4][BOARD_WIDTH + 4][BOARD_HEIGHT + 4] 
+# MINOは T, S, Z, L, J, O, Iがそれぞれ0, 1, 2, 3, 4, 5, 6であることを仮定して、それ以外の入力はassertで除外している。
+# DIRECTIONも同様
+# -2 <= pos0 < BOARD_WIDTH + 2, -2 <= pos1 < BOARD_HEIGHT + 2 を仮定
 occupiedPositions = []
 def InitGetOccupiedPositions ():
     global occupiedPositions
