@@ -20,10 +20,10 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
                 blankUnderBlock += 1
     
     # 盤面の高さを見る
-    height = 0
-    for i in range(BOARD_HEIGHT):
-        if mainBoard[i] > 0:
-            height = BOARD_HEIGHT - i - cleardRowCount
+    minTopRowIdx = BOARD_HEIGHT
+    for idx in topRowIdx:
+        minTopRowIdx = min(minTopRowIdx, idx)
+    height = BOARD_HEIGHT - minTopRowIdx
     
     return roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK + height * EVAL_HEIGHT
 

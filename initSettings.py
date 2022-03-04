@@ -3,6 +3,8 @@ from lib import *
 def Init():
     # pyautoguiの遅延を0にする
     pyautogui.PAUSE = 0
+    # GetOccupiedPositionsの前計算
+    InitGetOccupiedPositions()
 
     try:
         # windowをアクティブにする

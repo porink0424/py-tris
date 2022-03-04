@@ -140,6 +140,18 @@ def SimplifyPath (path:List[MOVE]) -> List[MOVE]:
             break
     simplifiedPath = path[:len(path) - count] + [MOVE.DROP]
     return simplifiedPath
+
+# MOVE.DROPを使うことにより，pathの簡易化を行う
+# 引数自体を変更する
+def SimplifyPathUncopy (path:List[MOVE]):
+    # 最後には必ずMOVE.DROPをつける
+    # 最後にMOVE.DROPをつけるので，最後の連続するMOVE.DOWNは消去できる
+    while path:
+        if path[-1] is MOVE.DOWN:
+            path.pop()
+        else:
+            break
+    path.append(MOVE.DROP)
         
 # boardとそこに置きたいminoを入力して，
 # (ミノがおける場所，そこにたどり着く方法)
@@ -236,7 +248,8 @@ def GetPossibleMoves(
     # 例えばzミノはNとSで位置をずらせば同じ場所を占領するようになる
     encodedPlacesList = set()
     for key in reachableNodes:
-        path = SimplifyPath(reachableNodes[key])
+        path = reachableNodes[key]
+        SimplifyPathUncopy(path)
         decodedMino = DecodeDirectedMino(key)
         encodedPlaces = EncodePlacesOccupiedByDirectedMino(decodedMino)
         if encodedPlaces in encodedPlacesList:
