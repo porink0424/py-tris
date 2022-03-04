@@ -274,15 +274,18 @@ def GetPossibleMoves(
     
     return possibleMoves
 
+SEARCH_LIMIT = 5
+BEAM_WIDTH = [3, 3, 3, 3]
 def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
-    BEAM_WIDTH = 3
+    # BEAM_WIDTH = 3
     state_queue = [] 
     heapq.heapify(state_queue)
     init_state = State(board, mino, path, 0)
     init_state.Transit()
     heapq.heappush(state_queue, init_state)
 
-    for _ in range(limit):
+    assert limit == len(BEAM_WIDTH)
+    for beamWidth in BEAM_WIDTH:
         next_state_queue = []
         heapq.heapify(next_state_queue)
         while len(state_queue) > 0:
@@ -291,7 +294,7 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
             for next_state in now_state.NextStates():
                 heapq.heappush(next_state_queue, next_state)
             
-            while len(next_state_queue) > BEAM_WIDTH:
+            while len(next_state_queue) > beamWidth:
                 heapq.heappop(next_state_queue)
 
         state_queue = next_state_queue
@@ -317,7 +320,7 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
     maxValue, maxMino, maxPath = -10000000000, None, None
     for mino, path in possibleMoves:
         # 評価値計算
-        value = Search(board, mino, path, 5-1)
+        value = Search(board, mino, path, SEARCH_LIMIT-1)
         if value >= maxValue:
             maxMino, maxPath = mino, path
             maxValue = value
