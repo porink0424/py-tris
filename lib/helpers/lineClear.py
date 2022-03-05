@@ -16,12 +16,19 @@ def ClearLines(mainBoard:List[int], topRowIdx:List[int]) -> Tuple[List[int], Lis
         if i not in clearedRowIdx:
             newMainBoard.append(mainBoard[i])
 
+    newMainBoard = newMainBoard[(-BOARD_HEIGHT):]
     clearedRowCount = len(clearedRowIdx)
     newTopRowIdx = copy.copy(topRowIdx)
+
     for i in range(BOARD_WIDTH):
-        newTopRowIdx[i] += clearedRowCount
+        for j in range(topRowIdx[i], BOARD_HEIGHT):
+            if newMainBoard[j] & (0b1000000000 >> i) > 0:
+                newTopRowIdx[i] = j
+                break
+            else:
+                newTopRowIdx[i] = BOARD_HEIGHT
     
-    return newMainBoard[(-BOARD_HEIGHT):], newTopRowIdx, clearedRowCount
+    return newMainBoard, newTopRowIdx, clearedRowCount
 
 # mainBoard内で横一列が揃っている場合に、何ライン除去したかという情報を返す。
 # 実際に変更はしない

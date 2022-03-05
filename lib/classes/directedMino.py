@@ -45,13 +45,15 @@ def EncodePlacesOccupiedByDirectedMino (directedMino:DirectedMino) -> int:
     return ret
 
 # directedMinoを受け取り，そのミノが占領するmainBoard上の位置をsortして返す
+# この関数の返り値を変更すると初期化の配列自体が変更されるため、返り値を変更したい場合はcopyすること。
 def GetOccupiedPositions (directedMino:DirectedMino) -> List[Tuple[int]]:
     assert 0 <= directedMino.mino.value < 7
     assert 0 <= directedMino.direction.value < 4
     assert 0 <= directedMino.pos[0] + 2 < BOARD_WIDTH + 4
     assert 0 <= directedMino.pos[1] + 2 < BOARD_HEIGHT + 4
     pos0, pos1 = directedMino.pos
-    return occupiedPositions[directedMino.mino.value][directedMino.direction.value][pos0 + 2][pos1 + 2]
+    res = globaloccupiedPositions[directedMino.mino.value][directedMino.direction.value][pos0 + 2][pos1 + 2]
+    return res
 
 
 # よく使われる関数GetOccupiedPositionsを高速化するために前計算しておく。
@@ -59,48 +61,48 @@ def GetOccupiedPositions (directedMino:DirectedMino) -> List[Tuple[int]]:
 # MINOは T, S, Z, L, J, O, Iがそれぞれ0, 1, 2, 3, 4, 5, 6であることを仮定して、それ以外の入力はassertで除外している。
 # DIRECTIONも同様
 # -2 <= pos0 < BOARD_WIDTH + 2, -2 <= pos1 < BOARD_HEIGHT + 2 を仮定
-occupiedPositions = []
+globaloccupiedPositions = []
 def InitGetOccupiedPositions ():
-    global occupiedPositions
-    occupiedPositions = [[[[[] for _ in range(BOARD_HEIGHT + 4)] 
-                               for _ in range(BOARD_WIDTH + 4)] 
-                               for _ in range(4)] 
-                               for _ in range(7)]
+    global globaloccupiedPositions
+    globaloccupiedPositions = [[[[[] for _ in range(BOARD_HEIGHT + 4)] 
+                                     for _ in range(BOARD_WIDTH + 4)] 
+                                     for _ in range(4)] 
+                                     for _ in range(7)]
    
     for pos0 in range(-2, BOARD_WIDTH + 2):
         for pos1 in range(-2, BOARD_HEIGHT + 2):
             # MINO.T
-            occupiedPositions[MINO.T.value][DIRECTION.N.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1-1), (pos0, pos1), (pos0+1, pos1)]
-            occupiedPositions[MINO.T.value][DIRECTION.E.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1)]
-            occupiedPositions[MINO.T.value][DIRECTION.S.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1)]
-            occupiedPositions[MINO.T.value][DIRECTION.W.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1-1), (pos0, pos1), (pos0, pos1+1)]
+            globaloccupiedPositions[MINO.T.value][DIRECTION.N.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1-1), (pos0, pos1), (pos0+1, pos1)]
+            globaloccupiedPositions[MINO.T.value][DIRECTION.E.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1)]
+            globaloccupiedPositions[MINO.T.value][DIRECTION.S.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1)]
+            globaloccupiedPositions[MINO.T.value][DIRECTION.W.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1-1), (pos0, pos1), (pos0, pos1+1)]
             # MINO.S
-            occupiedPositions[MINO.S.value][DIRECTION.N.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1-1), (pos0, pos1), (pos0+1, pos1-1)]
-            occupiedPositions[MINO.S.value][DIRECTION.E.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0+1, pos1), (pos0+1, pos1+1)]
-            occupiedPositions[MINO.S.value][DIRECTION.S.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1+1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1)]
-            occupiedPositions[MINO.S.value][DIRECTION.W.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1-1), (pos0-1, pos1), (pos0, pos1), (pos0, pos1+1)]
+            globaloccupiedPositions[MINO.S.value][DIRECTION.N.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1-1), (pos0, pos1), (pos0+1, pos1-1)]
+            globaloccupiedPositions[MINO.S.value][DIRECTION.E.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0+1, pos1), (pos0+1, pos1+1)]
+            globaloccupiedPositions[MINO.S.value][DIRECTION.S.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1+1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1)]
+            globaloccupiedPositions[MINO.S.value][DIRECTION.W.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1-1), (pos0-1, pos1), (pos0, pos1), (pos0, pos1+1)]
             # MINO.Z
-            occupiedPositions[MINO.Z.value][DIRECTION.N.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1-1), (pos0, pos1-1), (pos0, pos1), (pos0+1, pos1)]
-            occupiedPositions[MINO.Z.value][DIRECTION.E.value][pos0 + 2][pos1 + 2] = [(pos0, pos1), (pos0, pos1+1), (pos0+1, pos1-1), (pos0+1, pos1)]
-            occupiedPositions[MINO.Z.value][DIRECTION.S.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1+1)]
-            occupiedPositions[MINO.Z.value][DIRECTION.W.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0-1, pos1+1), (pos0, pos1-1), (pos0, pos1)]
+            globaloccupiedPositions[MINO.Z.value][DIRECTION.N.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1-1), (pos0, pos1-1), (pos0, pos1), (pos0+1, pos1)]
+            globaloccupiedPositions[MINO.Z.value][DIRECTION.E.value][pos0 + 2][pos1 + 2] = [(pos0, pos1), (pos0, pos1+1), (pos0+1, pos1-1), (pos0+1, pos1)]
+            globaloccupiedPositions[MINO.Z.value][DIRECTION.S.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1+1)]
+            globaloccupiedPositions[MINO.Z.value][DIRECTION.W.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0-1, pos1+1), (pos0, pos1-1), (pos0, pos1)]
             # MINO.L
-            occupiedPositions[MINO.L.value][DIRECTION.N.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1), (pos0+1, pos1-1), (pos0+1, pos1)]
-            occupiedPositions[MINO.L.value][DIRECTION.E.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1+1)]
-            occupiedPositions[MINO.L.value][DIRECTION.S.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0-1, pos1+1), (pos0, pos1), (pos0+1, pos1)]
-            occupiedPositions[MINO.L.value][DIRECTION.W.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1-1), (pos0, pos1-1), (pos0, pos1), (pos0, pos1+1)]
+            globaloccupiedPositions[MINO.L.value][DIRECTION.N.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1), (pos0+1, pos1-1), (pos0+1, pos1)]
+            globaloccupiedPositions[MINO.L.value][DIRECTION.E.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1+1)]
+            globaloccupiedPositions[MINO.L.value][DIRECTION.S.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0-1, pos1+1), (pos0, pos1), (pos0+1, pos1)]
+            globaloccupiedPositions[MINO.L.value][DIRECTION.W.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1-1), (pos0, pos1-1), (pos0, pos1), (pos0, pos1+1)]
             # MINO.J
-            occupiedPositions[MINO.J.value][DIRECTION.N.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1-1), (pos0-1, pos1), (pos0, pos1), (pos0+1, pos1)]
-            occupiedPositions[MINO.J.value][DIRECTION.E.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1-1)]
-            occupiedPositions[MINO.J.value][DIRECTION.S.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1), (pos0+1, pos1), (pos0+1, pos1+1)]
-            occupiedPositions[MINO.J.value][DIRECTION.W.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1+1), (pos0, pos1-1), (pos0, pos1), (pos0, pos1+1)]
+            globaloccupiedPositions[MINO.J.value][DIRECTION.N.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1-1), (pos0-1, pos1), (pos0, pos1), (pos0+1, pos1)]
+            globaloccupiedPositions[MINO.J.value][DIRECTION.E.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0, pos1+1), (pos0+1, pos1-1)]
+            globaloccupiedPositions[MINO.J.value][DIRECTION.S.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1), (pos0+1, pos1), (pos0+1, pos1+1)]
+            globaloccupiedPositions[MINO.J.value][DIRECTION.W.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1+1), (pos0, pos1-1), (pos0, pos1), (pos0, pos1+1)]
             # MINO.O
-            occupiedPositions[MINO.O.value][DIRECTION.N.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0+1, pos1-1), (pos0+1, pos1)]
-            occupiedPositions[MINO.O.value][DIRECTION.E.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0+1, pos1-1), (pos0+1, pos1)]
-            occupiedPositions[MINO.O.value][DIRECTION.S.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0+1, pos1-1), (pos0+1, pos1)]
-            occupiedPositions[MINO.O.value][DIRECTION.W.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0+1, pos1-1), (pos0+1, pos1)]
+            globaloccupiedPositions[MINO.O.value][DIRECTION.N.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0+1, pos1-1), (pos0+1, pos1)]
+            globaloccupiedPositions[MINO.O.value][DIRECTION.E.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0+1, pos1-1), (pos0+1, pos1)]
+            globaloccupiedPositions[MINO.O.value][DIRECTION.S.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0+1, pos1-1), (pos0+1, pos1)]
+            globaloccupiedPositions[MINO.O.value][DIRECTION.W.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0+1, pos1-1), (pos0+1, pos1)]
             # MINO.I
-            occupiedPositions[MINO.I.value][DIRECTION.N.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1), (pos0+1, pos1), (pos0+2, pos1)]
-            occupiedPositions[MINO.I.value][DIRECTION.E.value][pos0 + 2][pos1 + 2] = [(pos0+1, pos1-1), (pos0+1, pos1), (pos0+1, pos1+1), (pos0+1, pos1+2)]
-            occupiedPositions[MINO.I.value][DIRECTION.S.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1+1), (pos0, pos1+1), (pos0+1, pos1+1), (pos0+2, pos1+1)]
-            occupiedPositions[MINO.I.value][DIRECTION.W.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0, pos1+1), (pos0, pos1+2)]
+            globaloccupiedPositions[MINO.I.value][DIRECTION.N.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1), (pos0, pos1), (pos0+1, pos1), (pos0+2, pos1)]
+            globaloccupiedPositions[MINO.I.value][DIRECTION.E.value][pos0 + 2][pos1 + 2] = [(pos0+1, pos1-1), (pos0+1, pos1), (pos0+1, pos1+1), (pos0+1, pos1+2)]
+            globaloccupiedPositions[MINO.I.value][DIRECTION.S.value][pos0 + 2][pos1 + 2] = [(pos0-1, pos1+1), (pos0, pos1+1), (pos0+1, pos1+1), (pos0+2, pos1+1)]
+            globaloccupiedPositions[MINO.I.value][DIRECTION.W.value][pos0 + 2][pos1 + 2] = [(pos0, pos1-1), (pos0, pos1), (pos0, pos1+1), (pos0, pos1+2)]

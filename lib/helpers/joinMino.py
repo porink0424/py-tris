@@ -34,5 +34,7 @@ def RemoveDirectedMinoFromBoardUncopy (directedMino:DirectedMino, mainBoard:List
                     topRowIdx[pos0] = rowIdx
                     break
             else:
-                    topRowIdx[pos0] = BOARD_HEIGHT
+                topRowIdx[pos0] = BOARD_HEIGHT
+        else:
+            assert topRowIdx[pos0] < pos1
  
