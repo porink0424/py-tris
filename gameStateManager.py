@@ -3,9 +3,10 @@ import boardWatcher
 import decisionMaker
 import minoMover
 import simulator
+import evaluator
 from lib import *
 
-# ゲーム画面を認識して標準出力に出力する関数（無限ループ）
+# ゲーム画面を認識して標準出力に出力する関数（無限ループ)
 def PytrisBoardWatcher ():
     print("\n\nPy-tris Board Watcher\n\n")
 
@@ -52,22 +53,28 @@ def PytrisSimulator ():
     PrintBoard(board)
 
     while True:
+        assert type(board.score) == int
         addedMino = simulator.GenerateMino()
         board = simulator.AddFollowingMino(board, addedMino)
 
         # 思考ルーチン
         value, mino, path = decisionMaker.Decide(board)
 
-        board = simulator.PutMino(path, board.currentMino, board)
+        board, isTspin, isTspinmini = simulator.PutMino(path, board.currentMino, board)
 
         newMainBoard, newTopRowIdx, clearedRowCount = simulator.ClearLinesOfBoard(board)
+        scoreAdd, backToBack, ren = evaluator.Score(isTspin, isTspinmini, clearedRowCount, board.backToBack, board.ren)
+
         board = Board(
             newMainBoard,
             None,
             board.followingMinos,
             board.holdMino,
             True,
-            newTopRowIdx
+            newTopRowIdx,
+            board.score + scoreAdd,
+            backToBack,
+            ren
         )
 
 # 実機上で思考を再現する（無限ループ、シングルスレッド）

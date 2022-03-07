@@ -10,17 +10,25 @@ class State():
     board = None
     eval = None
     accumPathValue = None
+    score = None 
+    backToBack = None 
+    ren = None
 
     #　評価値の計算だけ行う
-    def __init__(self, board:Board, mino:DirectedMino, path:List[MOVE], accumPathValue:int):
+    def __init__(self, board:Board, mino:DirectedMino, path:List[MOVE], accumPathValue:int, accumScore:int):
         self.board = board
         self.mino = mino 
         # ライン消去
         JoinDirectedMinoToBoardUncopy(mino, board.mainBoard, board.topRowIdx)
         clearedRowCount = ClearLinesCalc(board.mainBoard)
         # 評価値の計算
+        isTspin = evaluator.IsTSpin(board.mainBoard, mino, path)
+        isTspinmini = evaluator.IsTSpinMini(board.mainBoard, mino, path)
         self.accumPathValue = accumPathValue + evaluator.EvalPath(path, clearedRowCount, board.mainBoard, mino)
         self.eval = self.accumPathValue + evaluator.EvalMainBoard(board.mainBoard, clearedRowCount, board.topRowIdx)
+        # スコアの計算
+        self.score, self.backToBack, self.ren = evaluator.Score(isTspin, isTspinmini, clearedRowCount, board.backToBack, board.ren)
+        self.score += accumScore
         # Boardを元に戻す
         RemoveDirectedMinoFromBoardUncopy(mino, board.mainBoard, board.topRowIdx)
         
@@ -46,7 +54,10 @@ class State():
             self.board.followingMinos[1:] + [MINO.NONE],
             self.board.holdMino,
             True,
-            newTopRowIdx
+            newTopRowIdx,
+            self.score,
+            self.backToBack,
+            self.ren
         )
         self.board = clearedBoard
 
@@ -56,7 +67,7 @@ class State():
             self.board,
             self.board.currentMino
         )
-        nextStates = [State(self.board, nextMino, nextPath, self.accumPathValue) for nextMino, nextPath in possibleMoves]
+        nextStates = [State(self.board, nextMino, nextPath, self.accumPathValue, self.board.score) for nextMino, nextPath in possibleMoves]
         return nextStates
 
 # minoを今の位置からdirectionを変えずに左右に動かして得られるminoのリストを返す
@@ -280,7 +291,7 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
     # BEAM_WIDTH = 3
     state_queue = [] 
     heapq.heapify(state_queue)
-    init_state = State(board, mino, path, 0)
+    init_state = State(board, mino, path, 0, board.score)
     init_state.Transit()
     heapq.heappush(state_queue, init_state)
 
@@ -314,7 +325,6 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
         board,
         board.currentMino
     )
-    a = Timer()
 
     # 評価値計算
     maxValue, maxMino, maxPath = -10000000000, None, None
@@ -325,6 +335,5 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
             maxMino, maxPath = mino, path
             maxValue = value
 
-    print(f"                         {a.Stop()}")
     
     return maxValue, maxMino, maxPath

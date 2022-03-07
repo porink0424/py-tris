@@ -10,3 +10,4 @@ from .name import *
 from .position import *
 from .rotateOffset import *
 from .shape import *
+from .score import *

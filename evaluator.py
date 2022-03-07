@@ -135,3 +135,45 @@ def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int
                 t_spin = EVAL_T_SPIN_TRIPLE
     
     return t_spin + EVAL_LINE_CLEAR[clearedRowCount]
+
+def Score(isTspin:bool, isTspinmini:bool, clearedRowCount:int, backToBack:bool, ren:int) -> Tuple[int, bool, int]:
+    score = 0
+    isTspinOrTetris = False
+
+    if isTspin:
+        if isTspinmini:
+            score += SCORE_T_SPIN_MINI
+        else:
+            if clearedRowCount == 1:
+                score += SCORE_T_SPIN_SINGLE
+            elif clearedRowCount == 2:
+                score += SCORE_T_SPIN_DOUBLE
+            elif clearedRowCount == 3:
+                score += SCORE_T_SPIN_TRIPLE
+        isTspinOrTetris = True
+
+    if clearedRowCount == 1:
+        score += SCORE_SINGLE
+        ren += 1
+    elif clearedRowCount == 2:
+        score += SCORE_DOUBLE
+        ren += 1
+    elif clearedRowCount == 3:
+        score += SCORE_TRIPLE
+        ren += 1
+    elif clearedRowCount == 4:
+        score += SCORE_TETRIS
+        ren += 1
+        isTspinOrTetris = True
+    elif clearedRowCount == 0:
+        ren = 0
+
+    if backToBack and isTspinOrTetris:
+        score += 1
+
+    score += SCORE_REN[ren]
+    return score, isTspinOrTetris, ren
+
+    
+
+    
