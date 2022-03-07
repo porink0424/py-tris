@@ -4,6 +4,7 @@ import decisionMaker
 import minoMover
 import simulator
 import evaluator
+import geneticsAlgorithm
 from lib import *
 
 # ゲーム画面を認識して標準出力に出力する関数（無限ループ)
@@ -128,7 +129,22 @@ def PytrisMover ():
                 break
         board = simulator.AddFollowingMino(board, followingMinos[-1])
 
-
+def PytrisParamOpt():
+    print("\n\nPy-tris Paramater Optimization\n\n")
+    n = 1
+    g = 1
+    probCrossOver = 0.5
+    probMutation = 0.1
+    generation0 = [geneticsAlgorithm.TetrisParam.randomGen() for _ in range(n)]
+    optimizer = geneticsAlgorithm.GeneticsAlgorithm(
+        n,
+        g,
+        probCrossOver,
+        probMutation,
+        generation0
+    )
+    optimizer.Optimize()
+    print("FINISH OPTIMIZE\n")
 
 def main():
     # ゲームの初期設定
@@ -137,8 +153,11 @@ def main():
     # # 盤面監視モード
     # PytrisBoardWatcher()
 
-    # # simulatorモード
+    # simulatorモード
     PytrisSimulator()
 
     # 実機確認モード
     # PytrisMover()
+
+    # # Parameter Optimization
+    # PytrisParamOpt()

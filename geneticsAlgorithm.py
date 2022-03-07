@@ -1,7 +1,11 @@
 from lib import *
+from params.eval import *
 from abc import ABCMeta, abstractmethod
 import random
 import itertools
+import simulator
+import decisionMaker
+import evaluator
 
 # 遺伝的アルゴリズムを実装するための抽象クラス
 # このクラスを継承して実際に学習させる
@@ -87,7 +91,7 @@ class GeneticsAlgorithm():
             if fit > fitnessMax:
                 fitnessMax = fit 
                 index = i
-        return self.population[index]
+        return self.population[index], fitnessMax
 
     def _NextGeneration(self):
 
@@ -95,7 +99,8 @@ class GeneticsAlgorithm():
         self._CalcFitness()
 
         # エリート選択
-        nextGeneration = [self._Elite()]
+        elite, fitnessMax = self._Elite()
+        nextGeneration = [elite]
 
         while len(nextGeneration) < self.n:
             prob = random.random()
@@ -113,18 +118,19 @@ class GeneticsAlgorithm():
                 newIndividual = individual.mutation()
                 nextGeneration.append(newIndividual)
 
-        return nextGeneration
+        return nextGeneration, fitnessMax
         
     def Optimize(self):
 
         for _ in range(self.g):
-            self.population = self._NextGeneration()
-            print(f"elite = {self.population[0]}")
+            self.population, fitnessMax = self._NextGeneration()
+            print(f"param = {self.population[0]}")
+            print(f"best = {fitnessMax}")
 
         return self._Elite()
         
 
-class TetrisEval(Chromosome):
+class TetrisParam(Chromosome):
     def __init__(self, 
                  eval_height, 
                  eval_roughness, 
@@ -150,7 +156,8 @@ class TetrisEval(Chromosome):
         self.eval_t_spin_triple = eval_t_spin_triple 
         self.eval_t_spin_mini_single = eval_t_spin_mini_single
         self.eval_t_spin_mini_double = eval_t_spin_mini_double
-
+    
+    @classmethod
     def randomGen(cls):
         return cls(
             random.randint(0, 1000),
@@ -169,6 +176,8 @@ class TetrisEval(Chromosome):
         
 
     def fitness(self):
+        # ここでグローバル変数にパラメータを設定
+        # todo: できてない
         global EVAL_LINE_CLEAR
         global EVAL_HEIGHT, EVAL_ROUGHNESS, EVAL_BLANK_UNDER_BLOCK
         global EVAL_T_SPIN_SINGLE, EVAL_T_SPIN_DOUBLE, EVAL_T_SPIN_TRIPLE
@@ -186,8 +195,42 @@ class TetrisEval(Chromosome):
         EVAL_T_SPIN_TRIPLE = self.eval_t_spin_triple
         EVAL_T_SPIN_MINI_SINGLE = self.eval_t_spin_mini_single
         EVAL_T_SPIN_MINI_DOUBLE = self.eval_t_spin_mini_double
-        # todo implementation
+        
+        # simulation
 
+        board = Board()
+        board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
+
+        for _ in range(60):
+            assert type(board.score) == int
+            addedMino = simulator.GenerateMino()
+            board = simulator.AddFollowingMino(board, addedMino)
+
+            # 思考ルーチン
+            value, mino, path = decisionMaker.Decide(board)
+
+            # ミノを動かしてラインを消す
+            isTspin = evaluator.IsTSpin(board.mainBoard, mino, path)
+            isTspinmini = evaluator.IsTSpinMini(board.mainBoard, mino, path)
+            joinedMainBoard, joinedTopRowIdx = JoinDirectedMinoToBoard(mino, board.mainBoard, board.topRowIdx)
+            newMainBoard, newTopRowIdx, clearedRowCount = ClearLines(joinedMainBoard, joinedTopRowIdx)
+
+            # スコアの計算
+            scoreAdd, backToBack, ren = evaluator.Score(isTspin, isTspinmini, clearedRowCount, board.backToBack, board.ren)
+
+            board = Board(
+                newMainBoard,
+                None,
+                board.followingMinos,
+                board.holdMino,
+                True,
+                newTopRowIdx,
+                board.score + scoreAdd,
+                backToBack,
+                ren
+            )
+
+        return board.score
     
     def crossOver(self, other):
         eval_height             = self.eval_height if random.random() < 0.5 else other.eval_height
@@ -202,7 +245,7 @@ class TetrisEval(Chromosome):
         eval_t_spin_triple      = self.eval_t_spin_triple if random.random() < 0.5 else other.eval_t_spin_triple
         eval_t_spin_mini_single = self.eval_t_spin_mini_single if random.random() < 0.5 else other.eval_t_spin_mini_single
         eval_t_spin_mini_double = self.eval_t_spin_mini_double if random.random() < 0.5 else other.eval_t_spin_mini_double
-        return TetrisEval(
+        return TetrisParam(
             eval_height, 
             eval_roughness, 
             eval_blank_under_block,
@@ -230,7 +273,7 @@ class TetrisEval(Chromosome):
         eval_t_spin_triple      = self.eval_t_spin_triple if random.random() < 0.5 else self.eval_t_spin_triple + random.randint(-100,100)
         eval_t_spin_mini_single = self.eval_t_spin_mini_single if random.random() < 0.5 else self.eval_t_spin_mini_single + random.randint(-100,100)
         eval_t_spin_mini_double = self.eval_t_spin_mini_double if random.random() < 0.5 else self.eval_t_spin_mini_double + random.randint(-100,100)
-        return TetrisEval(
+        return TetrisParam(
             eval_height, 
             eval_roughness, 
             eval_blank_under_block,
@@ -244,21 +287,21 @@ class TetrisEval(Chromosome):
             eval_t_spin_mini_single,
             eval_t_spin_mini_double 
         )
-
+    
+    # Logを取るときに必要
     def __str__(self):
-        tostr = f"EVAL_HEIGHT = {self.eval_height}" \
-                f"EVAL_RUGHNESS = {self.eval_roughness}" \
-                f"EVAL_BLANK_UNDER_BLOCK = {self.eval_blank_under_block}" \
-                f"EVAL_SINGLE = {self.eval_single}" \
-                f"EVAL_DOUBLE = {self.eval_double}" \
-                f"EVAL_TRIPLE = {self.eval_triple}" \
-                f"EVAL_TETRIS = {self.eval_tetris}" \
-                f"EVAL_T_SPIN_SINGLE = {self.eval_t_spin_single}" \
-                f"EVAL_T_SPIN_DOUBLE = {self.eval_t_spin_double}" \
-                f"EVAL_T_SPIN_TRIPLE = {self.eval_t_spin_triple}" \
-                f"EVAL_T_SPIN_TETRIS = {self.eval_t_spin_tetris}" \
-                f"EVAL_T_SPIN_MINI_SINGLE = {self.eval_t_spin_mini_single}" \
-                f"EVAL_T_SPIN_MINI_DOUBLE = {self.eval_t_spin_mini_double}"
+        tostr = f"EVAL_HEIGHT = {self.eval_height}\n" \
+                f"EVAL_ROUGHNESS = {self.eval_roughness}\n" \
+                f"EVAL_BLANK_UNDER_BLOCK = {self.eval_blank_under_block}\n" \
+                f"EVAL_SINGLE = {self.eval_single}\n" \
+                f"EVAL_DOUBLE = {self.eval_double}\n" \
+                f"EVAL_TRIPLE = {self.eval_triple}\n" \
+                f"EVAL_TETRIS = {self.eval_tetris}\n" \
+                f"EVAL_T_SPIN_SINGLE = {self.eval_t_spin_single}\n" \
+                f"EVAL_T_SPIN_DOUBLE = {self.eval_t_spin_double}\n" \
+                f"EVAL_T_SPIN_TRIPLE = {self.eval_t_spin_triple}\n" \
+                f"EVAL_T_SPIN_MINI_SINGLE = {self.eval_t_spin_mini_single}\n" \
+                f"EVAL_T_SPIN_MINI_DOUBLE = {self.eval_t_spin_mini_double}\n"
         
         return tostr
 
