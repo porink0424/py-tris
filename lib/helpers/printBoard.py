@@ -89,5 +89,6 @@ def PrintBoardWithDirectedMino(board:Board, directedMino:DirectedMino, reset=Fal
         joinedTopRowIdx,
         board.score,
         board.backToBack,
-        board.ren
+        board.ren,
+        board.evalParam
     ), reset, elapsedTime)

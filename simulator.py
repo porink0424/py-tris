@@ -36,7 +36,8 @@ def PutMino (moveList:List[MOVE], nowDirectedMino:DirectedMino, board:Board) -> 
         joinedTopRowIdx,
         board.score,
         board.backToBack,
-        board.ren
+        board.ren,
+        board.evalParam
     ), isTspin, isTspinmini
 
 # ラインをクリアする
@@ -52,7 +53,8 @@ def ClearLinesOfBoard(board:Board) -> Tuple[List[List[MINO]], int]:
         newTopRowIdx,
         board.score,
         board.backToBack,
-        board.ren
+        board.ren,
+        board.evalParam
     ), True, None, False, True)
     time.sleep(DISPLAY_DELTA_TIME)
     return newMainBoard, newTopRowIdx, clearedRowCount
@@ -72,7 +74,8 @@ def AddFollowingMino (board:Board, addedMino:MINO) -> Board:
         board.topRowIdx,
         board.score,
         board.backToBack,
-        board.ren
+        board.ren,
+        board.evalParam
     )
 
 # 7種1巡の法則に従ってランダムでミノを生成する

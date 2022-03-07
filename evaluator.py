@@ -3,7 +3,7 @@ from params.eval import *
 
 # 盤面自体の評価関数
 # mainBoardはミノを埋め込んだだけでまだRowを消していない盤面
-def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
+def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int], evalParam:Evalparam) -> float:
     # 凸凹具合を見る
     # 前の列との差分をみて，その差分の合計を凸凹具合とする
     
@@ -25,7 +25,7 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
         minTopRowIdx = min(minTopRowIdx, idx)
     height = BOARD_HEIGHT - minTopRowIdx - cleardRowCount
     
-    return roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK + height * EVAL_HEIGHT
+    return roughness * evalParam.EVAL_ROUGHNESS + blankUnderBlock * evalParam.EVAL_BLANK_UNDER_BLOCK + height * evalParam.EVAL_HEIGHT
 
 # Tスピンの判定
 def IsTSpin (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:List[MOVE]) -> bool:
@@ -118,7 +118,7 @@ def IsTSpinMini (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:
     return True
 
 # 経路・ライン数の評価関数
-def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int], directedMino:DirectedMino) -> float:
+def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int], directedMino:DirectedMino, evalparam:Evalparam) -> float:
     t_spin = 0
     if IsTSpin(joinedMainBoard, directedMino, moveList):
         if IsTSpinMini(joinedMainBoard, directedMino, moveList):
@@ -134,7 +134,7 @@ def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int
             elif clearedRowCount == 3:
                 t_spin = EVAL_T_SPIN_TRIPLE
     
-    return t_spin + EVAL_LINE_CLEAR[clearedRowCount]
+    return t_spin + evalparam.EVAL_LINE_CLEAR[clearedRowCount]
 
 def Score(isTspin:bool, isTspinmini:bool, clearedRowCount:int, backToBack:bool, ren:int) -> Tuple[int, bool, int]:
     score = 0

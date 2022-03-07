@@ -176,30 +176,24 @@ class TetrisParam(Chromosome):
         
 
     def fitness(self):
-        # ここでグローバル変数にパラメータを設定
-        # todo: できてない
-        global EVAL_LINE_CLEAR
-        global EVAL_HEIGHT, EVAL_ROUGHNESS, EVAL_BLANK_UNDER_BLOCK
-        global EVAL_T_SPIN_SINGLE, EVAL_T_SPIN_DOUBLE, EVAL_T_SPIN_TRIPLE
-        global EVAL_T_SPIN_MINI_SINGLE, EVAL_T_SPIN_MINI_DOUBLE
-        EVAL_LINE_CLEAR[0] = 0
-        EVAL_LINE_CLEAR[1] = self.eval_single
-        EVAL_LINE_CLEAR[2] = self.eval_double
-        EVAL_LINE_CLEAR[3] = self.eval_triple
-        EVAL_LINE_CLEAR[4] = self.eval_tetris
-        EVAL_HEIGHT = self.eval_height
-        EVAL_ROUGHNESS = self.eval_roughness
-        EVAL_BLANK_UNDER_BLOCK = self.eval_blank_under_block
-        EVAL_T_SPIN_SINGLE = self.eval_t_spin_single
-        EVAL_T_SPIN_DOUBLE = self.eval_t_spin_double
-        EVAL_T_SPIN_TRIPLE = self.eval_t_spin_triple
-        EVAL_T_SPIN_MINI_SINGLE = self.eval_t_spin_mini_single
-        EVAL_T_SPIN_MINI_DOUBLE = self.eval_t_spin_mini_double
-        
         # simulation
 
         board = Board()
         board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
+
+        # パラメタの設定
+        # todo: ランダムすぎてすぐゲームオーバーするのをなんとかする
+        board.evalParam = Evalparam(
+            [0, self.eval_single, self.eval_double, self.eval_triple, self.eval_tetris],
+            self.eval_height, 
+            self.eval_roughness, 
+            self.eval_blank_under_block, 
+            self.eval_t_spin_single,
+            self.eval_t_spin_double,
+            self.eval_t_spin_triple,
+            self.eval_t_spin_mini_single,
+            self.eval_t_spin_mini_double
+        )
 
         for _ in range(60):
             assert type(board.score) == int
@@ -227,7 +221,8 @@ class TetrisParam(Chromosome):
                 newTopRowIdx,
                 board.score + scoreAdd,
                 backToBack,
-                ren
+                ren,
+                board.evalParam
             )
 
         return board.score

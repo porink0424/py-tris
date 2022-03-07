@@ -6,6 +6,7 @@ import simulator
 import evaluator
 import geneticsAlgorithm
 from lib import *
+from params.eval import *
 
 # ゲーム画面を認識して標準出力に出力する関数（無限ループ)
 def PytrisBoardWatcher ():
@@ -50,6 +51,17 @@ def PytrisSimulator ():
     #     board.AddBlockToMainBoard((i ,39))
 
     board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
+    board.evalParam = Evalparam(
+        EVAL_LINE_CLEAR,
+        EVAL_HEIGHT, 
+        EVAL_ROUGHNESS, 
+        EVAL_BLANK_UNDER_BLOCK, 
+        EVAL_T_SPIN_SINGLE,
+        EVAL_T_SPIN_DOUBLE,
+        EVAL_T_SPIN_TRIPLE,
+        EVAL_T_SPIN_MINI_SINGLE,
+        EVAL_T_SPIN_MINI_DOUBLE
+    )
     print("\n\n\n")
     PrintBoard(board)
 
@@ -75,7 +87,8 @@ def PytrisSimulator ():
             newTopRowIdx,
             board.score + scoreAdd,
             backToBack,
-            ren
+            ren,
+            board.evalParam
         )
 
 # 実機上で思考を再現する（無限ループ、シングルスレッド）

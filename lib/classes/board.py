@@ -1,5 +1,6 @@
 from lib.constants import *
 from lib.classes.directedMino import *
+from lib.classes.param import *
 
 class Board():
     def __init__(
@@ -12,7 +13,8 @@ class Board():
         topRowIdx : List[int] = None,
         score : int = 0,
         backToBack : bool = False,
-        ren : int = 0
+        ren : int = 0,
+        evalParam : Evalparam = None
     ) -> None:
         self.mainBoard = mainBoard if mainBoard is not None else [0x0 for _ in range(BOARD_HEIGHT)]
         self.followingMinos = followingMinos if followingMinos is not None else [MINO.NONE for _ in range(FOLLOWING_MINOS_COUNT)]
@@ -23,6 +25,7 @@ class Board():
         self.score = score
         self.backToBack = backToBack
         self.ren = ren
+        self.evalParam = evalParam
 
     
     # mainBoardの任意の場所にブロックを足す
