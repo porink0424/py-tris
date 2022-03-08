@@ -1,7 +1,16 @@
 from lib.classes import *
-import vgamepad as vg
 
-gamepad = vg.VX360Gamepad()
+try:
+    import vgamepad as vg
+    gamepad = vg.VX360Gamepad()
+    print("Waiting for vgamepad connected...", flush=True)
+
+    # gamepadの起動を待つ
+    time.sleep(5)
+
+    print("Done.", flush=True)
+except:
+    pass
 
 KEY_HOLD_TIME = 0.02
 KEY_RELEASE_TIME = 0.02
@@ -23,7 +32,7 @@ def Move (move:MOVE):
         time.sleep(KEY_HOLD_TIME)
         gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
     elif move is MOVE.DROP:
-        gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
+        gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
         gamepad.update()
         time.sleep(KEY_HOLD_TIME)
         gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
@@ -46,14 +55,12 @@ def Move (move:MOVE):
     time.sleep(KEY_RELEASE_TIME)
 
 def HoldDown ():
-    gamepad.press_button(direction=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
     gamepad.update()
-    time.sleep(KEY_HOLD_TIME)
 
 def ReleaseDown ():
-    gamepad.release_button(direction=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
     gamepad.update()
-    time.sleep(KEY_RELEASE_TIME)
 
 def PressEnter ():
     gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)

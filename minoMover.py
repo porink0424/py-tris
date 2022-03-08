@@ -54,9 +54,9 @@ def GetMovedDirectedMino (move:MOVE, directedMino:DirectedMino, mainBoard:List[i
 # moveListとdirectedMinoを受け取って、その通りに入力を行う
 # moveList = [downが入っていないmove1] + [downの連続列] + [downが入っていないmove2]の形のみに対応している
 # directedMinoをmoveListに従って動かした結果の移動先のdirectedMinoを返す
+# 置きミスしたときは、Noneを返す
 # todo: より一般的なmoveListに対しても動くようにする
-def InputMove (moveList:List[MOVE], directedMino:DirectedMino, mainBoard:List[int]) -> DirectedMino:
-    pos = directedMino.pos
+def InputMove (moveList:List[MOVE], directedMino:DirectedMino, mainBoard:List[int]) -> Union[DirectedMino, bool]:
     nextDirectedMino = directedMino
 
     # moveList = [move1] + [downの連続列] + [move2]に分割する
@@ -90,17 +90,15 @@ def InputMove (moveList:List[MOVE], directedMino:DirectedMino, mainBoard:List[in
     if downCount > 0:
         HoldDown() # 目的の場所にたどり着くまで下を押し続ける
         nextDirectedMino = DirectedMino(nextDirectedMino.mino, nextDirectedMino.direction, (nextDirectedMino.pos[0], nextDirectedMino.pos[1] + downCount))
-        occupiedPositions = GetOccupiedPositions(nextDirectedMino)
+        count = 0
         while True:
-            hasReached = True
-            for pos in occupiedPositions:
-                pos = (pos[0], pos[1] - (BOARD_HEIGHT - DISPLAYED_BOARD_HEIGHT))
-                if boardWatcher.GetPixelColor(pos) is not nextDirectedMino.mino:
-                    hasReached = False
-                    break
-            if hasReached:
+            if boardWatcher.GetPosOfCurrentMino() == nextDirectedMino.pos:
                 ReleaseDown()
                 break
+            count += 1
+            time.sleep(0.01) # 回転入れがある程度の時間成功しない時は失敗とみなす todo: もっといい方法で
+            if count > 200:
+                return None
     
     # move2を入力
     for move in move2:

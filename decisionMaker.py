@@ -262,4 +262,8 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
                 maxMino, maxPath = mino, path
                 maxValue = value
     
+    if maxMino is None or maxPath is None:
+        Warn("Cannot decide path.")
+        maxMino, maxPath = possibleMoves[0]
+    
     return maxValue, maxMino, maxPath

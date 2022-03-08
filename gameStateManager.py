@@ -1,9 +1,35 @@
-import initSettings
+# -------------
+#
+# Init Settings
+#
+# -------------
+
+import pyautogui
+import time
+
+# pyautoguiの遅延を0にする
+pyautogui.PAUSE = 0
+
+# windowの位置
+# todo: 環境によって初期位置を調整する
+WINDOW_X = 100
+WINDOW_Y = 100
+
+# windowをアクティブにする
+pyautogui.click(WINDOW_X, WINDOW_Y)
+print("Window activated.", flush=True)
+
 import boardWatcher
 import decisionMaker
 import minoMover
 import simulator
 from lib import *
+
+# -------------
+#
+# Init Settings End
+#
+# -------------
 
 # ゲーム画面を認識して標準出力に出力する関数（無限ループ）
 def PytrisBoardWatcher ():
@@ -66,75 +92,57 @@ def PytrisSimulator ():
         )
 
 # 実機上で思考を再現する（無限ループ、シングルスレッド）
-# Start Overを押せる状態からはじめないとバグる
+# menu画面にいて、Startを押せる状態からはじめないとバグる
 def PytrisMover ():
     # ゲームの再開
     PressEnter()
-    time.sleep(4.5)
+    time.sleep(4) # todo: 開始までただ待つのではなく、メモリ読み込みで開始したことを取得できるようにする
 
     # 盤面を出力する分の行数を確保する
     for _ in range(DISPLAYED_BOARD_HEIGHT):
         print("", flush=True)
+    
+    previousFollowingMinos = [boardWatcher.GetFollowingMinos()[0]]
 
     while True:
+        # 消去中のラインが消えるまで待つ
+        while boardWatcher.IsClearingLines():
+            pass
+
+        # followingMinosが変化するまで待つ
+        while True:
+            if previousFollowingMinos != boardWatcher.GetFollowingMinos():
+                currentMino = previousFollowingMinos[0]
+                previousFollowingMinos = boardWatcher.GetFollowingMinos()
+                break
+        
         # 盤面の状況を読み取る
-        with mss.mss() as sct:
-            region = {'top': WINDOW_Y, 'left': WINDOW_X, 'width': WINDOW_WIDTH / 2, 'height': WINDOW_HEIGHT}
-            img = sct.grab(region)
-            img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
-        currentMino = boardWatcher.GetCurrentMino(img)
-        mainBoard = boardWatcher.GetMainBoard(img)
-        deletedMainBoard = DeleteDirectedMinoFromMainBoard(currentMino, mainBoard)
         board = Board(
-            deletedMainBoard,
-            DirectedMino(currentMino.mino, DIRECTION.N, FIRST_MINO_POS),
-            boardWatcher.GetFollowingMinos(img),
-            boardWatcher.GetHoldMino(img),
+            boardWatcher.GetMainBoard(),
+            DirectedMino(
+                currentMino, # ここで仮にGetCurrentMinoをやるとminoの種類が正しくないものが入ってきてしまう（おそらくメモリに反映されるのに時間がかかるため？）
+                FIRST_MINO_DIRECTION,
+                FIRST_MINO_POS
+            ),
+            boardWatcher.GetFollowingMinos(),
+            boardWatcher.GetHoldMino(),
             True
         )
 
+        PrintBoard(board, True)
+        
         # 思考ルーチン
         value, mino, path = decisionMaker.Decide(board)
 
         # 移動
-        directedMino = minoMover.InputMove(path, board.currentMino, board.mainBoard)
+        directedMino = minoMover.InputMove(path, boardWatcher.GetCurrentMino(), board.mainBoard)
 
-        # ライン消去
-        joinedMainBoard = JoinDirectedMinoToBoard(directedMino, board.mainBoard)
-        newMainBoard, clearedRowCount = ClearLines(joinedMainBoard)
-
-        # AIが見ているはずの盤面の状況
-        nowAIsMainBoard = Board(
-            newMainBoard,
-            None,
-            board.followingMinos,
-            board.holdMino,
-            board.canHold
-        )
-        PrintBoard(nowAIsMainBoard, True)
-
-        # currentMinoが更新されるのを待つ
-        while True:
-            currentMino = boardWatcher.GetCurrentMino()
-            if board.followingMinos[0] is currentMino.mino: # currentMinoが更新されたら次へ
-                break
-    
-        # クリアしたライン数に応じて待ち時間を変える
-        FRAME_DELTA_TIME = 0.015
-        FRAME_COUNTS = [1, 30, 38, 38, 38]
-        time.sleep(FRAME_DELTA_TIME * FRAME_COUNTS[clearedRowCount])
-
-
-
-def main():
-    # ゲームの初期設定
-    initSettings.Init()
-    
-    # 盤面監視モード
-    PytrisBoardWatcher()
+def main():    
+    # # 盤面監視モード
+    # PytrisBoardWatcher()
 
     # # simulatorモード
     # PytrisSimulator()
 
-    # # 実機確認モード
-    # PytrisMover()
+    # 実機確認モード
+    PytrisMover()

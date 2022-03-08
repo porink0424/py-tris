@@ -29,7 +29,6 @@ def EncodePlacesOccupiedByDirectedMino (directedMino:DirectedMino) -> str:
 
 # directedMinoを受け取り，そのミノが占領するmainBoard上の位置を返す
 def GetOccupiedPositions (directedMino:DirectedMino) -> List[Tuple[int]]:
-    assert(0 <= directedMino.pos[0] < BOARD_WIDTH) # x座標がおかしかったら異常停止
     if directedMino.mino is MINO.T:
         if directedMino.direction is DIRECTION.N:
             pos = directedMino.pos
