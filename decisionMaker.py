@@ -24,7 +24,7 @@ class State():
         # 評価値の計算
         isTspin = evaluator.IsTSpin(board.mainBoard, mino, path)
         isTspinmini = isTspin and evaluator.IsTSpinMini(board.mainBoard, mino, path)
-        self.accumPathValue = accumPathValue + evaluator.EvalPath(path, clearedRowCount, board.mainBoard, mino, board.evalParam)
+        self.accumPathValue = accumPathValue + evaluator.EvalPath(path, clearedRowCount, board.mainBoard, mino, board.evalParam, board.backToBack, board.ren)
         self.eval = self.accumPathValue + evaluator.EvalMainBoard(board.mainBoard, clearedRowCount, board.topRowIdx, board.evalParam)
         # スコアの計算
         self.score, self.backToBack, self.ren = evaluator.Score(isTspin, isTspinmini, clearedRowCount, board.backToBack, board.ren)

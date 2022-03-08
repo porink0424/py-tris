@@ -10,7 +10,9 @@ class Evalparam():
         EVAL_T_SPIN_DOUBLE:int,
         EVAL_T_SPIN_TRIPLE:int,
         EVAL_T_SPIN_MINI_SINGLE:int,
-        EVAL_T_SPIN_MINI_DOUBLE:int):
+        EVAL_T_SPIN_MINI_DOUBLE:int,
+        EVAL_BACKTOBACK:int,
+        EVAL_REN:int):
         
         self.EVAL_LINE_CLEAR = EVAL_LINE_CLEAR
         self.EVAL_HEIGHT = EVAL_HEIGHT 
@@ -21,3 +23,5 @@ class Evalparam():
         self.EVAL_T_SPIN_TRIPLE = EVAL_T_SPIN_TRIPLE
         self.EVAL_T_SPIN_MINI_SINGLE = EVAL_T_SPIN_MINI_SINGLE
         self.EVAL_T_SPIN_MINI_DOUBLE = EVAL_T_SPIN_MINI_DOUBLE 
+        self.EVAL_BACKTOBACK = EVAL_BACKTOBACK
+        self.EVAL_REN = EVAL_REN

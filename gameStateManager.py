@@ -60,12 +60,14 @@ def PytrisSimulator ():
         EVAL_T_SPIN_DOUBLE,
         EVAL_T_SPIN_TRIPLE,
         EVAL_T_SPIN_MINI_SINGLE,
-        EVAL_T_SPIN_MINI_DOUBLE
+        EVAL_T_SPIN_MINI_DOUBLE,
+        EVAL_BACKTOBACK,
+        EVAL_REN
     )
     print("\n\n\n")
     PrintBoard(board)
 
-    while True:
+    for _ in range(60):
         assert type(board.score) == int
         addedMino = simulator.GenerateMino()
         board = simulator.AddFollowingMino(board, addedMino)

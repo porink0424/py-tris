@@ -24,8 +24,14 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int], evalParam
     for idx in topRowIdx:
         minTopRowIdx = min(minTopRowIdx, idx)
     height = BOARD_HEIGHT - minTopRowIdx - cleardRowCount
+
+    eval = 0
+    if height >= 10:
+        eval += height * (evalParam.EVAL_HEIGHT - 100000)
+    else:
+        eval += height * evalParam.EVAL_HEIGHT
     
-    return roughness * evalParam.EVAL_ROUGHNESS + blankUnderBlock * evalParam.EVAL_BLANK_UNDER_BLOCK + height * evalParam.EVAL_HEIGHT
+    return eval + roughness * evalParam.EVAL_ROUGHNESS + blankUnderBlock * evalParam.EVAL_BLANK_UNDER_BLOCK
 
 # Tスピンの判定
 def IsTSpin (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:List[MOVE]) -> bool:
@@ -118,8 +124,10 @@ def IsTSpinMini (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:
     return True
 
 # 経路・ライン数の評価関数
-def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int], directedMino:DirectedMino, evalparam:Evalparam) -> float:
+def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int], directedMino:DirectedMino, evalparam:Evalparam, backtoback:bool, ren:int) -> float:
     t_spin = 0
+    isbtb = False 
+
     if IsTSpin(joinedMainBoard, directedMino, moveList):
         if IsTSpinMini(joinedMainBoard, directedMino, moveList):
             if clearedRowCount == 1:
@@ -133,8 +141,18 @@ def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int
                 t_spin = EVAL_T_SPIN_DOUBLE
             elif clearedRowCount == 3:
                 t_spin = EVAL_T_SPIN_TRIPLE
+        isbtb = True
     
-    return t_spin + evalparam.EVAL_LINE_CLEAR[clearedRowCount]
+    if clearedRowCount == 4:
+        isbtb = True
+
+    isbtb = isbtb and backtoback
+
+    eval = t_spin + \
+           evalparam.EVAL_LINE_CLEAR[clearedRowCount] + \
+           (evalparam.EVAL_BACKTOBACK if isbtb else 0) + \
+           evalparam.EVAL_REN[ren]
+    return eval
 
 def Score(isTspin:bool, isTspinmini:bool, clearedRowCount:int, backToBack:bool, ren:int) -> Tuple[int, bool, int]:
     score = 0
