@@ -166,7 +166,7 @@ def main():
     # # 盤面監視モード
     # PytrisBoardWatcher()
 
-    # simulatorモード
+    # # simulatorモード
     PytrisSimulator()
 
     # 実機確認モード

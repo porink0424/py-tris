@@ -205,7 +205,7 @@ class TetrisParam(Chromosome):
 
             # ミノを動かしてラインを消す
             isTspin = evaluator.IsTSpin(board.mainBoard, mino, path)
-            isTspinmini = evaluator.IsTSpinMini(board.mainBoard, mino, path)
+            isTspinmini = isTspin and evaluator.IsTSpinMini(board.mainBoard, mino, path)
             joinedMainBoard, joinedTopRowIdx = JoinDirectedMinoToBoard(mino, board.mainBoard, board.topRowIdx)
             newMainBoard, newTopRowIdx, clearedRowCount = ClearLines(joinedMainBoard, joinedTopRowIdx)
 
