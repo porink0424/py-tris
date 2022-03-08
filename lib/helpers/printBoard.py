@@ -10,11 +10,8 @@ COLOR_CODES = {
     MINO.S : fg(2),
     MINO.J : fg(4),
     MINO.JAMA : fg(15),
-    MINO.NONE : fg(0),
+    MINO.NONE : fg(8),
 }
-
-COLOR_BLOCK = fg(15)
-COLOR_NONE = fg(0)
 
 # 盤面の情報をもらって、出力
 def PrintBoard(board:Board, reset=False, elapsedTime=None, displayAll=False):
@@ -41,16 +38,16 @@ def PrintBoard(board:Board, reset=False, elapsedTime=None, displayAll=False):
                     print("{}■{}".format(COLOR_CODES[mino], attr('reset')), end="", flush=True)
                 else:
                     print("{}■{}".format(COLOR_CODES[MINO.NONE], attr('reset')), end="", flush=True)
-            print("", attr('reset'), end="", flush=True)
+            print(" ", attr('reset'), end="", flush=True)
         else:
-            print("     ", end="", flush=True)
+            print("　　　　　", end="", flush=True)
 
         row = board.mainBoard[i + BOARD_HEIGHT - DISPLAYED_BOARD_HEIGHT]
         for j in range(BOARD_WIDTH):
             if row & (0b1000000000 >> j) > 0:
-                print('{}■{}'.format(COLOR_BLOCK, attr('reset')), end="", flush=True)
+                print('{}■{}'.format(COLOR_CODES[MINO.JAMA], attr('reset')), end="", flush=True)
             else:
-                print('{}■{}'.format(COLOR_NONE, attr('reset')), end="", flush=True)
+                print('{}■{}'.format(COLOR_CODES[MINO.NONE], attr('reset')), end="", flush=True)
         
         if 0 <= alreadyDisplayedLineCount < len(board.followingMinos) * (SHAPE_HEIGHT + 1): # NEXTミノを表示させる行
             if alreadyDisplayedLineCount % (SHAPE_HEIGHT + 1) != SHAPE_HEIGHT: # 空白の行ではない
@@ -74,7 +71,7 @@ def PrintBoard(board:Board, reset=False, elapsedTime=None, displayAll=False):
 # directedMinoをboardに反映した状態で出力させる
 def PrintBoardWithDirectedMino(board:Board, directedMino:DirectedMino, reset=False, elapsedTime=None):
     joinedMainBoard = JoinDirectedMinoToBoard(directedMino, board.mainBoard)
-    
+
     # 出力
     PrintBoard(Board(
         joinedMainBoard,
