@@ -1,48 +1,64 @@
 from lib.classes import *
+import vgamepad as vg
 
-KEY_HOLD_TIME = 0.01
-KEY_RELEASE_TIME = 0.01
+gamepad = vg.VX360Gamepad()
+
+KEY_HOLD_TIME = 0.02
+KEY_RELEASE_TIME = 0.02
 
 def Move (move:MOVE):
     if move is MOVE.LEFT:
-        pyautogui.keyDown("left")
-        time.sleep(KEY_HOLD_TIME) # 一定時間keyDownしていないと，認識されないことがある
-        pyautogui.keyUp("left")
+        gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
+        gamepad.update()
+        time.sleep(KEY_HOLD_TIME)
+        gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
     elif move is MOVE.RIGHT:
-        pyautogui.keyDown("right")
+        gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_RIGHT)
+        gamepad.update()
         time.sleep(KEY_HOLD_TIME)
-        pyautogui.keyUp("right")
+        gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_RIGHT)
     elif move is MOVE.DOWN:
-        pyautogui.keyDown("down")
+        gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+        gamepad.update()
         time.sleep(KEY_HOLD_TIME)
-        pyautogui.keyUp("down")
+        gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
     elif move is MOVE.DROP:
-        pyautogui.keyDown("space")
+        gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
+        gamepad.update()
         time.sleep(KEY_HOLD_TIME)
-        pyautogui.keyUp("space")
+        gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
     elif move is MOVE.HOLD:
-        pyautogui.keyDown("c")
+        gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_LEFT_SHOULDER)
+        gamepad.update()
         time.sleep(KEY_HOLD_TIME)
-        pyautogui.keyUp("c")
+        gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_LEFT_SHOULDER)
     elif move is MOVE.R_ROT:
-        pyautogui.keyDown("x")
+        gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
+        gamepad.update()
         time.sleep(KEY_HOLD_TIME)
-        pyautogui.keyUp("x")
+        gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
     elif move is MOVE.L_ROT:
-        pyautogui.keyDown("z")
+        gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+        gamepad.update()
         time.sleep(KEY_HOLD_TIME)
-        pyautogui.keyUp("z")
+        gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
     time.sleep(KEY_RELEASE_TIME)
 
 def HoldDown ():
-    pyautogui.keyDown("down")
+    gamepad.press_button(direction=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
     time.sleep(KEY_HOLD_TIME)
 
 def ReleaseDown ():
-    pyautogui.keyUp("down")
+    gamepad.release_button(direction=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
     time.sleep(KEY_RELEASE_TIME)
 
 def PressEnter ():
-    pyautogui.keyDown("Enter")
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
     time.sleep(KEY_HOLD_TIME)
-    pyautogui.keyUp("Enter")
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(KEY_RELEASE_TIME)
