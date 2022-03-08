@@ -10,14 +10,36 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int], evalParam
     # 各列において，上から順に見ていって，一番最初にブロックがある部分のrowIdxを格納する
     roughness = 0
     for i in range(len(topRowIdx) - 1):
-        roughness += abs(topRowIdx[i] - topRowIdx[i+1])
+        if abs(topRowIdx[i] - topRowIdx[i+1]) >= 6:
+            roughness += 1000
 
     # ブロックの下にある空白をカウントする
+    # T-spinをさせるためにブロックの下にあるがT-spinできそうなところはカウントしない
     blankUnderBlock = 0
+    continuousBlank = 0
     for colIdx in range(BOARD_WIDTH):
         for rowIdx in range(topRowIdx[colIdx] + cleardRowCount, BOARD_HEIGHT):
-            if mainBoard[rowIdx] & (0b1000000000 >> colIdx) == 0:
+            # ブロックがある
+            if mainBoard[rowIdx] & (0b1000000000 >> colIdx) != 0:
+                continuousBlank = 0
+                continue
+            
+            if continuousBlank == 0:
+                continuousBlank = 1
+
+                # 隣の高さはこのマスより低い
+                if colIdx - 1 >= 0 and rowIdx < topRowIdx[colIdx - 1]:
+                    continue
+
+                # 隣の高さはこのマスより低い
+                if colIdx + 1 < BOARD_WIDTH and rowIdx < topRowIdx[colIdx + 1]:
+                    continue
+
                 blankUnderBlock += 1
+            else:
+                blankUnderBlock += 1
+
+        continuousBlank = 0
     
     # 盤面の高さを見る
     minTopRowIdx = BOARD_HEIGHT
@@ -190,7 +212,8 @@ def Score(isTspin:bool, isTspinmini:bool, clearedRowCount:int, backToBack:bool, 
         score += 1
 
     score += SCORE_REN[ren]
-    return score, isTspinOrTetris, ren
+    nextBackToBack = isTspinOrTetris or (backToBack and clearedRowCount == 0)
+    return score,  nextBackToBack, ren
 
     
 
