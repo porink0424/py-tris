@@ -94,8 +94,30 @@ def PytrisSimulator ():
 # 実機上で思考を再現する（無限ループ、シングルスレッド）
 # menu画面にいて、Startを押せる状態からはじめないとバグる
 def PytrisMover ():
+    # # マルチプレイヤーモード
+
+    # # sが押されるまで待機
+    # import keyboard
+    # print("Press 's' to start.")
+    # while True:
+    #     if keyboard.read_key() == "s":
+    #         PressEnter()
+    #         time.sleep(0.5)
+    #         Move(MOVE.RIGHT)
+    #         time.sleep(0.5)
+    #         PressEnter()
+    #         time.sleep(0.5)
+    #         PressEnter() # キャラ設定完了
+    #         time.sleep(3)
+    #         PressEnter() # ゲーム開始
+    #         time.sleep(10)
+    #         break
+
+    # シングルプレイヤーモード
+    
     # ゲームの再開
     PressEnter()
+
     time.sleep(4) # todo: 開始までただ待つのではなく、メモリ読み込みで開始したことを取得できるようにする
 
     # 盤面を出力する分の行数を確保する

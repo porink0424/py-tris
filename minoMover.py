@@ -98,6 +98,7 @@ def InputMove (moveList:List[MOVE], directedMino:DirectedMino, mainBoard:List[in
             count += 1
             time.sleep(0.01) # 回転入れがある程度の時間成功しない時は失敗とみなす todo: もっといい方法で
             if count > 200:
+                ReleaseDown()
                 return None
     
     # move2を入力
