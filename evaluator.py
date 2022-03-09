@@ -10,8 +10,9 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
     # 各列において，上から順に見ていって，一番最初にブロックがある部分のrowIdxを格納する
     roughness = 0
     for i in range(len(topRowIdx) - 1):
+        # 隣との差が4以上だとTetrisをしても穴が残る可能性が高いので減点
         if abs(topRowIdx[i] - topRowIdx[i+1]) >= 4:
-            roughness += 1000
+            roughness += EVAL_ROUGHNESS_UPPER_THAN4
         else:
             roughness += abs(topRowIdx[i] - topRowIdx[i+1])
 
@@ -37,11 +38,13 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
                     continue
 
                 # 隣の高さはこのマスより低い
-                if (colIdx - 1 >= 0 and rowIdx < topRowIdx[colIdx - 1]) and (colIdx - 2 >= 0 and mainBoard[rowIdx] & (0b1000000000 >> (colIdx - 2)) == 0):
+                if ((colIdx - 1 >= 0 and rowIdx < topRowIdx[colIdx - 1]) and 
+                    (colIdx - 2 >= 0 and mainBoard[rowIdx] & (0b1000000000 >> (colIdx - 2)) == 0)):
                     continue
 
                 # 隣の高さはこのマスより低い
-                if (colIdx + 1 < BOARD_WIDTH and rowIdx < topRowIdx[colIdx + 1]) and (colIdx + 2 < BOARD_WIDTH and mainBoard[rowIdx] & (0b1000000000 >> (colIdx + 2)) == 0):
+                if ((colIdx + 1 < BOARD_WIDTH and rowIdx < topRowIdx[colIdx + 1]) and 
+                    (colIdx + 2 < BOARD_WIDTH and mainBoard[rowIdx] & (0b1000000000 >> (colIdx + 2)) == 0)):
                     continue
 
                 blankUnderBlock += 1
@@ -56,14 +59,15 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
     for idx in topRowIdx:
         minTopRowIdx = min(minTopRowIdx, idx)
     height = BOARD_HEIGHT - minTopRowIdx - cleardRowCount
-
-    eval = 0
-    if height >= 10:
-        eval += height * (EVAL_HEIGHT - 100000)
-    else:
-        eval += height * EVAL_HEIGHT
     
-    return eval + roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK
+    # 高さが10以上のときはラインを消すことを最優先にしてもらう。
+    heightEval = 0
+    if height >= 10:
+        heightEval += height * EVAL_HEIGHT_UPPER_THAN10
+    else:
+        heightEval += height * EVAL_HEIGHT
+    
+    return heightEval + roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK
 
 # Tスピンの判定
 def IsTSpin (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:List[MOVE]) -> bool:
@@ -156,9 +160,9 @@ def IsTSpinMini (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:
     return True
 
 # 経路・ライン数の評価関数
-def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int], directedMino:DirectedMino, backtoback:bool, ren:int) -> float:
+def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int], directedMino:DirectedMino, backToBack:bool, ren:int) -> float:
     t_spin = 0
-    isbtb = False 
+    isBackToBack = False 
 
     if IsTSpin(joinedMainBoard, directedMino, moveList):
         if IsTSpinMini(joinedMainBoard, directedMino, moveList):
@@ -173,16 +177,16 @@ def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int
                 t_spin = EVAL_T_SPIN_DOUBLE
             elif clearedRowCount == 3:
                 t_spin = EVAL_T_SPIN_TRIPLE
-        isbtb = True
+        isBackToBack = True
     
     if clearedRowCount == 4:
-        isbtb = True
+        isBackToBack = True
 
-    isbtb = isbtb and backtoback
+    isBackToBack = isBackToBack and backToBack
 
     eval = t_spin + \
            EVAL_LINE_CLEAR[clearedRowCount] + \
-           (EVAL_BACKTOBACK if isbtb else 0) + \
+           (EVAL_BACKTOBACK if isBackToBack else 0) + \
            EVAL_REN[ren]
     return eval
 
@@ -223,7 +227,7 @@ def Score(isTspin:bool, isTspinmini:bool, clearedRowCount:int, backToBack:bool, 
 
     score += SCORE_REN[ren]
     nextBackToBack = isTspinOrTetris or (backToBack and clearedRowCount == 0)
-    return score,  nextBackToBack, ren
+    return score, nextBackToBack, ren
 
     
 
