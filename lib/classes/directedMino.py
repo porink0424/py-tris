@@ -1,4 +1,5 @@
 from lib.constants import *
+from lib.warning import *
 
 # 1つのミノの情報を，方角と中心位置で持つクラス
 # 注意：Iミノは4×4の格子上に中心があるので，そのすぐ左上の点を中心の点としてみなしてデータを持つことにする
@@ -42,6 +43,8 @@ def GetOccupiedPositions (directedMino:DirectedMino) -> List[Tuple[int]]:
         elif directedMino.direction is DIRECTION.W:
             pos = directedMino.pos
             return [pos, (pos[0], pos[1]+1), (pos[0], pos[1]-1), (pos[0]-1, pos[1])]
+        else:
+            Error("Invalid kind of direction of directedMino.")
     
     elif directedMino.mino is MINO.S:
         if directedMino.direction is DIRECTION.N:
@@ -56,6 +59,8 @@ def GetOccupiedPositions (directedMino:DirectedMino) -> List[Tuple[int]]:
         elif directedMino.direction is DIRECTION.W:
             pos = directedMino.pos
             return [pos, (pos[0], pos[1]+1), (pos[0]-1, pos[1]), (pos[0]-1, pos[1]-1)]
+        else:
+            Error("Invalid kind of direction of directedMino.")
     
     elif directedMino.mino is MINO.Z:
         if directedMino.direction is DIRECTION.N:
@@ -70,6 +75,8 @@ def GetOccupiedPositions (directedMino:DirectedMino) -> List[Tuple[int]]:
         elif directedMino.direction is DIRECTION.W:
             pos = directedMino.pos
             return [pos, (pos[0], pos[1]-1), (pos[0]-1, pos[1]), (pos[0]-1, pos[1]+1)]
+        else:
+            Error("Invalid kind of direction of directedMino.")
     
     elif directedMino.mino is MINO.L:
         if directedMino.direction is DIRECTION.N:
@@ -84,6 +91,8 @@ def GetOccupiedPositions (directedMino:DirectedMino) -> List[Tuple[int]]:
         elif directedMino.direction is DIRECTION.W:
             pos = directedMino.pos
             return [pos, (pos[0]-1, pos[1]-1), (pos[0], pos[1]-1), (pos[0], pos[1]+1)]
+        else:
+            Error("Invalid kind of direction of directedMino.")
     
     elif directedMino.mino is MINO.J:
         if directedMino.direction is DIRECTION.N:
@@ -98,6 +107,8 @@ def GetOccupiedPositions (directedMino:DirectedMino) -> List[Tuple[int]]:
         elif directedMino.direction is DIRECTION.W:
             pos = directedMino.pos
             return [pos, (pos[0], pos[1]-1), (pos[0]-1, pos[1]+1), (pos[0], pos[1]+1)]
+        else:
+            Error("Invalid kind of direction of directedMino.")
     
     elif directedMino.mino is MINO.O:
         pos = directedMino.pos
@@ -116,3 +127,8 @@ def GetOccupiedPositions (directedMino:DirectedMino) -> List[Tuple[int]]:
         elif directedMino.direction is DIRECTION.W:
             pos = directedMino.pos
             return [pos, (pos[0], pos[1]-1), (pos[0], pos[1]+1), (pos[0], pos[1]+2)]
+        else:
+            Error("Invalid kind of direction of directedMino.")
+
+    else:
+        Error("Invalid kind of directedMino.")
