@@ -97,7 +97,10 @@ def PytrisMover ():
         boardWatcher.GetFollowingMinos(img),
         boardWatcher.GetHoldMino(img),
         True,
-        None
+        None,
+        0,
+        False,
+        0
     )
 
     while True:
@@ -116,7 +119,10 @@ def PytrisMover ():
             board.followingMinos,
             board.holdMino,
             True,
-            newTopRowIdx
+            newTopRowIdx,
+            0,
+            False,
+            0
         )
 
         # 次の状態の盤面を用意
