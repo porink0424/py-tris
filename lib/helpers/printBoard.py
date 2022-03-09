@@ -90,5 +90,4 @@ def PrintBoardWithDirectedMino(board:Board, directedMino:DirectedMino, reset=Fal
         board.score,
         board.backToBack,
         board.ren,
-        board.evalParam
     ), reset, elapsedTime)

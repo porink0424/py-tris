@@ -3,7 +3,7 @@ from params.eval import *
 
 # 盤面自体の評価関数
 # mainBoardはミノを埋め込んだだけでまだRowを消していない盤面
-def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int], evalParam:Evalparam) -> float:
+def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
     # 凸凹具合を見る
     # 前の列との差分をみて，その差分の合計を凸凹具合とする
     
@@ -59,11 +59,11 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int], evalParam
 
     eval = 0
     if height >= 10:
-        eval += height * (evalParam.EVAL_HEIGHT - 100000)
+        eval += height * (EVAL_HEIGHT - 100000)
     else:
-        eval += height * evalParam.EVAL_HEIGHT
+        eval += height * EVAL_HEIGHT
     
-    return eval + roughness * evalParam.EVAL_ROUGHNESS + blankUnderBlock * evalParam.EVAL_BLANK_UNDER_BLOCK
+    return eval + roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK
 
 # Tスピンの判定
 def IsTSpin (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:List[MOVE]) -> bool:
@@ -156,7 +156,7 @@ def IsTSpinMini (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:
     return True
 
 # 経路・ライン数の評価関数
-def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int], directedMino:DirectedMino, evalparam:Evalparam, backtoback:bool, ren:int) -> float:
+def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int], directedMino:DirectedMino, backtoback:bool, ren:int) -> float:
     t_spin = 0
     isbtb = False 
 
@@ -181,9 +181,9 @@ def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int
     isbtb = isbtb and backtoback
 
     eval = t_spin + \
-           evalparam.EVAL_LINE_CLEAR[clearedRowCount] + \
-           (evalparam.EVAL_BACKTOBACK if isbtb else 0) + \
-           evalparam.EVAL_REN[ren]
+           EVAL_LINE_CLEAR[clearedRowCount] + \
+           (EVAL_BACKTOBACK if isbtb else 0) + \
+           EVAL_REN[ren]
     return eval
 
 def Score(isTspin:bool, isTspinmini:bool, clearedRowCount:int, backToBack:bool, ren:int) -> Tuple[int, bool, int]:

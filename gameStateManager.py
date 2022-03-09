@@ -4,7 +4,6 @@ import decisionMaker
 import minoMover
 import simulator
 import evaluator
-import geneticsAlgorithm
 from lib import *
 from params.eval import *
 
@@ -51,19 +50,7 @@ def PytrisSimulator ():
     #     board.AddBlockToMainBoard((i ,39))
 
     board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
-    board.evalParam = Evalparam(
-        EVAL_LINE_CLEAR,
-        EVAL_HEIGHT, 
-        EVAL_ROUGHNESS, 
-        EVAL_BLANK_UNDER_BLOCK, 
-        EVAL_T_SPIN_SINGLE,
-        EVAL_T_SPIN_DOUBLE,
-        EVAL_T_SPIN_TRIPLE,
-        EVAL_T_SPIN_MINI_SINGLE,
-        EVAL_T_SPIN_MINI_DOUBLE,
-        EVAL_BACKTOBACK,
-        EVAL_REN
-    )
+   
     print("\n\n\n")
     PrintBoard(board)
 
@@ -90,7 +77,6 @@ def PytrisSimulator ():
             board.score + scoreAdd,
             backToBack,
             ren,
-            board.evalParam
         )
 
 # 実機上で思考を再現する（無限ループ、シングルスレッド）
@@ -144,23 +130,6 @@ def PytrisMover ():
                 break
         board = simulator.AddFollowingMino(board, followingMinos[-1])
 
-def PytrisParamOpt():
-    print("\n\nPy-tris Paramater Optimization\n\n")
-    n = 1
-    g = 1
-    probCrossOver = 0.5
-    probMutation = 0.1
-    generation0 = [geneticsAlgorithm.TetrisParam.randomGen() for _ in range(n)]
-    optimizer = geneticsAlgorithm.GeneticsAlgorithm(
-        n,
-        g,
-        probCrossOver,
-        probMutation,
-        generation0
-    )
-    optimizer.Optimize()
-    print("FINISH OPTIMIZE\n")
-
 def main():
     # ゲームの初期設定
     initSettings.Init()
@@ -174,5 +143,3 @@ def main():
     # 実機確認モード
     # PytrisMover()
 
-    # # Parameter Optimization
-    # PytrisParamOpt()

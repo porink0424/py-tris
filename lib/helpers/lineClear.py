@@ -1,4 +1,3 @@
-from pip import main
 from lib.classes import *
 
 # mainBoard内で横一列が揃っている場合にそれを除去して，何ライン除去したかという情報と共に返す
