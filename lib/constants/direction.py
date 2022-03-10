@@ -2,10 +2,10 @@ from enum import Enum, auto
 from lib.constants.move import MOVE
 
 class DIRECTION(Enum):
-    N = auto()
-    S = auto()
-    W = auto()
-    E = auto()
+    N = 0
+    S = 1
+    W = 2
+    E = 3
 
 # 方角と回転を受け取って，回転したあとの方角を出力する
 def GetNewDirection(direction, move):

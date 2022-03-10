@@ -23,7 +23,12 @@ import boardWatcher
 import decisionMaker
 import minoMover
 import simulator
+import evaluator
 from lib import *
+from params.eval import *
+
+# GetOccupiedPositionsの前計算
+InitGetOccupiedPositions()
 
 # -------------
 #
@@ -70,25 +75,33 @@ def PytrisSimulator ():
     #     board.AddBlockToMainBoard((i ,39))
 
     board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
+   
     print("\n\n\n")
     PrintBoard(board)
 
     while True:
+        assert type(board.score) == int
         addedMino = simulator.GenerateMino()
         board = simulator.AddFollowingMino(board, addedMino)
 
         # 思考ルーチン
         value, mino, path = decisionMaker.Decide(board)
 
-        board = simulator.PutMino(path, board.currentMino, board)
+        board, isTspin, isTspinmini = simulator.PutMino(path, board.currentMino, board)
 
-        newMainBoard, clearedRowCount = simulator.ClearLinesOfBoard(board)
+        newMainBoard, newTopRowIdx, clearedRowCount = simulator.ClearLinesOfBoard(board)
+        scoreAdd, backToBack, ren = evaluator.Score(isTspin, isTspinmini, clearedRowCount, board.backToBack, board.ren)
+
         board = Board(
             newMainBoard,
             None,
             board.followingMinos,
             board.holdMino,
-            True
+            True,
+            newTopRowIdx,
+            board.score + scoreAdd,
+            backToBack,
+            ren,
         )
 
 # 実機上で思考を再現する（無限ループ、シングルスレッド）
@@ -120,9 +133,9 @@ def PytrisMover ():
 
     time.sleep(4) # todo: 開始までただ待つのではなく、メモリ読み込みで開始したことを取得できるようにする
 
-    # 盤面を出力する分の行数を確保する
-    for _ in range(DISPLAYED_BOARD_HEIGHT):
-        print("", flush=True)
+    # # 盤面を出力する分の行数を確保する
+    # for _ in range(DISPLAYED_BOARD_HEIGHT):
+    #     print("", flush=True)
     
     previousFollowingMinos = [boardWatcher.GetFollowingMinos()[0]]
 
@@ -138,9 +151,17 @@ def PytrisMover ():
                 previousFollowingMinos = boardWatcher.GetFollowingMinos()
                 break
         
+        # 各列において，上から順に見ていって，一番最初にブロックがある部分のrowIdxを格納する
+        mainBoard = boardWatcher.GetMainBoard()
+        topRowIdx = [BOARD_HEIGHT for _ in range(BOARD_WIDTH)]
+        for rowIdx in range(BOARD_HEIGHT-1, -1, -1):
+            for colIdx in range(BOARD_WIDTH):
+                if mainBoard[rowIdx] & (0b1000000000 >> colIdx) > 0:
+                    topRowIdx[colIdx] = rowIdx
+        
         # 盤面の状況を読み取る
         board = Board(
-            boardWatcher.GetMainBoard(),
+            mainBoard,
             DirectedMino(
                 currentMino, # ここで仮にGetCurrentMinoをやるとminoの種類が正しくないものが入ってきてしまう（おそらくメモリに反映されるのに時間がかかるため？）
                 FIRST_MINO_DIRECTION,
@@ -148,22 +169,34 @@ def PytrisMover ():
             ),
             boardWatcher.GetFollowingMinos(),
             boardWatcher.GetHoldMino(),
-            True
+            True,
+            topRowIdx,
+            0,
+            False,
+            0
         )
 
-        PrintBoard(board, True)
+        # PrintBoard(board, True)
         
         # 思考ルーチン
         value, mino, path = decisionMaker.Decide(board)
 
         # 移動
-        directedMino = minoMover.InputMove(path, boardWatcher.GetCurrentMino(), board.mainBoard)
+        directedMino = minoMover.InputMove(
+            path,
+            DirectedMino(
+                currentMino, # ここで仮にGetCurrentMinoをやるとdecideで時間がかかっていたときに高さが合わなくなって死ぬ
+                FIRST_MINO_DIRECTION,
+                FIRST_MINO_POS
+            ),
+            board.mainBoard
+        )
 
 def main():    
     # # 盤面監視モード
     # PytrisBoardWatcher()
 
-    # # simulatorモード
+    # # # simulatorモード
     # PytrisSimulator()
 
     # 実機確認モード

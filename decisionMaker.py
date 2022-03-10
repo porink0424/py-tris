@@ -1,5 +1,74 @@
 from lib import *
 import evaluator
+from functools import total_ordering
+import heapq
+
+# Beam Search用のclass
+@total_ordering
+class State():
+    mino = None 
+    board = None
+    eval = None
+    accumPathValue = None
+    score = None 
+    backToBack = None 
+    ren = None
+
+    #　評価値の計算だけ行う
+    def __init__(self, board:Board, mino:DirectedMino, path:List[MOVE], accumPathValue:int, accumScore:int):
+        self.board = board
+        self.mino = mino 
+        # ライン消去
+        JoinDirectedMinoToBoardUncopy(mino, board.mainBoard, board.topRowIdx)
+        clearedRowCount = ClearLinesCalc(board.mainBoard)
+        # 評価値の計算
+        isTspin = evaluator.IsTSpin(board.mainBoard, mino, path)
+        isTspinmini = isTspin and evaluator.IsTSpinMini(board.mainBoard, mino, path)
+        self.accumPathValue = accumPathValue + evaluator.EvalPath(path, clearedRowCount, board.mainBoard, mino, board.backToBack, board.ren)
+        self.eval = self.accumPathValue + evaluator.EvalMainBoard(board.mainBoard, clearedRowCount, board.topRowIdx)
+        # スコアの計算
+        self.score, self.backToBack, self.ren = evaluator.Score(isTspin, isTspinmini, clearedRowCount, board.backToBack, board.ren)
+        self.score += accumScore
+        # Boardを元に戻す
+        RemoveDirectedMinoFromBoardUncopy(mino, board.mainBoard, board.topRowIdx)
+        
+    def __eq__(self, other):
+        return self.eval == other.eval
+
+    def __lt__(self, other):
+        return self.eval < other.eval
+    
+    # 実際に遷移する
+    def Transit(self):
+        # ライン消去
+        joinedBoard, joinedTopRowIdx = JoinDirectedMinoToBoard(self.mino, self.board.mainBoard, self.board.topRowIdx)
+        newMainBoard, newTopRowIdx, _ = ClearLines(joinedBoard, joinedTopRowIdx)
+        # ミノを置いた後の盤面の生成
+        clearedBoard = Board(
+            newMainBoard,
+            DirectedMino(
+                self.board.followingMinos[0],
+                FIRST_MINO_DIRECTION,
+                FIRST_MINO_POS
+            ),
+            self.board.followingMinos[1:] + [MINO.NONE],
+            self.board.holdMino,
+            True,
+            newTopRowIdx,
+            self.score,
+            self.backToBack,
+            self.ren
+        )
+        self.board = clearedBoard
+
+    #　ありうる次の盤面をすべて生成する。
+    def NextStates(self):
+        possibleMoves = GetPossibleMoves(
+            self.board,
+            self.board.currentMino
+        )
+        nextStates = [State(self.board, nextMino, nextPath, self.accumPathValue, self.board.score) for nextMino, nextPath in possibleMoves]
+        return nextStates
 
 # minoを今の位置からdirectionを変えずに左右に動かして得られるminoのリストを返す
 def GetSideMovedMinos (board:Board, mino:DirectedMino) -> List[Tuple[DirectedMino, List[MOVE]]]:
@@ -82,6 +151,18 @@ def SimplifyPath (path:List[MOVE]) -> List[MOVE]:
             break
     simplifiedPath = path[:len(path) - count] + [MOVE.DROP]
     return simplifiedPath
+
+# MOVE.DROPを使うことにより，pathの簡易化を行う
+# 引数自体を変更する
+def SimplifyPathUncopy (path:List[MOVE]):
+    # 最後には必ずMOVE.DROPをつける
+    # 最後にMOVE.DROPをつけるので，最後の連続するMOVE.DOWNは消去できる
+    while path:
+        if path[-1] is MOVE.DOWN:
+            path.pop()
+        else:
+            break
+    path.append(MOVE.DROP)
         
 # boardとそこに置きたいminoを入力して，
 # (ミノがおける場所，そこにたどり着く方法)
@@ -135,7 +216,7 @@ def GetPossibleMoves(
     # ミノを全て下に落とす
 
     for mino, path in undroppedMinos:
-        dropCount = Drop(board.mainBoard, mino)
+        dropCount = DropFromTop(mino, board.topRowIdx)
         mino.pos = (mino.pos[0], mino.pos[1] + dropCount)
         path += [MOVE.DOWN for _ in range(dropCount)]
         reachableNodes[EncodeDirectedMino(mino)] = path
@@ -178,7 +259,8 @@ def GetPossibleMoves(
     # 例えばzミノはNとSで位置をずらせば同じ場所を占領するようになる
     encodedPlacesList = set()
     for key in reachableNodes:
-        path = SimplifyPath(reachableNodes[key])
+        path = reachableNodes[key]
+        SimplifyPathUncopy(path)
         decodedMino = DecodeDirectedMino(key)
         encodedPlaces = EncodePlacesOccupiedByDirectedMino(decodedMino)
         if encodedPlaces in encodedPlacesList:
@@ -203,41 +285,39 @@ def GetPossibleMoves(
     
     return possibleMoves
 
+SEARCH_LIMIT = 5
+BEAM_WIDTH = [3, 3, 3, 3]
 def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
-    # 最後のみ盤面自体の評価を行う
-    if limit == 0:
-        # ライン消去
-        joinedMainBoard = JoinDirectedMinoToBoard(mino, board.mainBoard)
-        newMainBoard, clearedRowCount = ClearLines(joinedMainBoard)
-        return evaluator.EvalPath(path, clearedRowCount, joinedMainBoard, mino) + evaluator.EvalMainBoard(newMainBoard)
+    # BEAM_WIDTH = 3
+    state_queue = [] 
+    heapq.heapify(state_queue)
+    init_state = State(board, mino, path, 0, board.score)
+    init_state.Transit()
+    heapq.heappush(state_queue, init_state)
+
+    assert limit == len(BEAM_WIDTH)
+    for beamWidth in BEAM_WIDTH:
+        next_state_queue = []
+        heapq.heapify(next_state_queue)
+        while len(state_queue) > 0:
+
+            now_state = heapq.heappop(state_queue)
+            for next_state in now_state.NextStates():
+                heapq.heappush(next_state_queue, next_state)
+            
+            while len(next_state_queue) > beamWidth:
+                heapq.heappop(next_state_queue)
+
+        state_queue = next_state_queue
+        # 実際に遷移
+        for state in state_queue:
+            state.Transit()
     
-    # ライン消去
-    joinedMainBoard = JoinDirectedMinoToBoard(mino, board.mainBoard)
-    newMainBoard, clearedRowCount = ClearLines(joinedMainBoard)
-    clearedBoard = Board(
-        newMainBoard,
-        DirectedMino(
-            board.followingMinos[0],
-            FIRST_MINO_DIRECTION,
-            FIRST_MINO_POS
-        ),
-        board.followingMinos[1:] + [MINO.NONE],
-        board.holdMino,
-        True
-    )
+    while len(state_queue) > 1:
+        heapq.heappop(state_queue)
 
-    possibleMoves = GetPossibleMoves(
-        clearedBoard,
-        clearedBoard.currentMino
-    )
-
-    maxValue = -10000000000
-    for possibleMoveMino, possibleMovePath in possibleMoves:
-        value = Search(clearedBoard, possibleMoveMino, possibleMovePath, limit-1)
-        if value >= maxValue:
-            maxValue = value
-
-    return maxValue + evaluator.EvalPath(path, clearedRowCount, joinedMainBoard, mino)
+    final_state = heapq.heappop(state_queue)
+    return final_state.eval
 
 # 実際に手を決める関数
 def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
@@ -248,19 +328,12 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
 
     # 評価値計算
     maxValue, maxMino, maxPath = -10000000000, None, None
-    threads = []
-
-    with ThreadPoolExecutor() as executor:
-        for mino, path in possibleMoves:
-            threads.append(executor.submit(Search, board, mino, path, 2-1))
-        
-        for i in range(len(threads)):
-            mino, path = possibleMoves[i]
-            thread = threads[i]
-            value = thread.result()
-            if value >= maxValue:
-                maxMino, maxPath = mino, path
-                maxValue = value
+    for mino, path in possibleMoves:
+        # 評価値計算
+        value = Search(board, mino, path, SEARCH_LIMIT-1)
+        if value >= maxValue:
+            maxMino, maxPath = mino, path
+            maxValue = value
     
     if maxMino is None or maxPath is None:
         Warn("Cannot decide path.")

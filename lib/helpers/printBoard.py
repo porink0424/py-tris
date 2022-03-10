@@ -1,4 +1,5 @@
 from lib.classes import *
+from lib.constants import *
 from lib.helpers.joinMino import JoinDirectedMinoToBoard
 
 COLOR_CODES = {
@@ -14,7 +15,7 @@ COLOR_CODES = {
 }
 
 # 盤面の情報をもらって、出力
-def PrintBoard(board:Board, reset=False, elapsedTime=None, displayAll=False):
+def PrintBoard(board:Board, reset=False, elapsedTime=None, displayAll=False, displayScore=False):
     # 表示する行を制限するかどうかを定める
     if displayAll:
         displayedRange = range(BOARD_HEIGHT)
@@ -62,7 +63,10 @@ def PrintBoard(board:Board, reset=False, elapsedTime=None, displayAll=False):
             else: # 空白の行
                 print("", flush=True)
         elif elapsedTime is not None and alreadyDisplayedLineCount == BOARD_HEIGHT - 1: # 最後の行に経過時間を掲載する
-            print("  elapsed time for one loop: {}(s)".format(round(elapsedTime, 5)), flush=True)
+            print("  elapsed time for one loop: {}(s)".format(round(elapsedTime, 5)), end="", flush=True)
+        elif displayScore and alreadyDisplayedLineCount == DISPLAYED_BOARD_HEIGHT - 1:
+            print(f"        score : {board.score}, backtoback : {board.backToBack}, ren : {board.ren}", end="", flush=True)
+            print("", flush=True)
         else:
             print("", flush=True)
         
@@ -70,13 +74,17 @@ def PrintBoard(board:Board, reset=False, elapsedTime=None, displayAll=False):
 
 # directedMinoをboardに反映した状態で出力させる
 def PrintBoardWithDirectedMino(board:Board, directedMino:DirectedMino, reset=False, elapsedTime=None):
-    joinedMainBoard = JoinDirectedMinoToBoard(directedMino, board.mainBoard)
-
+    joinedMainBoard, joinedTopRowIdx = JoinDirectedMinoToBoard(directedMino, board.mainBoard, board.topRowIdx)
+    
     # 出力
     PrintBoard(Board(
         joinedMainBoard,
         board.currentMino,
         board.followingMinos,
         board.holdMino,
-        board.canHold
+        board.canHold,
+        joinedTopRowIdx,
+        board.score,
+        board.backToBack,
+        board.ren,
     ), reset, elapsedTime)

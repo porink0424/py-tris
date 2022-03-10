@@ -6,7 +6,7 @@ DISPLAY_DELTA_TIME = 0.02
 
 # 1つのnowDirectedMinoを置く動きを再現して出力
 # 返り値としておいた後のboardを返す
-def PutMino (moveList:List[MOVE], nowDirectedMino:DirectedMino, board:Board) -> Board:
+def PutMino (moveList:List[MOVE], nowDirectedMino:DirectedMino, board:Board) -> Tuple[Board, bool, bool]:
     # moveListに従って1つずつ動かしていく
     nextDirectedMino = nowDirectedMino
     for move in moveList:
@@ -17,24 +17,25 @@ def PutMino (moveList:List[MOVE], nowDirectedMino:DirectedMino, board:Board) -> 
     # 最終状態の出力
     PrintBoardWithDirectedMino(board, nextDirectedMino, True)
 
-    # debug: Tスピン時に音を鳴らす
-    if evaluator.IsTSpin(board.mainBoard, nextDirectedMino, moveList):
-        if evaluator.IsTSpinMini(board.mainBoard, nextDirectedMino, moveList):
-            os.system("Say -v Samantha 'T spin mini'")
-        else:
-            os.system("Say -v Samantha 'T spin'")
+    isTspin = evaluator.IsTSpin(board.mainBoard, nextDirectedMino, moveList)
+    isTspinmini = isTspin and evaluator.IsTSpinMini(board.mainBoard, nextDirectedMino, moveList)
 
+    joinedMainBoard, joinedTopRowIdx = JoinDirectedMinoToBoard(nextDirectedMino, board.mainBoard, board.topRowIdx)
     return Board(
-        JoinDirectedMinoToBoard(nextDirectedMino, board.mainBoard),
+        joinedMainBoard,
         board.currentMino,
         board.followingMinos,
         board.holdMino,
-        board.canHold
-    )
+        board.canHold,
+        joinedTopRowIdx,
+        board.score,
+        board.backToBack,
+        board.ren
+    ), isTspin, isTspinmini
 
 # ラインをクリアする
 def ClearLinesOfBoard(board:Board) -> Tuple[List[List[MINO]], int]:
-    newMainBoard, clearedRowCount = ClearLines(board.mainBoard)
+    newMainBoard, newTopRowIdx, clearedRowCount = ClearLines(board.mainBoard, board.topRowIdx)
     time.sleep(DISPLAY_DELTA_TIME)
     PrintBoard(Board(
         newMainBoard,
@@ -42,9 +43,13 @@ def ClearLinesOfBoard(board:Board) -> Tuple[List[List[MINO]], int]:
         board.followingMinos,
         board.holdMino,
         board.canHold,
-    ), True)
+        newTopRowIdx,
+        board.score,
+        board.backToBack,
+        board.ren
+    ), True, None, False, True)
     time.sleep(DISPLAY_DELTA_TIME)
-    return newMainBoard, clearedRowCount
+    return newMainBoard, newTopRowIdx, clearedRowCount
 
 # 次のミノを付け足し，押し出してネクストのミノをcurrentMinoにする
 def AddFollowingMino (board:Board, addedMino:MINO) -> Board:
@@ -57,7 +62,11 @@ def AddFollowingMino (board:Board, addedMino:MINO) -> Board:
         ),
         board.followingMinos[1:] + [addedMino],
         board.holdMino,
-        True
+        True,
+        board.topRowIdx,
+        board.score,
+        board.backToBack,
+        board.ren
     )
 
 # 7種1巡の法則に従ってランダムでミノを生成する

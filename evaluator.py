@@ -2,34 +2,72 @@ from lib import *
 from params.eval import *
 
 # 盤面自体の評価関数
-def EvalMainBoard (mainBoard:List[int]) -> float:
+# mainBoardはミノを埋め込んだだけでまだRowを消していない盤面
+def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
     # 凸凹具合を見る
     # 前の列との差分をみて，その差分の合計を凸凹具合とする
     
     # 各列において，上から順に見ていって，一番最初にブロックがある部分のrowIdxを格納する
-    topRowIdx = [BOARD_HEIGHT for _ in range(BOARD_WIDTH)]
-    for rowIdx in range(BOARD_HEIGHT-1, -1, -1):
-        for colIdx in range(BOARD_WIDTH):
-            if mainBoard[rowIdx] & (0b1000000000 >> colIdx) > 0:
-                topRowIdx[colIdx] = rowIdx
     roughness = 0
     for i in range(len(topRowIdx) - 1):
-        roughness += abs(topRowIdx[i] - topRowIdx[i+1])
+        # 隣との差が4以上だとTetrisをしても穴が残る可能性が高いので減点
+        if abs(topRowIdx[i] - topRowIdx[i+1]) >= 4:
+            roughness += EVAL_ROUGHNESS_UPPER_THAN4
+        else:
+            roughness += abs(topRowIdx[i] - topRowIdx[i+1])
 
     # ブロックの下にある空白をカウントする
+    # T-spinをさせるためにブロックの下にあるがT-spinできそうなところはカウントしない
     blankUnderBlock = 0
+    continuousBlank = 0
+    colBlockCount = 0
     for colIdx in range(BOARD_WIDTH):
-        for rowIdx in range(topRowIdx[colIdx], BOARD_HEIGHT):
-            if mainBoard[rowIdx] & (0b1000000000 >> colIdx) == 0:
+        for rowIdx in range(topRowIdx[colIdx] + cleardRowCount, BOARD_HEIGHT):
+            # ブロックがある
+            if mainBoard[rowIdx] & (0b1000000000 >> colIdx) != 0:
+                colBlockCount += 1
+                continuousBlank = 0
+                continue
+            
+            if continuousBlank == 0:
+                continuousBlank = 1
+
+                # 上にブロックが2個以上あるときはダメ
+                if colBlockCount >= 2:
+                    blankUnderBlock += 1
+                    continue
+
+                # 隣の高さはこのマスより低い
+                if ((colIdx - 1 >= 0 and rowIdx < topRowIdx[colIdx - 1]) and 
+                    (colIdx - 2 >= 0 and mainBoard[rowIdx] & (0b1000000000 >> (colIdx - 2)) == 0)):
+                    continue
+
+                # 隣の高さはこのマスより低い
+                if ((colIdx + 1 < BOARD_WIDTH and rowIdx < topRowIdx[colIdx + 1]) and 
+                    (colIdx + 2 < BOARD_WIDTH and mainBoard[rowIdx] & (0b1000000000 >> (colIdx + 2)) == 0)):
+                    continue
+
                 blankUnderBlock += 1
+            else:
+                blankUnderBlock += 1
+
+        continuousBlank = 0
+        colBlockCount = 0
     
     # 盤面の高さを見る
-    height = 0
-    for i in range(BOARD_HEIGHT):
-        if mainBoard[i] > 0:
-            height = BOARD_HEIGHT - i
+    minTopRowIdx = BOARD_HEIGHT
+    for idx in topRowIdx:
+        minTopRowIdx = min(minTopRowIdx, idx)
+    height = BOARD_HEIGHT - minTopRowIdx - cleardRowCount
     
-    return roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK + height * EVAL_HEIGHT
+    # 高さが10以上のときはラインを消すことを最優先にしてもらう。
+    heightEval = 0
+    if height >= 10:
+        heightEval += height * EVAL_HEIGHT_UPPER_THAN10
+    else:
+        heightEval += height * EVAL_HEIGHT
+    
+    return heightEval + roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK
 
 # Tスピンの判定
 def IsTSpin (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:List[MOVE]) -> bool:
@@ -45,14 +83,14 @@ def IsTSpin (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:List
 
     # ①の判定
     count = 0
-    pos = directedMino.pos
-    if pos[0] - 1 < 0 or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1] & (0b1000000000 >> (pos[0]-1)) > 0: # 左上
+    pos0, pos1 = directedMino.pos
+    if pos0 - 1 < 0 or pos1 - 1 < 0 or joinedMainBoard[pos1-1] & (0b1000000000 >> (pos0-1)) > 0: # 左上
         count += 1
-    if pos[0] - 1 < 0 or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1] & (0b1000000000 >> (pos[0]-1)) > 0: # 左下
+    if pos0 - 1 < 0 or pos1 + 1 >= BOARD_HEIGHT or joinedMainBoard[pos1+1] & (0b1000000000 >> (pos0-1)) > 0: # 左下
         count += 1
-    if pos[0] + 1 >= BOARD_WIDTH or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1] & (0b1000000000 >> (pos[0]+1)) > 0: # 右下
+    if pos0 + 1 >= BOARD_WIDTH or pos1 + 1 >= BOARD_HEIGHT or joinedMainBoard[pos1+1] & (0b1000000000 >> (pos0+1)) > 0: # 右下
         count += 1
-    if pos[0] + 1 >= BOARD_WIDTH or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1] & (0b1000000000 >> (pos[0]+1)) > 0: # 右上
+    if pos0 + 1 >= BOARD_WIDTH or pos1 - 1 < 0 or joinedMainBoard[pos1-1] & (0b1000000000 >> (pos0+1)) > 0: # 右上
         count += 1
     if count <= 2:
         return False
@@ -81,29 +119,29 @@ def IsTSpinMini (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:
     """
 
     # ②の判定
-    pos = directedMino.pos
+    pos0, pos1 = directedMino.pos
     if directedMino.direction is DIRECTION.N:
         if (
-            (pos[0] - 1 < 0 or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1] & (0b1000000000 >> (pos[0]-1)) > 0) and # 左上が空いていない
-            (pos[0] + 1 >= BOARD_WIDTH or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1] & (0b1000000000 >> (pos[0]+1)) > 0) # 右上が空いていない
+            (pos0 - 1 < 0 or pos1 - 1 < 0 or joinedMainBoard[pos1-1] & (0b1000000000 >> (pos0-1)) > 0) and # 左上が空いていない
+            (pos0 + 1 >= BOARD_WIDTH or pos1 - 1 < 0 or joinedMainBoard[pos1-1] & (0b1000000000 >> (pos0+1)) > 0) # 右上が空いていない
         ):
             return False
     elif directedMino.direction is DIRECTION.E:
         if (
-            (pos[0] + 1 >= BOARD_WIDTH or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1] & (0b1000000000 >> (pos[0]+1)) > 0) and # 右下が空いていない
-            (pos[0] + 1 >= BOARD_WIDTH or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1] & (0b1000000000 >> (pos[0]+1)) > 0) # 右上が空いていない
+            (pos0 + 1 >= BOARD_WIDTH or pos1 + 1 >= BOARD_HEIGHT or joinedMainBoard[pos1+1] & (0b1000000000 >> (pos0+1)) > 0) and # 右下が空いていない
+            (pos0 + 1 >= BOARD_WIDTH or pos1 - 1 < 0 or joinedMainBoard[pos1-1] & (0b1000000000 >> (pos0+1)) > 0) # 右上が空いていない
         ):
             return False
     elif directedMino.direction is DIRECTION.S:
         if (
-            (pos[0] + 1 >= BOARD_WIDTH or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1] & (0b1000000000 >> (pos[0]+1)) > 0) and # 右下が空いていない
-            (pos[0] - 1 < 0 or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1] & (0b1000000000 >> (pos[0]-1)) > 0) # 左下が空いていない
+            (pos0 + 1 >= BOARD_WIDTH or pos1 + 1 >= BOARD_HEIGHT or joinedMainBoard[pos1+1] & (0b1000000000 >> (pos0+1)) > 0) and # 右下が空いていない
+            (pos0 - 1 < 0 or pos1 + 1 >= BOARD_HEIGHT or joinedMainBoard[pos1+1] & (0b1000000000 >> (pos0-1)) > 0) # 左下が空いていない
         ):
             return False
     else:
         if (
-            (pos[0] - 1 < 0 or pos[1] - 1 < 0 or joinedMainBoard[pos[1]-1] & (0b1000000000 >> (pos[0]-1)) > 0) and # 左上が空いていない
-            (pos[0] - 1 < 0 or pos[1] + 1 >= BOARD_HEIGHT or joinedMainBoard[pos[1]+1] & (0b1000000000 >> (pos[0]-1)) > 0) # 左下が空いていない
+            (pos0 - 1 < 0 or pos1 - 1 < 0 or joinedMainBoard[pos1-1] & (0b1000000000 >> (pos0-1)) > 0) and # 左上が空いていない
+            (pos0 - 1 < 0 or pos1 + 1 >= BOARD_HEIGHT or joinedMainBoard[pos1+1] & (0b1000000000 >> (pos0-1)) > 0) # 左下が空いていない
         ):
             return False
     
@@ -113,8 +151,8 @@ def IsTSpinMini (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:
     # joinedMainBoardからdirectedMinoの部分のブロックを消去
     occupiedPositions = GetOccupiedPositions(directedMino)
     deletedMainBoard = copy.copy(joinedMainBoard)
-    for pos in occupiedPositions:
-        deletedMainBoard[pos[1]] &= 0b1111111111 ^ (0b1000000000 >> pos[0])
+    for pos0, pos1 in occupiedPositions:
+        deletedMainBoard[pos1] &= 0b1111111111 ^ (0b1000000000 >> pos0)
     # 回転補正が4番目であるならMiniではない
     if GetRotateNum(directedMino, reversedLastRotate, deletedMainBoard) == 4:
         return False
@@ -122,8 +160,10 @@ def IsTSpinMini (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:
     return True
 
 # 経路・ライン数の評価関数
-def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int], directedMino:DirectedMino) -> float:
+def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int], directedMino:DirectedMino, backToBack:bool, ren:int) -> float:
     t_spin = 0
+    isBackToBack = False 
+
     if IsTSpin(joinedMainBoard, directedMino, moveList):
         if IsTSpinMini(joinedMainBoard, directedMino, moveList):
             if clearedRowCount == 1:
@@ -137,5 +177,58 @@ def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int
                 t_spin = EVAL_T_SPIN_DOUBLE
             elif clearedRowCount == 3:
                 t_spin = EVAL_T_SPIN_TRIPLE
+        isBackToBack = True
     
-    return t_spin + EVAL_LINE_CLEAR[clearedRowCount]
+    if clearedRowCount == 4:
+        isBackToBack = True
+
+    isBackToBack = isBackToBack and backToBack
+
+    eval = t_spin + \
+           EVAL_LINE_CLEAR[clearedRowCount] + \
+           (EVAL_BACKTOBACK if isBackToBack else 0) + \
+           EVAL_REN[ren]
+    return eval
+
+def Score(isTspin:bool, isTspinmini:bool, clearedRowCount:int, backToBack:bool, ren:int) -> Tuple[int, bool, int]:
+    score = 0
+    isTspinOrTetris = False
+
+    if isTspin:
+        if isTspinmini:
+            score += SCORE_T_SPIN_MINI
+        else:
+            if clearedRowCount == 1:
+                score += SCORE_T_SPIN_SINGLE
+            elif clearedRowCount == 2:
+                score += SCORE_T_SPIN_DOUBLE
+            elif clearedRowCount == 3:
+                score += SCORE_T_SPIN_TRIPLE
+        isTspinOrTetris = True
+
+    if clearedRowCount == 1:
+        score += SCORE_SINGLE
+        ren += 1
+    elif clearedRowCount == 2:
+        score += SCORE_DOUBLE
+        ren += 1
+    elif clearedRowCount == 3:
+        score += SCORE_TRIPLE
+        ren += 1
+    elif clearedRowCount == 4:
+        score += SCORE_TETRIS
+        ren += 1
+        isTspinOrTetris = True
+    elif clearedRowCount == 0:
+        ren = 0
+
+    if backToBack and isTspinOrTetris:
+        score += 1
+
+    score += SCORE_REN[ren]
+    nextBackToBack = isTspinOrTetris or (backToBack and clearedRowCount == 0)
+    return score, nextBackToBack, ren
+
+    
+
+    
