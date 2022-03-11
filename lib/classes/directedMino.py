@@ -33,7 +33,7 @@ def DecodeDirectedMino (encodedDirectedMino:int) -> DirectedMino:
         (int(pos0), int(pos1))
     )
 
-# 受け取ったdirectedMinoが占領する場所に関するstringを返す
+# 受け取ったdirectedMinoが占領する場所を示す数値を返す
 def EncodePlacesOccupiedByDirectedMino (directedMino:DirectedMino) -> int:
     occupiedPositions = GetOccupiedPositions(directedMino)
     ret = 0

@@ -30,7 +30,7 @@ class State():
         self.score, self.backToBack, self.ren = evaluator.Score(isTspin, isTspinmini, clearedRowCount, board.backToBack, board.ren)
         self.score += accumScore
         # Boardを元に戻す
-        RemoveDirectedMinoFromBoardUncopy(mino, board.mainBoard, board.topRowIdx)
+        DeleteDirectedMinoFromBoardUncopy(mino, board.mainBoard, board.topRowIdx)
         
     def __eq__(self, other):
         return self.eval == other.eval
@@ -130,7 +130,7 @@ def GetRotatedMinos (board:Board, mino:DirectedMino) -> List[Tuple[DirectedMino,
     
     return rotatedMinos
 
-def AddToReachableNodes (encodedNode, path:List[MOVE], reachableNodes:Dict[str, List[MOVE]]) -> None:
+def AddToReachableNodes (encodedNode, path:List[MOVE], reachableNodes:Dict[int, List[MOVE]]) -> None:
     if encodedNode not in reachableNodes: # まだreachableNodesに登録されていないものは，登録する
         reachableNodes[encodedNode] = path
     else:
