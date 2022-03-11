@@ -66,14 +66,6 @@ def PytrisSimulator ():
     # 適当に盤面を生成
     board = Board()
 
-    # board.AddBlockToMainBoard((5 ,38))
-    # board.AddBlockToMainBoard((5 ,37))
-    # board.AddBlockToMainBoard((4 ,37))
-    # board.AddBlockToMainBoard((1 ,37))
-    # board.AddBlockToMainBoard((1 ,38))
-    # for i in range(10):
-    #     board.AddBlockToMainBoard((i ,39))
-
     board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
    
     print("\n\n\n")
@@ -107,35 +99,50 @@ def PytrisSimulator ():
 # 実機上で思考を再現する（無限ループ、シングルスレッド）
 # menu画面にいて、Startを押せる状態からはじめないとバグる
 def PytrisMover ():
-    # # マルチプレイヤーモード
+    isMultiPlay = True
 
-    # # sが押されるまで待機
-    # import keyboard
-    # print("Press 's' to start.")
-    # while True:
-    #     if keyboard.read_key() == "s":
-    #         PressEnter()
-    #         time.sleep(0.5)
-    #         Move(MOVE.RIGHT)
-    #         time.sleep(0.5)
-    #         PressEnter()
-    #         time.sleep(0.5)
-    #         PressEnter() # キャラ設定完了
-    #         time.sleep(3)
-    #         PressEnter() # ゲーム開始
-    #         time.sleep(10)
-    #         break
+    if isMultiPlay:
+        # マルチプレイヤーモード
+        # AIは2Pとして立ち回る
 
-    # シングルプレイヤーモード
-    
-    # ゲームの再開
-    PressEnter()
+        # sを押すことで先に進めるようにする
+        import keyboard
+        boardWatcher.is1P = False
+
+        print("Press 's' to select a character, or Press 'a' if you want to start immediately.")
+        startImmediately = False
+        while True:
+            if keyboard.read_key() == "s":
+                print("'s' pressed.")
+                PressEnter()
+                time.sleep(0.5)
+                PressEnter()
+                time.sleep(0.5)
+                PressEnter() # キャラ設定完了
+                time.sleep(0.5)
+                break
+            if keyboard.read_key() == "a":
+                print("'a' pressed.")
+                startImmediately = True
+                break
+
+        if not startImmediately:
+            print("Press 's' to start a game.")
+            while True:
+                if keyboard.read_key() == "s":
+                    print("'s' pressed.")
+                    PressEnter()
+                    time.sleep(0.5)
+                    break
+        
+    else:
+        # シングルプレイヤーモード
+        
+        # ゲームの再開
+        PressEnter()
 
     time.sleep(4) # todo: 開始までただ待つのではなく、メモリ読み込みで開始したことを取得できるようにする
-
-    # # 盤面を出力する分の行数を確保する
-    # for _ in range(DISPLAYED_BOARD_HEIGHT):
-    #     print("", flush=True)
+    print("Start!")
     
     previousFollowingMinos = [boardWatcher.GetFollowingMinos()[0]]
 
@@ -176,8 +183,6 @@ def PytrisMover ():
             0
         )
 
-        # PrintBoard(board, True)
-        
         # 思考ルーチン
         value, mino, path = decisionMaker.Decide(board)
 

@@ -92,8 +92,6 @@ def InputMove (moveList:List[MOVE], directedMino:DirectedMino, mainBoard:List[in
         nextDirectedMino = DirectedMino(nextDirectedMino.mino, nextDirectedMino.direction, (nextDirectedMino.pos[0], nextDirectedMino.pos[1] + downCount))
         count = 0
         while True:
-            if count % 10 == 0:
-                print("debug:", boardWatcher.GetPosOfCurrentMino(), nextDirectedMino.pos)
             if boardWatcher.GetPosOfCurrentMino()[1] == nextDirectedMino.pos[1]:
                 ReleaseDown()
                 break

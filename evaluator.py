@@ -228,7 +228,3 @@ def Score(isTspin:bool, isTspinmini:bool, clearedRowCount:int, backToBack:bool, 
     score += SCORE_REN[ren]
     nextBackToBack = isTspinOrTetris or (backToBack and clearedRowCount == 0)
     return score, nextBackToBack, ren
-
-    
-
-    

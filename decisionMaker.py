@@ -288,8 +288,7 @@ def GetPossibleMoves(
 SEARCH_LIMIT = 5
 BEAM_WIDTH = [3, 3, 3, 3]
 def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
-    # BEAM_WIDTH = 3
-    state_queue = [] 
+    state_queue = []
     heapq.heapify(state_queue)
     init_state = State(board, mino, path, 0, board.score)
     init_state.Transit()
