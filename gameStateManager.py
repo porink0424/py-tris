@@ -107,7 +107,16 @@ def PytrisMover ():
 
         # sを押すことで先に進めるようにする
         import keyboard
-        boardWatcher.is1P = False
+
+        print("Are you 1P? (y/n)")
+        while True:
+            if keyboard.read_key() == "y":
+                boardWatcher.is1P = False
+                print("'y' pressed.")
+                break
+            if keyboard.read_key() == "n":
+                print("'n' pressed.")
+                break
 
         print("Press 's' to select a character, or Press 'a' if you want to start immediately.")
         startImmediately = False
@@ -116,6 +125,9 @@ def PytrisMover ():
                 print("'s' pressed.")
                 PressEnter()
                 time.sleep(0.5)
+                if boardWatcher.is1P: # 1Pだったらアルルなのでテトリスにずらす
+                    Move(MOVE.RIGHT)
+                    time.sleep(0.5)
                 PressEnter()
                 time.sleep(0.5)
                 PressEnter() # キャラ設定完了
