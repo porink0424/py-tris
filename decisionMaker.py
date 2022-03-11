@@ -6,18 +6,12 @@ import heapq
 # Beam Search用のclass
 @total_ordering
 class State():
-    mino = None 
-    board = None
-    eval = None
-    accumPathValue = None
-    score = None 
-    backToBack = None 
-    ren = None
 
     #　評価値の計算だけ行う
     def __init__(self, board:Board, mino:DirectedMino, path:List[MOVE], accumPathValue:int, accumScore:int):
         self.board = board
         self.mino = mino 
+        self.path = path
         # ライン消去
         JoinDirectedMinoToBoardUncopy(mino, board.mainBoard, board.topRowIdx)
         clearedRowCount = ClearLinesCalc(board.mainBoard)
@@ -44,6 +38,9 @@ class State():
         joinedBoard, joinedTopRowIdx = JoinDirectedMinoToBoard(self.mino, self.board.mainBoard, self.board.topRowIdx)
         newMainBoard, newTopRowIdx, _ = ClearLines(joinedBoard, joinedTopRowIdx)
         # ミノを置いた後の盤面の生成
+        if self.path[0] is MOVE.HOLD:
+            self.board = BoardAfterHold(self.board)
+    
         clearedBoard = Board(
             newMainBoard,
             DirectedMino(
@@ -57,16 +54,13 @@ class State():
             newTopRowIdx,
             self.score,
             self.backToBack,
-            self.ren
+            self.ren,
         )
         self.board = clearedBoard
 
     #　ありうる次の盤面をすべて生成する。
     def NextStates(self):
-        possibleMoves = GetPossibleMoves(
-            self.board,
-            self.board.currentMino
-        )
+        possibleMoves = GetNextMoves(self.board)
         nextStates = [State(self.board, nextMino, nextPath, self.accumPathValue, self.board.score) for nextMino, nextPath in possibleMoves]
         return nextStates
 
@@ -285,8 +279,19 @@ def GetPossibleMoves(
     
     return possibleMoves
 
-SEARCH_LIMIT = 5
-BEAM_WIDTH = [3, 3, 3, 3]
+
+# 今のBoardからHoldも含めたミノの操作をすべて見つける。
+def GetNextMoves(board:Board) -> List[Tuple[DirectedMino, List[MOVE]]]:
+    boardAfterHold = BoardAfterHold(board)
+    
+    NextMoves = GetPossibleMoves(board, board.currentMino) + \
+                [(mino, [MOVE.HOLD] + path) for mino, path in GetPossibleMoves(boardAfterHold, boardAfterHold.currentMino)]
+
+    return NextMoves
+
+
+SEARCH_LIMIT = 4
+BEAM_WIDTH = [3, 3, 3]
 def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
     # BEAM_WIDTH = 3
     state_queue = [] 
@@ -321,10 +326,7 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
 
 # 実際に手を決める関数
 def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
-    possibleMoves = GetPossibleMoves(
-        board,
-        board.currentMino
-    )
+    possibleMoves = GetNextMoves(board)
 
     # 評価値計算
     maxValue, maxMino, maxPath = -10000000000, None, None

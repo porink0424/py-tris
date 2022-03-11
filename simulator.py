@@ -6,9 +6,15 @@ DISPLAY_DELTA_TIME = 0.02
 
 # 1つのnowDirectedMinoを置く動きを再現して出力
 # 返り値としておいた後のboardを返す
-def PutMino (moveList:List[MOVE], nowDirectedMino:DirectedMino, board:Board) -> Tuple[Board, bool, bool]:
+def PutMino (moveList:List[MOVE], board:Board) -> Tuple[Board, bool, bool]:
+
+    if moveList[0] is MOVE.HOLD:
+        PrintBoardWithDirectedMino(board, board.currentMino, True)
+        moveList = moveList[1:]
+        board = BoardAfterHold(board)
+
     # moveListに従って1つずつ動かしていく
-    nextDirectedMino = nowDirectedMino
+    nextDirectedMino = board.currentMino
     for move in moveList:
         PrintBoardWithDirectedMino(board, nextDirectedMino, True)
         nextDirectedMino = minoMover.MoveOneStep(move, nextDirectedMino, board)
@@ -52,7 +58,12 @@ def ClearLinesOfBoard(board:Board) -> Tuple[List[List[MINO]], int]:
     return newMainBoard, newTopRowIdx, clearedRowCount
 
 # 次のミノを付け足し，押し出してネクストのミノをcurrentMinoにする
-def AddFollowingMino (board:Board, addedMino:MINO) -> Board:
+# Holdができるようになったのでミノを2個付け足す場合がある。
+def AddFollowingMino (board:Board) -> Board:
+   
+    if board.followingMinos[-1] is MINO.NONE:
+        board.followingMinos[-1] = GenerateMino()
+
     return Board(
         board.mainBoard,
         DirectedMino(
@@ -60,7 +71,7 @@ def AddFollowingMino (board:Board, addedMino:MINO) -> Board:
             FIRST_MINO_DIRECTION,
             FIRST_MINO_POS
         ),
-        board.followingMinos[1:] + [addedMino],
+        board.followingMinos[1:] + [GenerateMino()],
         board.holdMino,
         True,
         board.topRowIdx,

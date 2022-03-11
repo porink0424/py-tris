@@ -81,13 +81,12 @@ def PytrisSimulator ():
 
     while True:
         assert type(board.score) == int
-        addedMino = simulator.GenerateMino()
-        board = simulator.AddFollowingMino(board, addedMino)
+        board = simulator.AddFollowingMino(board)
 
         # 思考ルーチン
         value, mino, path = decisionMaker.Decide(board)
 
-        board, isTspin, isTspinmini = simulator.PutMino(path, board.currentMino, board)
+        board, isTspin, isTspinmini = simulator.PutMino(path, board)
 
         newMainBoard, newTopRowIdx, clearedRowCount = simulator.ClearLinesOfBoard(board)
         scoreAdd, backToBack, ren = evaluator.Score(isTspin, isTspinmini, clearedRowCount, board.backToBack, board.ren)
