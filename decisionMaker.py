@@ -320,22 +320,28 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
 
 # 実際に手を決める関数
 def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
-    possibleMoves = GetPossibleMoves(
-        board,
-        board.currentMino
-    )
+    try:
+        possibleMoves = GetPossibleMoves(
+            board,
+            board.currentMino
+        )
 
-    # 評価値計算
-    maxValue, maxMino, maxPath = -10000000000, None, None
-    for mino, path in possibleMoves:
         # 評価値計算
-        value = Search(board, mino, path, SEARCH_LIMIT-1)
-        if value >= maxValue:
-            maxMino, maxPath = mino, path
-            maxValue = value
+        maxValue, maxMino, maxPath = -10000000000, None, None
+        for mino, path in possibleMoves:
+            # 評価値計算
+            value = Search(board, mino, path, SEARCH_LIMIT-1)
+            if value >= maxValue:
+                maxMino, maxPath = mino, path
+                maxValue = value
+        
+        if maxMino is None or maxPath is None:
+            Warn("Cannot decide path.")
+            maxMino, maxPath = possibleMoves[0]
     
-    if maxMino is None or maxPath is None:
-        Warn("Cannot decide path.")
-        maxMino, maxPath = possibleMoves[0]
+    # 実行するなかでassertionが出てしまったら、負けを認める
+    except AssertionError:
+        print("I Lost...")
+        return -100000000000, None, [MOVE.DROP]
     
     return maxValue, maxMino, maxPath

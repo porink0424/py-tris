@@ -16,7 +16,6 @@ def GetAddrFromBaseAndOffsets(baseAddr:int, offsets:List[int]) -> int:
         addr = mem.read_int(addr + offset)
     return addr + offsets[-1]
 
-# 1: next mino, 2: next next mino, ...
 def GetFollowingMinos() -> List[MINO]:
     followingMinos = []
     for i in range(FOLLOWING_MINOS_COUNT):
@@ -322,3 +321,42 @@ def GetCurrentMino() -> Union[DirectedMino, None]:
         )
     else:
         return None
+
+# ゲーム開始待機状態（Ready?という表示が出ている状態）であるかどうかを、
+# FollowingMinoが取得できているかどうか、CurrentMinoが-1であるかどうかをもとに判別する
+def IsGameReady() -> bool:
+    try:
+        mino = mem.read_int(GetAddrFromBaseAndOffsets(
+            0x140461B20,
+            [
+                0x378,
+                0xc0,
+                0x120,
+                0x110
+            ]
+        ))
+    except:
+        mino = 0
+    
+    return True if (MINO.NONE not in GetFollowingMinos()) and (mino == -1) else False
+
+# ゲームが開始したかどうかを、CurrentMinoが取得できているかをもとに判別する
+def HasGameStarted() -> bool:
+    return False if GetCurrentMino() is None else True
+
+# キャラクター設定画面かどうかを判定する
+def IsCharacterSelect() -> bool:
+    try: # todo: エラー処理
+        num = mem.read_int(GetAddrFromBaseAndOffsets(
+            0x140460690,
+            [
+                0x274,
+            ]
+        ))
+        
+        if 0 < num < 16:
+            return True
+        else:
+            return False
+    except:
+        return False

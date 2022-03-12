@@ -103,49 +103,41 @@ def PytrisMover ():
 
     if isMultiPlay:
         # マルチプレイヤーモード
-        # AIは2Pとして立ち回る
 
         # sを押すことで先に進めるようにする
         import keyboard
 
-        print("Are you 1P? (y/n)")
-        while True:
-            if keyboard.read_key() == "y":
-                boardWatcher.is1P = False
-                print("'y' pressed.")
-                break
-            if keyboard.read_key() == "n":
-                print("'n' pressed.")
-                break
+        # print("Are you 1P? (y/n)")
+        # while True:
+        #     if keyboard.read_key() == "y":
+        #         boardWatcher.is1P = False
+        #         print("'y' pressed.")
+        #         break
+        #     if keyboard.read_key() == "n":
+        #         print("'n' pressed.")
+        #         break
 
-        print("Press 's' to select a character, or Press 'a' if you want to start immediately.")
-        startImmediately = False
-        while True:
-            if keyboard.read_key() == "s":
-                print("'s' pressed.")
-                PressEnter()
-                time.sleep(0.5)
-                if boardWatcher.is1P: # 1Pだったらアルルなのでテトリスにずらす
-                    Move(MOVE.RIGHT)
-                    time.sleep(0.5)
-                PressEnter()
-                time.sleep(0.5)
-                PressEnter() # キャラ設定完了
-                time.sleep(0.5)
-                break
-            if keyboard.read_key() == "a":
-                print("'a' pressed.")
-                startImmediately = True
-                break
+        # todo: 上記のkeyboardが効かなくなってしまったので2Pと仮定して進める
+        boardWatcher.is1P = False
+        
+        # キャラクターセレクト画面になるまで待機
+        while not boardWatcher.IsCharacterSelect():
+            time.sleep(0.1)
 
-        if not startImmediately:
-            print("Press 's' to start a game.")
-            while True:
-                if keyboard.read_key() == "s":
-                    print("'s' pressed.")
-                    PressEnter()
-                    time.sleep(0.5)
-                    break
+        # キャラクターセレクトを実行
+        time.sleep(0.5)
+        print("'Chalacter Select' Recognized.")
+        time.sleep(0.5)
+        PressEnter()
+        time.sleep(0.5)
+        if boardWatcher.is1P: # 1Pだったらアルルなのでテトリスにずらす
+            Move(MOVE.RIGHT)
+            time.sleep(0.5)
+        PressEnter()
+        time.sleep(0.5)
+        PressEnter() # キャラ設定完了
+        time.sleep(0.5)
+        print("Character selected.")
         
     else:
         # シングルプレイヤーモード
@@ -153,61 +145,77 @@ def PytrisMover ():
         # ゲームの再開
         PressEnter()
 
-    time.sleep(4) # todo: 開始までただ待つのではなく、メモリ読み込みで開始したことを取得できるようにする
-    print("Start!")
-    
-    previousFollowingMinos = [boardWatcher.GetFollowingMinos()[0]]
-
     while True:
-        # 消去中のラインが消えるまで待つ
-        while boardWatcher.IsClearingLines():
-            pass
+        # ゲーム開始待機状態になるまで待機
+        while not boardWatcher.IsGameReady():
+            time.sleep(0.1)
+        
+        print("Ready Recognized. Wait for starting a game...")
+        
+        previousFollowingMinos = [boardWatcher.GetFollowingMinos()[0]]
 
-        # followingMinosが変化するまで待つ
+        # ゲーム開始するまで待機
+        while not boardWatcher.HasGameStarted():
+            continue
+            
+        print("Start!")
+
+        # ゲーム開始
         while True:
-            if previousFollowingMinos != boardWatcher.GetFollowingMinos():
-                currentMino = previousFollowingMinos[0]
-                previousFollowingMinos = boardWatcher.GetFollowingMinos()
+            # 消去中のラインが消えるまで待つ
+            while boardWatcher.IsClearingLines():
+                pass
+
+            # followingMinosが変化するまで待つ
+            while True:
+                if previousFollowingMinos != boardWatcher.GetFollowingMinos():
+                    currentMino = previousFollowingMinos[0]
+                    previousFollowingMinos = boardWatcher.GetFollowingMinos()
+                    break
+            
+            # 各列において，上から順に見ていって，一番最初にブロックがある部分のrowIdxを格納する
+            mainBoard = boardWatcher.GetMainBoard()
+            topRowIdx = [BOARD_HEIGHT for _ in range(BOARD_WIDTH)]
+            for rowIdx in range(BOARD_HEIGHT-1, -1, -1):
+                for colIdx in range(BOARD_WIDTH):
+                    if mainBoard[rowIdx] & (0b1000000000 >> colIdx) > 0:
+                        topRowIdx[colIdx] = rowIdx
+            
+            # 盤面の状況を読み取る
+            board = Board(
+                mainBoard,
+                DirectedMino(
+                    currentMino, # ここで仮にGetCurrentMinoをやるとminoの種類が正しくないものが入ってきてしまう（おそらくメモリに反映されるのに時間がかかるため？）
+                    FIRST_MINO_DIRECTION,
+                    FIRST_MINO_POS
+                ),
+                boardWatcher.GetFollowingMinos(),
+                boardWatcher.GetHoldMino(),
+                True,
+                topRowIdx,
+                0,
+                False,
+                0
+            )
+
+            # 思考ルーチン
+            value, mino, path = decisionMaker.Decide(board)
+
+            # 移動
+            directedMino = minoMover.InputMove(
+                path,
+                DirectedMino(
+                    currentMino, # ここで仮にGetCurrentMinoをやるとdecideで時間がかかっていたときに高さが合わなくなって死ぬ
+                    FIRST_MINO_DIRECTION,
+                    FIRST_MINO_POS
+                ),
+                board.mainBoard
+            )
+
+            # ゲーム開始待機状態に戻ったら、次のゲームに移行する
+            if boardWatcher.IsGameReady():
+                print("Next game started. Reloading...")
                 break
-        
-        # 各列において，上から順に見ていって，一番最初にブロックがある部分のrowIdxを格納する
-        mainBoard = boardWatcher.GetMainBoard()
-        topRowIdx = [BOARD_HEIGHT for _ in range(BOARD_WIDTH)]
-        for rowIdx in range(BOARD_HEIGHT-1, -1, -1):
-            for colIdx in range(BOARD_WIDTH):
-                if mainBoard[rowIdx] & (0b1000000000 >> colIdx) > 0:
-                    topRowIdx[colIdx] = rowIdx
-        
-        # 盤面の状況を読み取る
-        board = Board(
-            mainBoard,
-            DirectedMino(
-                currentMino, # ここで仮にGetCurrentMinoをやるとminoの種類が正しくないものが入ってきてしまう（おそらくメモリに反映されるのに時間がかかるため？）
-                FIRST_MINO_DIRECTION,
-                FIRST_MINO_POS
-            ),
-            boardWatcher.GetFollowingMinos(),
-            boardWatcher.GetHoldMino(),
-            True,
-            topRowIdx,
-            0,
-            False,
-            0
-        )
-
-        # 思考ルーチン
-        value, mino, path = decisionMaker.Decide(board)
-
-        # 移動
-        directedMino = minoMover.InputMove(
-            path,
-            DirectedMino(
-                currentMino, # ここで仮にGetCurrentMinoをやるとdecideで時間がかかっていたときに高さが合わなくなって死ぬ
-                FIRST_MINO_DIRECTION,
-                FIRST_MINO_POS
-            ),
-            board.mainBoard
-        )
 
 def main():    
     # # 盤面監視モード
