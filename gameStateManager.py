@@ -79,7 +79,7 @@ def PytrisSimulator ():
     print("\n\n\n")
     PrintBoard(board)
 
-    while True:
+    for _ in range(60):
         assert type(board.score) == int
         board = simulator.AddFollowingMino(board)
 
@@ -196,7 +196,7 @@ def main():
     # PytrisBoardWatcher()
 
     # # # simulatorモード
-    # PytrisSimulator()
+    PytrisSimulator()
 
     # 実機確認モード
-    PytrisMover()
+    # PytrisMover()

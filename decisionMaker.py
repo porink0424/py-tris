@@ -291,7 +291,7 @@ def GetNextMoves(board:Board) -> List[Tuple[DirectedMino, List[MOVE]]]:
 
 
 SEARCH_LIMIT = 4
-BEAM_WIDTH = [3, 3, 3]
+BEAM_WIDTH = [5, 5, 5]
 def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
     # BEAM_WIDTH = 3
     state_queue = [] 
