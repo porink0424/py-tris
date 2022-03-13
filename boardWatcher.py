@@ -234,9 +234,9 @@ def GetMinoTypeOfCurrentMino() -> Union[MINO, None]:
                 0x140461B20,
                 [
                     0x378,
-                    0xc0,
-                    0x120,
-                    0x110
+                    0xA8,
+                    0x3C8,
+                    0x8
                 ]
             ))
         else:
@@ -244,9 +244,9 @@ def GetMinoTypeOfCurrentMino() -> Union[MINO, None]:
                 0x140461B20,
                 [
                     0x378 + 0x8,
-                    0xc0,
-                    0x120,
-                    0x110
+                    0xA8,
+                    0x3C8,
+                    0x8
                 ]
             ))
         if mino == 0:
