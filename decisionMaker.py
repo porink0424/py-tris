@@ -3,23 +3,27 @@ import evaluator
 from functools import total_ordering
 import heapq
 
+#時間が立たないともらえない報酬は割引する。
+EVAL_TAU = 0.9
+
 # Beam Search用のclass
 @total_ordering
 class State():
 
     #　評価値の計算だけ行う
-    def __init__(self, board:Board, mino:DirectedMino, path:List[MOVE], accumPathValue:int, accumScore:int):
+    def __init__(self, board:Board, mino:DirectedMino, path:List[MOVE], accumPathValue:int, accumScore:int, tau=EVAL_TAU):
         self.board = board
         self.mino = mino 
         self.path = path
+        self.tau = tau
         # ライン消去
         JoinDirectedMinoToBoardUncopy(mino, board.mainBoard, board.topRowIdx)
         clearedRowCount = ClearLinesCalc(board.mainBoard)
         # 評価値の計算
         isTspin = evaluator.IsTSpin(board.mainBoard, mino, path)
         isTspinmini = isTspin and evaluator.IsTSpinMini(board.mainBoard, mino, path)
-        self.accumPathValue = accumPathValue + evaluator.EvalPath(path, clearedRowCount, board.mainBoard, mino, board.backToBack, board.ren)
-        self.eval = self.accumPathValue + evaluator.EvalMainBoard(board.mainBoard, clearedRowCount, board.topRowIdx)
+        self.accumPathValue = accumPathValue + self.tau * evaluator.EvalPath(path, clearedRowCount, board.mainBoard, mino, board.backToBack, board.ren)
+        self.eval = self.accumPathValue + self.tau * evaluator.EvalMainBoard(board.mainBoard, clearedRowCount, board.topRowIdx)
         # スコアの計算
         self.score, self.backToBack, self.ren = evaluator.Score(isTspin, isTspinmini, clearedRowCount, board.backToBack, board.ren)
         self.score += accumScore
@@ -62,7 +66,7 @@ class State():
     #　ありうる次の盤面をすべて生成する。
     def NextStates(self):
         possibleMoves = GetNextMoves(self.board)
-        nextStates = [State(self.board, nextMino, nextPath, self.accumPathValue, self.board.score) for nextMino, nextPath in possibleMoves]
+        nextStates = [State(self.board, nextMino, nextPath, self.accumPathValue, self.board.score, self.tau * EVAL_TAU) for nextMino, nextPath in possibleMoves]
         return nextStates
 
 # minoを今の位置からdirectionを変えずに左右に動かして得られるminoのリストを返す
