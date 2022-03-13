@@ -79,6 +79,8 @@ def PytrisSimulator ():
     for i in range(FOLLOWING_MINOS_COUNT):
         if board.followingMinos[i] is MINO.NONE:
             board.followingMinos[i] = board.minoBagContents.pop()
+            if len(board.minoBagContents) == 0:
+                board.minoBagContents = ReturnFullBag()
 
    
     print("\n\n\n")
