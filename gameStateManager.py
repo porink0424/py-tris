@@ -5,18 +5,15 @@
 # -------------
 
 import pyautogui
+import win32gui
 import time
 
 # pyautoguiの遅延を0にする
 pyautogui.PAUSE = 0
 
-# windowの位置
-# todo: 環境によって初期位置を調整する
-WINDOW_X = 100
-WINDOW_Y = 100
-
 # windowをアクティブにする
-pyautogui.click(WINDOW_X, WINDOW_Y)
+window = win32gui.FindWindow(None, "PuyoPuyoTetris")
+win32gui.SetForegroundWindow(window)
 print("Window activated.", flush=True)
 
 import boardWatcher

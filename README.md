@@ -6,9 +6,16 @@
 
 ## Pre-Requests
 
+プログラムの実行
+
 ```
 Python3
-Parallels Desktop & Windows10
+```
+
+対象にしているアプリケーション
+
+```
+Windows10
 PuyoPuyo Tetris (in Steam)
 ```
 
@@ -21,6 +28,10 @@ playsound==1.3.0
 Pillow==8.1.0
 colored==1.4.3
 cython=0.29.28
+keyboard==0.13.5
+Pymem==1.8.5
+vgamepad==0.0.7
+pywin32==303
 ```
 
 ## Usage
@@ -66,9 +77,3 @@ sh rm.sh
 ### branch運用について
 
 新機能の実装は`feat/foobar`，修正は`fix/foobar`の形式とする。PRの向きは`master`とする。基本的にブランチは`master`から切るようにすること。 
-
-## Important Points when Verifying in App
-
-- ウィンドウサイズはプログラム起動時から動かしてはいけない
-- ウィンドウが他のウィンドウと被ってない
-- Parallels Desktopウィンドウ内でプヨテトの画面が全画面表示になっている
