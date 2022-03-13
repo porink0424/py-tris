@@ -4,6 +4,7 @@
 #
 # -------------
 
+from multiprocessing.context import assert_spawning
 import pyautogui
 import time
 
@@ -74,13 +75,18 @@ def PytrisSimulator ():
     # for i in range(10):
     #     board.AddBlockToMainBoard((i ,39))
 
-    board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
+    board.minoBagContents = ReturnFullBag()
+    for i in range(FOLLOWING_MINOS_COUNT):
+        if board.followingMinos[i] is MINO.NONE:
+            board.followingMinos[i] = board.minoBagContents.pop()
+
    
     print("\n\n\n")
     PrintBoard(board)
 
     for _ in range(60):
         assert type(board.score) == int
+        assert len(board.followingMinos) == FOLLOWING_MINOS_COUNT
         board = simulator.AddFollowingMino(board)
 
         # 思考ルーチン
@@ -101,6 +107,7 @@ def PytrisSimulator ():
             board.score + scoreAdd,
             backToBack,
             ren,
+            board.minoBagContents
         )
 
 # 実機上で思考を再現する（無限ループ、シングルスレッド）

@@ -1,5 +1,6 @@
 from enum import Enum, auto
 from typing import List
+import random
 
 class MINO(Enum):
     T = 0
@@ -13,4 +14,4 @@ class MINO(Enum):
     NONE = 8
 
 def ReturnFullBag() -> List[MINO]:
-    return [MINO.T, MINO.O, MINO.Z, MINO.I, MINO.L, MINO.S, MINO.J]
+    return random.sample([MINO.T, MINO.O, MINO.Z, MINO.I, MINO.L, MINO.S, MINO.J], 7)

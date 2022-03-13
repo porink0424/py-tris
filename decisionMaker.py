@@ -55,6 +55,7 @@ class State():
             self.score,
             self.backToBack,
             self.ren,
+            self.board.minoBagContents
         )
         self.board = clearedBoard
 
