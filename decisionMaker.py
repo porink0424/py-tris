@@ -319,7 +319,7 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
     return final_state.eval
 
 # 実際に手を決める関数
-def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
+def Decide (board:Board) -> Tuple[float, DirectedMino, List[MOVE]]:
     try:
         possibleMoves = GetPossibleMoves(
             board,

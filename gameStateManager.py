@@ -98,6 +98,8 @@ def PytrisSimulator ():
 def PytrisMover ():
     isMultiPlay = True
 
+    paths = []
+
     if isMultiPlay:
         # マルチプレイヤーモード
 
@@ -166,8 +168,12 @@ def PytrisMover ():
             # followingMinosが変化するまで待つ
             while True:
                 if previousFollowingMinos != boardWatcher.GetFollowingMinos():
-                    currentMino = previousFollowingMinos[0]
                     previousFollowingMinos = boardWatcher.GetFollowingMinos()
+                    break
+            
+            # 現在のミノが出てくるまで待つ
+            while True:
+                if boardWatcher.GetCurrentMino() is not None:
                     break
             
             # 各列において，上から順に見ていって，一番最初にブロックがある部分のrowIdxを格納する
@@ -182,7 +188,7 @@ def PytrisMover ():
             board = Board(
                 mainBoard,
                 DirectedMino(
-                    currentMino, # ここで仮にGetCurrentMinoをやるとminoの種類が正しくないものが入ってきてしまう（おそらくメモリに反映されるのに時間がかかるため？）
+                    boardWatcher.GetMinoTypeOfCurrentMino(),
                     FIRST_MINO_DIRECTION,
                     FIRST_MINO_POS
                 ),
@@ -197,17 +203,20 @@ def PytrisMover ():
 
             # 思考ルーチン
             value, mino, path = decisionMaker.Decide(board)
+            paths.append(path)
 
             # 移動
-            directedMino = minoMover.InputMove(
-                path,
-                DirectedMino(
-                    currentMino, # ここで仮にGetCurrentMinoをやるとdecideで時間がかかっていたときに高さが合わなくなって死ぬ
-                    FIRST_MINO_DIRECTION,
-                    FIRST_MINO_POS
-                ),
-                board.mainBoard
-            )
+            # todo: 連続でおく途中でおきミスしたときや、盤面の状況が変化したときの対処（porinky0424がやります）
+            while paths:
+                directedMino = minoMover.InputMove(
+                    paths.pop(0),
+                    DirectedMino(
+                        boardWatcher.GetMinoTypeOfCurrentMino(),
+                        FIRST_MINO_DIRECTION,
+                        FIRST_MINO_POS
+                    ),
+                    board.mainBoard
+                )
 
             # ゲーム開始待機状態に戻ったら、次のゲームに移行する
             if boardWatcher.IsGameReady():
