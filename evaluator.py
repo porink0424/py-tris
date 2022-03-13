@@ -10,10 +10,6 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
     # 各列において，上から順に見ていって，一番最初にブロックがある部分のrowIdxを格納する
     roughness = 0
     for i in range(len(topRowIdx) - 1):
-        # 隣との差が4以上だとTetrisをしても穴が残る可能性が高いので減点
-        # if abs(topRowIdx[i] - topRowIdx[i+1]) >= 4:
-        #     roughness += EVAL_ROUGHNESS_UPPER_THAN4
-        # else:
         roughness += EVAL_ROUGHNESS_VAL[abs(topRowIdx[i] - topRowIdx[i+1])]
 
     # ブロックの下にある空白をカウントする

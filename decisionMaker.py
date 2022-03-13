@@ -347,7 +347,8 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
     if maxMino is None or maxPath is None:
         Warn("Cannot decide path.")
         maxMino, maxPath = possibleMoves[0]
-
+    
+    # 1回Holdしたら、あとは5手先読みできるようになる。
     if maxPath[0] is MOVE.HOLD and firstHold:
         SEARCH_LIMIT = 5
         BEAM_WIDTH.append(3)

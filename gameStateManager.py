@@ -4,7 +4,6 @@
 #
 # -------------
 
-from multiprocessing.context import assert_spawning
 import pyautogui
 import time
 
@@ -86,7 +85,7 @@ def PytrisSimulator ():
     print("\n\n\n")
     PrintBoard(board)
 
-    for _ in range(60):
+    while True:
         assert type(board.score) == int
         assert len(board.followingMinos) == FOLLOWING_MINOS_COUNT
         board = simulator.AddFollowingMino(board)
