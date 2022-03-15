@@ -11,10 +11,11 @@ EVAL_TAU = 0.9
 class State():
 
     #　評価値の計算だけ行う
-    def __init__(self, board:Board, mino:DirectedMino, path:List[MOVE], accumPathValue:int, accumScore:int, tau=EVAL_TAU):
+    def __init__(self, board:Board, mino:DirectedMino, path:List[MOVE], accumPathValue:int, accumScore:int, accumPath:List[List[MOVE]], tau=EVAL_TAU):
         self.board = board
         self.mino = mino 
         self.path = path
+        self.accumPath = accumPath + [path]
         self.tau = tau
         # ライン消去
         JoinDirectedMinoToBoardUncopy(mino, board.mainBoard, board.topRowIdx)
@@ -66,7 +67,7 @@ class State():
     #　ありうる次の盤面をすべて生成する。
     def NextStates(self):
         possibleMoves = GetNextMoves(self.board)
-        nextStates = [State(self.board, nextMino, nextPath, self.accumPathValue, self.board.score, self.tau * EVAL_TAU) for nextMino, nextPath in possibleMoves]
+        nextStates = [State(self.board, nextMino, nextPath, self.accumPathValue, self.board.score, self.accumPath, self.tau * EVAL_TAU) for nextMino, nextPath in possibleMoves]
         return nextStates
 
 # minoを今の位置からdirectionを変えずに左右に動かして得られるminoのリストを返す
@@ -298,11 +299,11 @@ def GetNextMoves(board:Board) -> List[Tuple[DirectedMino, List[MOVE]]]:
 SEARCH_LIMIT = 4
 BEAM_WIDTH = [3, 3, 3]
 firstHold = True
-def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
+def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> Tuple[int, List[List[MOVE]]]:
     # BEAM_WIDTH = 3
     state_queue = [] 
     heapq.heapify(state_queue)
-    init_state = State(board, mino, path, 0, board.score)
+    init_state = State(board, mino, path, 0, board.score, [])
     init_state.Transit()
     heapq.heappush(state_queue, init_state)
 
@@ -328,7 +329,7 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> int:
         heapq.heappop(state_queue)
 
     final_state = heapq.heappop(state_queue)
-    return final_state.eval
+    return final_state.eval, final_state.accumPath
 
 # 実際に手を決める関数
 def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
@@ -339,7 +340,7 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
     maxValue, maxMino, maxPath = -10000000000, None, None
     for mino, path in possibleMoves:
         # 評価値計算
-        value = Search(board, mino, path, SEARCH_LIMIT-1)
+        value, _ = Search(board, mino, path, SEARCH_LIMIT-1)
         if value >= maxValue:
             maxMino, maxPath = mino, path
             maxValue = value
@@ -355,3 +356,33 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
         firstHold = False
     
     return maxValue, maxMino, maxPath
+
+# 複数手を決める関数
+def MultiDecide(board:Board) -> List[List[MOVE]]:
+    global SEARCH_LIMIT, BEAM_WIDTH, firstHold
+    possibleMoves = GetNextMoves(board)
+
+    # 評価値計算
+    maxValue, maxMino, maxMultiPath = -10000000000, None, None
+    for mino, path in possibleMoves:
+        # 評価値計算
+        value, multipath = Search(board, mino, path, SEARCH_LIMIT-1)
+        if value >= maxValue:
+            maxMino, maxMultiPath = mino, multipath
+            maxValue = value
+    
+    if maxMino is None or maxMultiPath is None:
+        Warn("Cannot decide path.")
+        maxMino, maxMultiPath = possibleMoves[0]
+    
+    # 1回Holdしたら、あとは5手先読みできるようになる。
+    if firstHold:
+        for path in maxMultiPath:
+            if path[0] is MOVE.HOLD:
+                SEARCH_LIMIT = 5
+                BEAM_WIDTH.append(3)
+                firstHold = False
+                break
+    
+    maxMultiPath = maxMultiPath[:3]
+    return maxMultiPath

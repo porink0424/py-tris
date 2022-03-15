@@ -85,6 +85,7 @@ def PytrisSimulator ():
     print("\n\n\n")
     PrintBoard(board)
 
+    """ # Decide
     while True:
         assert type(board.score) == int
         assert len(board.followingMinos) == FOLLOWING_MINOS_COUNT
@@ -110,6 +111,38 @@ def PytrisSimulator ():
             ren,
             board.minoBagContents
         )
+    """
+    
+    # Multi-Decide
+    board = simulator.AddFollowingMino(board)
+    while True:
+        assert type(board.score) == int
+        assert len(board.followingMinos) == FOLLOWING_MINOS_COUNT
+
+        # 思考ルーチン
+        multipath = decisionMaker.MultiDecide(board)
+
+        for path in multipath:
+            board, isTspin, isTspinmini = simulator.PutMino(path, board)
+
+            newMainBoard, newTopRowIdx, clearedRowCount = simulator.ClearLinesOfBoard(board)
+            scoreAdd, backToBack, ren = evaluator.Score(isTspin, isTspinmini, clearedRowCount, board.backToBack, board.ren)
+
+            board = Board(
+                newMainBoard,
+                None,
+                board.followingMinos,
+                board.holdMino,
+                True,
+                newTopRowIdx,
+                board.score + scoreAdd,
+                backToBack,
+                ren,
+                board.minoBagContents
+            )
+
+            board = simulator.AddFollowingMino(board)
+
 
 # 実機上で思考を再現する（無限ループ、シングルスレッド）
 # menu画面にいて、Startを押せる状態からはじめないとバグる
