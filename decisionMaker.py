@@ -9,7 +9,6 @@ EVAL_TAU = 0.9
 # Beam Search用のclass
 @total_ordering
 class State():
-
     #　評価値の計算だけ行う
     def __init__(self, board:Board, mino:DirectedMino, path:List[MOVE], accumPathValue:int, accumScore:int, accumPath:List[List[MOVE]], tau=EVAL_TAU):
         self.board = board
@@ -332,20 +331,22 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> Tuple
 # 実際に手を決める関数
 def Decide (board:Board) -> Tuple[float, DirectedMino, List[MOVE]]:
     global SEARCH_LIMIT, BEAM_WIDTH, firstHold
-    possibleMoves = GetNextMoves(board)
 
-    # 評価値計算
-    maxValue, maxMino, maxPath = -10000000000, None, None
-    for mino, path in possibleMoves:
+    try:
+        possibleMoves = GetNextMoves(board)
+
         # 評価値計算
-        value, _ = Search(board, mino, path, SEARCH_LIMIT-1)
-        if value >= maxValue:
-            maxMino, maxPath = mino, path
-            maxValue = value
+        maxValue, maxMino, maxPath = -10000000000, None, None
+        for mino, path in possibleMoves:
+            # 評価値計算
+            value, _ = Search(board, mino, path, SEARCH_LIMIT-1)
+            if value >= maxValue:
+                maxMino, maxPath = mino, path
+                maxValue = value
 
-    if maxMino is None or maxPath is None:
-        Warn("Cannot decide path.")
-        maxMino, maxPath = possibleMoves[0]
+        if maxMino is None or maxPath is None:
+            Warn("Cannot decide path.")
+            maxMino, maxPath = possibleMoves[0]
     
     # 実行するなかでassertionが出てしまったら、負けを認める
     except AssertionError:
@@ -354,7 +355,7 @@ def Decide (board:Board) -> Tuple[float, DirectedMino, List[MOVE]]:
     
     # 1回Holdしたら、あとは5手先読みできるようになる。
     if maxPath[0] is MOVE.HOLD and firstHold:
-        SEARCH_LIMIT = 5
+        SEARCH_LIMIT += 1
         BEAM_WIDTH.append(3)
         firstHold = False
     
@@ -363,29 +364,37 @@ def Decide (board:Board) -> Tuple[float, DirectedMino, List[MOVE]]:
 # 複数手を決める関数
 def MultiDecide(board:Board) -> List[List[MOVE]]:
     global SEARCH_LIMIT, BEAM_WIDTH, firstHold
-    possibleMoves = GetNextMoves(board)
 
-    # 評価値計算
-    maxValue, maxMino, maxMultiPath = -10000000000, None, None
-    for mino, path in possibleMoves:
+    try:
+        possibleMoves = GetNextMoves(board)
+
         # 評価値計算
-        value, multipath = Search(board, mino, path, SEARCH_LIMIT-1)
-        if value >= maxValue:
-            maxMino, maxMultiPath = mino, multipath
-            maxValue = value
+        maxValue, maxMino, maxMultiPath = -10000000000, None, None
+        for mino, path in possibleMoves:
+            # 評価値計算
+            value, multipath = Search(board, mino, path, SEARCH_LIMIT-1)
+            if value >= maxValue:
+                maxMino, maxMultiPath = mino, multipath
+                maxValue = value
+        
+        if maxMino is None or maxMultiPath is None:
+            Warn("Cannot decide path.")
+            maxMino, maxMultiPath = possibleMoves[0]
+        
+        # 1回Holdしたら、あとは5手先読みできるようになる。
+        if firstHold:
+            for path in maxMultiPath:
+                if path[0] is MOVE.HOLD:
+                    SEARCH_LIMIT = 5
+                    BEAM_WIDTH.append(3)
+                    firstHold = False
+                    break
     
-    if maxMino is None or maxMultiPath is None:
-        Warn("Cannot decide path.")
-        maxMino, maxMultiPath = possibleMoves[0]
+        maxMultiPath = maxMultiPath[:SEARCH_LIMIT]
     
-    # 1回Holdしたら、あとは5手先読みできるようになる。
-    if firstHold:
-        for path in maxMultiPath:
-            if path[0] is MOVE.HOLD:
-                SEARCH_LIMIT = 5
-                BEAM_WIDTH.append(3)
-                firstHold = False
-                break
-    
-    maxMultiPath = maxMultiPath[:3]
+    # 実行するなかでassertionが出てしまったら、負けを認める
+    except AssertionError:
+        print("I Lost...")
+        return [[MOVE.DROP]]
+
     return maxMultiPath

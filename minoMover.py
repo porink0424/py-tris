@@ -52,14 +52,14 @@ def GetMovedDirectedMino (move:MOVE, directedMino:DirectedMino, mainBoard:List[i
         Error("Invalid move from GetMovedDirectedMinoPos")
 
 # moveListとdirectedMinoを受け取って、その通りに入力を行う
-# moveList = [downが入っていないmove1] + [downの連続列] + [downが入っていないmove2]の形のみに対応している
+# moveList = [downが入っていないfirstHalfMove] + [downの連続列] + [downが入っていないsecondHalfMove]の形のみに対応している
 # directedMinoをmoveListに従って動かした結果の移動先のdirectedMinoを返す
 # 置きミスしたときは、Noneを返す
 # todo: より一般的なmoveListに対しても動くようにする
 def InputMove (moveList:List[MOVE], directedMino:DirectedMino, mainBoard:List[int]) -> Union[DirectedMino, bool]:
     nextDirectedMino = directedMino
 
-    # moveList = [move1] + [downの連続列] + [move2]に分割する
+    # moveList = [firstHalfMove] + [downの連続列] + [secondHalfMove]に分割する
     if MOVE.DOWN in moveList:
         downStartIdx = 0
         while True:
@@ -73,16 +73,16 @@ def InputMove (moveList:List[MOVE], directedMino:DirectedMino, mainBoard:List[in
                 break
             else:
                 downEndIdx -= 1
-        move1 = moveList[:downStartIdx]
+        firstHalfMove = moveList[:downStartIdx]
         downCount = len(moveList[downStartIdx:downEndIdx])
-        move2 = moveList[downEndIdx:]
+        secondHalfMove = moveList[downEndIdx:]
     else:
-        move1 = moveList
+        firstHalfMove = moveList
         downCount = 0
-        move2 = []
+        secondHalfMove = []
 
-    # move1を入力
-    for move in move1:
+    # firstHalfMoveを入力
+    for move in firstHalfMove:
         Move(move)
         nextDirectedMino = GetMovedDirectedMino(move, nextDirectedMino, mainBoard)
     
@@ -91,18 +91,26 @@ def InputMove (moveList:List[MOVE], directedMino:DirectedMino, mainBoard:List[in
         HoldDown() # 目的の場所にたどり着くまで下を押し続ける
         nextDirectedMino = DirectedMino(nextDirectedMino.mino, nextDirectedMino.direction, (nextDirectedMino.pos[0], nextDirectedMino.pos[1] + downCount))
         count = 0
+        posNotChangeCount = 0
+        previousPosYOfCurrentMino = boardWatcher.GetPosOfCurrentMino()[1]
         while True:
-            if boardWatcher.GetPosOfCurrentMino()[1] == nextDirectedMino.pos[1]:
-                ReleaseDown()
-                break
+            # 下ボタンを押してるにもかかわらず位置が変わっていない場合
+            if previousPosYOfCurrentMino == boardWatcher.GetPosOfCurrentMino()[1]:
+                posNotChangeCount += 1
+                if posNotChangeCount > 18: # 0.18秒程度押し続けても変わらない場合到達していると考えられる
+                    ReleaseDown()
+                    break
+            previousPosYOfCurrentMino = boardWatcher.GetPosOfCurrentMino()[1]
             count += 1
-            time.sleep(0.01) # 回転入れがある程度の時間成功しない時は失敗とみなす todo: もっといい方法で
+            # 回転入れがある程度の時間成功しない時は失敗とみなす todo: もっといい方法はないか
             if count > 200:
                 ReleaseDown()
                 return None
+
+            time.sleep(0.01)
     
-    # move2を入力
-    for move in move2:
+    # secondHalfMoveを入力
+    for move in secondHalfMove:
         Move(move)
         nextDirectedMino = GetMovedDirectedMino(move, nextDirectedMino, mainBoard)
 

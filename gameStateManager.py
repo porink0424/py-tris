@@ -134,8 +134,6 @@ def PytrisSimulator ():
 def PytrisMover ():
     isMultiPlay = True
 
-    paths = []
-
     if isMultiPlay:
         # マルチプレイヤーモード
 
@@ -181,6 +179,11 @@ def PytrisMover ():
         PressEnter()
 
     while True:
+        # 初期化
+        decisionMaker.SEARCH_LIMIT = 4
+        decisionMaker.BEAM_WIDTH = [3, 3, 3]
+        paths = []
+
         # ゲーム開始待機状態になるまで待機
         while not boardWatcher.IsGameReady():
             time.sleep(0.1)
@@ -238,33 +241,86 @@ def PytrisMover ():
             )
 
             # 思考ルーチン
-            value, mino, path = decisionMaker.Decide(board)
-            paths.append(path)
+            if not paths:
+                multiPath = decisionMaker.MultiDecide(board)
+                paths += multiPath
 
             # 移動
             # todo: 連続でおく途中でおきミスしたときや、盤面の状況が変化したときの対処（porinky0424がやります）
+            mainBoard = board.mainBoard
             while paths:
+                path = paths.pop(0)
+                currentMino = boardWatcher.GetMinoTypeOfCurrentMino()
+
+                # 最初に実行するのがHOLDの時は別に実行する
+                if path[0] is MOVE.HOLD:
+                    time.sleep(0.15) # 安定のためにHOLDの前後にsleepを入れる
+                    Move(MOVE.HOLD)
+                    time.sleep(0.15)
+
+                    # pathからHOLDを取り除く
+                    path = path[1:]
+
+                    # 次のミノが出てくるまで待機
+                    while True:
+                        if boardWatcher.GetCurrentMino() is not None:
+                            break
+                    
+                    currentMino = boardWatcher.GetMinoTypeOfCurrentMino()
+                
+                # 移動
                 directedMino = minoMover.InputMove(
-                    paths.pop(0),
+                    path,
                     DirectedMino(
-                        boardWatcher.GetMinoTypeOfCurrentMino(),
+                        currentMino,
                         FIRST_MINO_DIRECTION,
                         FIRST_MINO_POS
                     ),
-                    board.mainBoard
+                    mainBoard
                 )
 
+                # おいた後の盤面を生成
+                joinedMainBoard = JoinDirectedMinoToBoardWithoutTopRowIdx(directedMino, mainBoard)
+                mainBoard, clearedRowCount = ClearLinesWithoutTopRowIdx(joinedMainBoard)
+
+                # 試合が終了して、次のゲームが始まっていないか気にしながら次の操作ができるような状態になるまで待機
+                isGameReady = False
+                if paths:
+                    # followingMinosが変化するまで待つ
+                    while True:
+                        if previousFollowingMinos != boardWatcher.GetFollowingMinos():
+                            previousFollowingMinos = boardWatcher.GetFollowingMinos()
+                            break
+
+                        # ゲーム開始待機状態に戻ったら、次のゲームに移行する
+                        if boardWatcher.IsGameReady():
+                            isGameReady = True
+                            break
+
+                    # 次のミノが出てくるまで待機
+                    while True:
+                        if boardWatcher.GetCurrentMino() is not None:
+                            break
+
+                        # ゲーム開始待機状態に戻ったら、次のゲームに移行する
+                        if boardWatcher.IsGameReady():
+                            isGameReady = True
+                            break
+                    
+                    if isGameReady:
+                        break
+
             # ゲーム開始待機状態に戻ったら、次のゲームに移行する
-            if boardWatcher.IsGameReady():
-                print("Next game started. Reloading...")
+            if isGameReady or boardWatcher.IsGameReady():
+                print("Next game started. Reloading...", flush=True)
                 break
 
 def main():    
     # # 盤面監視モード
     # PytrisBoardWatcher()
 
-    # # # simulatorモード
-    PytrisSimulator()
+    # # simulatorモード
+    # PytrisSimulator()
 
     # 実機確認モード
-    # PytrisMover()
+    PytrisMover()
