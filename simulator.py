@@ -63,23 +63,17 @@ def ClearLinesOfBoard(board:Board) -> Tuple[List[List[MINO]], int]:
 # Holdができるようになったのでミノを2個付け足す場合がある。
 def AddFollowingMino (board:Board) -> Board:
    
-    currentMino = DirectedMino(
-        board.followingMinos[0],
-        FIRST_MINO_DIRECTION,
-        FIRST_MINO_POS
-    )
-    board.followingMinos = board.followingMinos[1:] + [MINO.NONE]
-
-    for i in range(FOLLOWING_MINOS_COUNT):
-        if board.followingMinos[i] is MINO.NONE:
-            board.followingMinos[i] = board.minoBagContents.pop()
-            if len(board.minoBagContents) == 0:
-                board.minoBagContents = ReturnFullBag()
+    if board.followingMinos[-1] is MINO.NONE:
+        board.followingMinos[-1] = GenerateMino()
 
     return Board(
         board.mainBoard,
-        currentMino,
-        board.followingMinos,
+        DirectedMino(
+            board.followingMinos[0],
+            FIRST_MINO_DIRECTION,
+            FIRST_MINO_POS
+        ),
+        board.followingMinos[1:] + [GenerateMino()],
         board.holdMino,
         True,
         board.topRowIdx,

@@ -14,4 +14,4 @@ class MINO(Enum):
     NONE = 8
 
 def ReturnFullBag() -> List[MINO]:
-    return random.sample([MINO.T, MINO.O, MINO.Z, MINO.I, MINO.L, MINO.S, MINO.J], 7)
+    return [MINO.T, MINO.O, MINO.Z, MINO.I, MINO.L, MINO.S, MINO.J]

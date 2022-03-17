@@ -74,18 +74,13 @@ def PytrisSimulator ():
     # for i in range(10):
     #     board.AddBlockToMainBoard((i ,39))
 
-    board.minoBagContents = ReturnFullBag()
-    for i in range(FOLLOWING_MINOS_COUNT):
-        if board.followingMinos[i] is MINO.NONE:
-            board.followingMinos[i] = board.minoBagContents.pop()
-            if len(board.minoBagContents) == 0:
-                board.minoBagContents = ReturnFullBag()
+    board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
 
    
     print("\n\n\n")
     PrintBoard(board)
 
-    """ # Decide
+    """# Decide
     while True:
         assert type(board.score) == int
         assert len(board.followingMinos) == FOLLOWING_MINOS_COUNT
@@ -142,6 +137,7 @@ def PytrisSimulator ():
             )
 
             board = simulator.AddFollowingMino(board)
+    
 
 
 # 実機上で思考を再現する（無限ループ、シングルスレッド）
