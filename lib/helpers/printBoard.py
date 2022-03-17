@@ -41,7 +41,7 @@ def PrintBoard(board:Board, reset=False, elapsedTime=None, displayAll=False, dis
                     print("{}■{}".format(COLOR_CODES[MINO.NONE], attr('reset')), end="", flush=True)
             print(" ", attr('reset'), end="", flush=True)
         else:
-            print("　　　　　", end="", flush=True)
+            print("      ", end="", flush=True)
 
         row = board.mainBoard[i + BOARD_HEIGHT - DISPLAYED_BOARD_HEIGHT]
         for j in range(BOARD_WIDTH):
@@ -87,4 +87,5 @@ def PrintBoardWithDirectedMino(board:Board, directedMino:DirectedMino, reset=Fal
         board.score,
         board.backToBack,
         board.ren,
+        board.minoBagContents
     ), reset, elapsedTime)

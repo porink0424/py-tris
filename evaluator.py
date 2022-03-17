@@ -10,11 +10,7 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
     # 各列において，上から順に見ていって，一番最初にブロックがある部分のrowIdxを格納する
     roughness = 0
     for i in range(len(topRowIdx) - 1):
-        # 隣との差が4以上だとTetrisをしても穴が残る可能性が高いので減点
-        if abs(topRowIdx[i] - topRowIdx[i+1]) >= 4:
-            roughness += EVAL_ROUGHNESS_UPPER_THAN4
-        else:
-            roughness += abs(topRowIdx[i] - topRowIdx[i+1])
+        roughness += EVAL_ROUGHNESS_VAL[abs(topRowIdx[i] - topRowIdx[i+1])]
 
     # ブロックの下にある空白をカウントする
     # T-spinをさせるためにブロックの下にあるがT-spinできそうなところはカウントしない
@@ -54,20 +50,26 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
         continuousBlank = 0
         colBlockCount = 0
     
+    topRowIdxSorted = copy.copy(topRowIdx)
+    topRowIdxSorted.sort()
     # 盤面の高さを見る
-    minTopRowIdx = BOARD_HEIGHT
-    for idx in topRowIdx:
-        minTopRowIdx = min(minTopRowIdx, idx)
-    height = BOARD_HEIGHT - minTopRowIdx - cleardRowCount
+    height = BOARD_HEIGHT - topRowIdxSorted[0] - cleardRowCount
+    # 高さが一番低い列が他の列に対して3以上の高さの差がある、かつブロックの下に隙間がない時、
+    # テトリスできる可能性が高い。
+    tetris = 0
+    if abs(topRowIdxSorted[-1] - topRowIdxSorted[-2]) >= 3 and blankUnderBlock == 0:
+        tetris = EVAL_TETRIS_PATTERN
     
     # 高さが10以上のときはラインを消すことを最優先にしてもらう。
     heightEval = 0
     if height >= 10:
         heightEval += height * EVAL_HEIGHT_UPPER_THAN10
+    elif height >= 5:
+        heightEval += height * EVAL_HEIGHT_UPPER_THAN5
     else:
         heightEval += height * EVAL_HEIGHT
     
-    return heightEval + roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK
+    return tetris + heightEval + roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK
 
 # Tスピンの判定
 def IsTSpin (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:List[MOVE]) -> bool:
