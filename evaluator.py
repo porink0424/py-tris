@@ -50,11 +50,15 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
         continuousBlank = 0
         colBlockCount = 0
     
+    topRowIdxSorted = copy.copy(topRowIdx)
+    topRowIdxSorted.sort()
     # 盤面の高さを見る
-    minTopRowIdx = BOARD_HEIGHT
-    for idx in topRowIdx:
-        minTopRowIdx = min(minTopRowIdx, idx)
-    height = BOARD_HEIGHT - minTopRowIdx - cleardRowCount
+    height = BOARD_HEIGHT - topRowIdxSorted[0] - cleardRowCount
+    # 高さが一番低い列が他の列に対して3以上の高さの差がある、かつブロックの下に隙間がない時、
+    # テトリスできる可能性が高い。
+    tetris = 0
+    if abs(topRowIdxSorted[-1] - topRowIdxSorted[-2]) >= 3 and blankUnderBlock == 0:
+        tetris = EVAL_TETRIS_PATTERN
     
     # 高さが10以上のときはラインを消すことを最優先にしてもらう。
     heightEval = 0
@@ -65,7 +69,7 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
     else:
         heightEval += height * EVAL_HEIGHT
     
-    return heightEval + roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK
+    return tetris + heightEval + roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK
 
 # Tスピンの判定
 def IsTSpin (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:List[MOVE]) -> bool:
