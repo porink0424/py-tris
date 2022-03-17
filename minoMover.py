@@ -97,7 +97,7 @@ def InputMove (moveList:List[MOVE], directedMino:DirectedMino, mainBoard:List[in
             # 下ボタンを押してるにもかかわらず位置が変わっていない場合
             if previousPosYOfCurrentMino == boardWatcher.GetPosOfCurrentMino()[1]:
                 posNotChangeCount += 1
-                if posNotChangeCount > 18: # 0.18秒程度押し続けても変わらない場合到達していると考えられる
+                if posNotChangeCount > 20: # 0.20秒程度押し続けても変わらない場合到達していると考えられる
                     ReleaseDown()
                     break
             previousPosYOfCurrentMino = boardWatcher.GetPosOfCurrentMino()[1]
