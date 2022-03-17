@@ -8,25 +8,36 @@ try:
 except:
     pass
 
+is1P = True
+
 def GetAddrFromBaseAndOffsets(baseAddr:int, offsets:List[int]) -> int:
     addr = mem.read_int(baseAddr)
     for offset in offsets[:-1]:
         addr = mem.read_int(addr + offset)
     return addr + offsets[-1]
 
-# 1: next mino, 2: next next mino, ...
 def GetFollowingMinos() -> List[MINO]:
     followingMinos = []
     for i in range(FOLLOWING_MINOS_COUNT):
         try: # todo: エラー処理
-            mino = mem.read_int(GetAddrFromBaseAndOffsets(
-                0x140461B20,
-                [
-                    0x378,
-                    0xB8,
-                    0x15C + 0x4 * i
-                ]
-            ))
+            if is1P:
+                mino = mem.read_int(GetAddrFromBaseAndOffsets(
+                    0x140461B20,
+                    [
+                        0x378,
+                        0xB8,
+                        0x15C + 0x4 * i
+                    ]
+                ))
+            else:
+                mino = mem.read_int(GetAddrFromBaseAndOffsets(
+                    0x140461B20,
+                    [
+                        0x378 + 0x8,
+                        0xB8,
+                        0x15C + 0x4 * i
+                    ]
+                ))
             if mino == 0:
                 followingMinos.append(MINO.S)
             elif mino == 1:
@@ -49,14 +60,26 @@ def GetFollowingMinos() -> List[MINO]:
 # holdミノを返す
 def GetHoldMino() -> MINO:
     try: # todo: エラー処理
-        mino = mem.read_int(GetAddrFromBaseAndOffsets(
-            0x140598a20,
-            [
-                0x38,
-                0x3d0,
-                0x8
-            ]
-        ))
+        if is1P:
+            mino = mem.read_int(GetAddrFromBaseAndOffsets(
+                0x140461B20,
+                [
+                    0x378,
+                    0xA8,
+                    0x3D0,
+                    0x8
+                ]
+            ))
+        else:
+            mino = mem.read_int(GetAddrFromBaseAndOffsets(
+                0x140461B20,
+                [
+                    0x378 + 0x8,
+                    0xA8,
+                    0x3D0,
+                    0x8
+                ]
+            ))
         if mino == 0:
             return MINO.S
         elif mino == 1:
@@ -82,17 +105,30 @@ def IsClearingLines() -> bool:
         row = 0b0
         for j in range(BOARD_WIDTH):
             try: # todo: エラー処理
-                mino = mem.read_int(GetAddrFromBaseAndOffsets(
-                    0x140461B20,
-                    [
-                        0x378,
-                        0xA8,
-                        0x3C0,
-                        0x18,
-                        0x8 * j,
-                        0x4 * i
-                    ]
-                ))
+                if is1P:
+                    mino = mem.read_int(GetAddrFromBaseAndOffsets(
+                        0x140461B20,
+                        [
+                            0x378,
+                            0xA8,
+                            0x3C0,
+                            0x18,
+                            0x8 * j,
+                            0x4 * i
+                        ]
+                    ))
+                else:
+                    mino = mem.read_int(GetAddrFromBaseAndOffsets(
+                        0x140461B20,
+                        [
+                            0x378 + 0x8,
+                            0xA8,
+                            0x3C0,
+                            0x18,
+                            0x8 * j,
+                            0x4 * i
+                        ]
+                    ))
                 if mino == 0xFFFFFFFE:
                     return True
                 if mino >= 0:
@@ -113,17 +149,30 @@ def GetMainBoard() -> List[int]:
         row = 0b0
         for j in range(BOARD_WIDTH):
             try: # todo: エラー処理
-                mino = mem.read_int(GetAddrFromBaseAndOffsets(
-                    0x140461B20,
-                    [
-                        0x378,
-                        0xA8,
-                        0x3C0,
-                        0x18,
-                        0x8 * j,
-                        0x4 * i
-                    ]
-                ))
+                if is1P:
+                    mino = mem.read_int(GetAddrFromBaseAndOffsets(
+                        0x140461B20,
+                        [
+                            0x378,
+                            0xA8,
+                            0x3C0,
+                            0x18,
+                            0x8 * j,
+                            0x4 * i
+                        ]
+                    ))
+                else:
+                    mino = mem.read_int(GetAddrFromBaseAndOffsets(
+                        0x140461B20,
+                        [
+                            0x378 + 0x8,
+                            0xA8,
+                            0x3C0,
+                            0x18,
+                            0x8 * j,
+                            0x4 * i
+                        ]
+                    ))
                 if mino >= 0:
                     row |= 0b1000000000 >> j
             except:
@@ -135,24 +184,44 @@ def GetMainBoard() -> List[int]:
 # 現在のミノの位置を取得
 def GetPosOfCurrentMino() -> Union[Tuple[int], None]:
     try: # todo: エラー処理
-        x = mem.read_int(GetAddrFromBaseAndOffsets(
-            0x140461B20,
-            [
-                0x378,
-                0xa8,
-                0x3c8,
-                0xc
-            ]
-        ))
-        y = 39 - mem.read_int(GetAddrFromBaseAndOffsets(
-            0x140461B20,
-            [
-                0x378,
-                0xa8,
-                0x3c8,
-                0x10
-            ]
-        ))
+        if is1P:
+            x = mem.read_int(GetAddrFromBaseAndOffsets(
+                0x140461B20,
+                [
+                    0x378,
+                    0xa8,
+                    0x3c8,
+                    0xc
+                ]
+            ))
+            y = 39 - mem.read_int(GetAddrFromBaseAndOffsets(
+                0x140461B20,
+                [
+                    0x378,
+                    0xa8,
+                    0x3c8,
+                    0x10
+                ]
+            ))
+        else:
+            x = mem.read_int(GetAddrFromBaseAndOffsets(
+                0x140461B20,
+                [
+                    0x378 + 0x8,
+                    0xa8,
+                    0x3c8,
+                    0xc
+                ]
+            ))
+            y = 39 - mem.read_int(GetAddrFromBaseAndOffsets(
+                0x140461B20,
+                [
+                    0x378 + 0x8,
+                    0xa8,
+                    0x3c8,
+                    0x10
+                ]
+            ))
         return (x,y)
     except:
         return None
@@ -160,15 +229,26 @@ def GetPosOfCurrentMino() -> Union[Tuple[int], None]:
 # 現在のミノの種類を取得
 def GetMinoTypeOfCurrentMino() -> Union[MINO, None]:
     try: # todo: エラー処理
-        mino = mem.read_int(GetAddrFromBaseAndOffsets(
-            0x140461B20,
-            [
-                0x378,
-                0xc0,
-                0x120,
-                0x110
-            ]
-        ))
+        if is1P:
+            mino = mem.read_int(GetAddrFromBaseAndOffsets(
+                0x140461B20,
+                [
+                    0x378,
+                    0xA8,
+                    0x3C8,
+                    0x8
+                ]
+            ))
+        else:
+            mino = mem.read_int(GetAddrFromBaseAndOffsets(
+                0x140461B20,
+                [
+                    0x378 + 0x8,
+                    0xA8,
+                    0x3C8,
+                    0x8
+                ]
+            ))
         if mino == 0:
             return MINO.S
         elif mino == 1:
@@ -191,15 +271,26 @@ def GetMinoTypeOfCurrentMino() -> Union[MINO, None]:
 # 現在のミノの方向を取得
 def GetDirectionOfCurrentMino() -> Union[DIRECTION, None]:
     try: # todo: エラー処理
-        direction = mem.read_int(GetAddrFromBaseAndOffsets(
-            0x140461B20,
-            [
-                0x378,
-                0xa8,
-                0x3c8,
-                0x18
-            ]
-        ))
+        if is1P:
+            direction = mem.read_int(GetAddrFromBaseAndOffsets(
+                0x140461B20,
+                [
+                    0x378,
+                    0xa8,
+                    0x3c8,
+                    0x18
+                ]
+            ))
+        else:
+            direction = mem.read_int(GetAddrFromBaseAndOffsets(
+                0x140461B20,
+                [
+                    0x378 + 0x8,
+                    0xa8,
+                    0x3c8,
+                    0x18
+                ]
+            ))
         if direction == 0:
             return DIRECTION.N
         elif direction == 1:
@@ -230,3 +321,42 @@ def GetCurrentMino() -> Union[DirectedMino, None]:
         )
     else:
         return None
+
+# ゲーム開始待機状態（Ready?という表示が出ている状態）であるかどうかを、
+# FollowingMinoが取得できているかどうか、CurrentMinoが-1であるかどうかをもとに判別する
+def IsGameReady() -> bool:
+    try:
+        mino = mem.read_int(GetAddrFromBaseAndOffsets(
+            0x140461B20,
+            [
+                0x378,
+                0xc0,
+                0x120,
+                0x110
+            ]
+        ))
+    except:
+        mino = 0
+    
+    return True if (MINO.NONE not in GetFollowingMinos()) and (mino == -1) else False
+
+# ゲームが開始したかどうかを、CurrentMinoが取得できているかをもとに判別する
+def HasGameStarted() -> bool:
+    return False if GetCurrentMino() is None else True
+
+# キャラクター設定画面かどうかを判定する
+def IsCharacterSelect() -> bool:
+    try: # todo: エラー処理
+        num = mem.read_int(GetAddrFromBaseAndOffsets(
+            0x140460690,
+            [
+                0x274,
+            ]
+        ))
+        
+        if 0 < num < 16:
+            return True
+        else:
+            return False
+    except:
+        return False

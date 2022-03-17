@@ -285,7 +285,6 @@ def GetPossibleMoves(
     
     return possibleMoves
 
-
 # 今のBoardからHoldも含めたミノの操作をすべて見つける。
 def GetNextMoves(board:Board) -> List[Tuple[DirectedMino, List[MOVE]]]:
     boardAfterHold = BoardAfterHold(board)
@@ -300,8 +299,7 @@ SEARCH_LIMIT = 4
 BEAM_WIDTH = [3, 3, 3]
 firstHold = True
 def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> Tuple[int, List[List[MOVE]]]:
-    # BEAM_WIDTH = 3
-    state_queue = [] 
+    state_queue = []
     heapq.heapify(state_queue)
     init_state = State(board, mino, path, 0, board.score, [])
     init_state.Transit()
@@ -332,7 +330,7 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> Tuple
     return final_state.eval, final_state.accumPath
 
 # 実際に手を決める関数
-def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
+def Decide (board:Board) -> Tuple[float, DirectedMino, List[MOVE]]:
     global SEARCH_LIMIT, BEAM_WIDTH, firstHold
     possibleMoves = GetNextMoves(board)
 
@@ -344,10 +342,15 @@ def Decide (board:Board) -> Tuple[DirectedMino, List[MOVE]]:
         if value >= maxValue:
             maxMino, maxPath = mino, path
             maxValue = value
-    
+
     if maxMino is None or maxPath is None:
         Warn("Cannot decide path.")
         maxMino, maxPath = possibleMoves[0]
+    
+    # 実行するなかでassertionが出てしまったら、負けを認める
+    except AssertionError:
+        print("I Lost...")
+        return -100000000000, None, [MOVE.DROP]
     
     # 1回Holdしたら、あとは5手先読みできるようになる。
     if maxPath[0] is MOVE.HOLD and firstHold:
