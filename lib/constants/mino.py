@@ -1,8 +1,8 @@
-from enum import Enum, auto
 from typing import List
-import random
 
-class MINO(Enum):
+# MINOはクラス定数
+# 型の検査がなくなるため高速化
+class MINO():
     T = 0
     O = 1
     Z = 2
@@ -13,5 +13,8 @@ class MINO(Enum):
     JAMA = 7
     NONE = 8
 
-def ReturnFullBag() -> List[MINO]:
+# intのエイリアスとしてMinIntを定義
+MinoInt = int
+
+def ReturnFullBag() -> List[MinoInt]:
     return [MINO.T, MINO.O, MINO.Z, MINO.I, MINO.L, MINO.S, MINO.J]

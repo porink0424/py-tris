@@ -10,7 +10,7 @@ EVAL_TAU = 0.9
 @total_ordering
 class State():
     #　評価値の計算だけ行う
-    def __init__(self, board:Board, mino:DirectedMino, path:List[MOVE], accumPathValue:int, accumScore:int, accumPath:List[List[MOVE]], tau=EVAL_TAU):
+    def __init__(self, board:Board, mino:DirectedMino, path:List[MoveInt], accumPathValue:int, accumScore:int, accumPath:List[List[MoveInt]], tau=EVAL_TAU):
         self.board = board
         self.mino = mino 
         self.path = path
@@ -70,7 +70,7 @@ class State():
         return nextStates
 
 # minoを今の位置からdirectionを変えずに左右に動かして得られるminoのリストを返す
-def GetSideMovedMinos (board:Board, mino:DirectedMino) -> List[Tuple[DirectedMino, List[MOVE]]]:
+def GetSideMovedMinos (board:Board, mino:DirectedMino) -> List[Tuple[DirectedMino, List[MoveInt]]]:
     sideMovedMinos = []
 
     # 左に動かしていく
@@ -111,7 +111,7 @@ def GetSideMovedMinos (board:Board, mino:DirectedMino) -> List[Tuple[DirectedMin
     return sideMovedMinos
 
 # minoを今の位置で1回だけ回転を試みた場合に得られるminoのリストに，回転を全く試みない場合を足して返す
-def GetRotatedMinos (board:Board, mino:DirectedMino) -> List[Tuple[DirectedMino, List[MOVE]]]:
+def GetRotatedMinos (board:Board, mino:DirectedMino) -> List[Tuple[DirectedMino, List[MoveInt]]]:
     rotatedMinos = []
 
     # 回転なし
@@ -129,7 +129,7 @@ def GetRotatedMinos (board:Board, mino:DirectedMino) -> List[Tuple[DirectedMino,
     
     return rotatedMinos
 
-def AddToReachableNodes (encodedNode, path:List[MOVE], reachableNodes:Dict[int, List[MOVE]]) -> None:
+def AddToReachableNodes (encodedNode, path:List[MoveInt], reachableNodes:Dict[int, List[MoveInt]]) -> None:
     if encodedNode not in reachableNodes: # まだreachableNodesに登録されていないものは，登録する
         reachableNodes[encodedNode] = path
     else:
@@ -139,7 +139,7 @@ def AddToReachableNodes (encodedNode, path:List[MOVE], reachableNodes:Dict[int, 
             reachableNodes[encodedNode] = path
 
 # MOVE.DROPを使うことにより，pathの簡易化を行う
-def SimplifyPath (path:List[MOVE]) -> List[MOVE]:
+def SimplifyPath (path:List[MoveInt]) -> List[MoveInt]:
     # 最後には必ずMOVE.DROPをつける
     # 最後にMOVE.DROPをつけるので，最後の連続するMOVE.DOWNは消去できる
     count = 0
@@ -153,7 +153,7 @@ def SimplifyPath (path:List[MOVE]) -> List[MOVE]:
 
 # MOVE.DROPを使うことにより，pathの簡易化を行う
 # 引数自体を変更する
-def SimplifyPathUncopy (path:List[MOVE]):
+def SimplifyPathUncopy (path:List[MoveInt]):
     # 最後には必ずMOVE.DROPをつける
     # 最後にMOVE.DROPをつけるので，最後の連続するMOVE.DOWNは消去できる
     while path:
@@ -169,7 +169,7 @@ def SimplifyPathUncopy (path:List[MOVE]):
 def GetPossibleMoves(
     board:Board,
     directedMino:DirectedMino,
-) -> List[Tuple[DirectedMino, List[MOVE]]]:
+) -> List[Tuple[DirectedMino, List[MoveInt]]]:
 
     # 到達できるミノをエンコードしたものと，到達するための経路を結ぶ辞書
     reachableNodes = {
@@ -285,7 +285,7 @@ def GetPossibleMoves(
     return possibleMoves
 
 # 今のBoardからHoldも含めたミノの操作をすべて見つける。
-def GetNextMoves(board:Board) -> List[Tuple[DirectedMino, List[MOVE]]]:
+def GetNextMoves(board:Board) -> List[Tuple[DirectedMino, List[MoveInt]]]:
     boardAfterHold = BoardAfterHold(board)
     
     NextMoves = GetPossibleMoves(board, board.currentMino) + \
@@ -329,7 +329,7 @@ def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> Tuple
     return final_state.eval, final_state.accumPath
 
 # 実際に手を決める関数
-def Decide (board:Board) -> Tuple[float, DirectedMino, List[MOVE]]:
+def Decide (board:Board) -> Tuple[float, DirectedMino, List[MoveInt]]:
     global SEARCH_LIMIT, BEAM_WIDTH, firstHold
 
     try:
@@ -362,7 +362,7 @@ def Decide (board:Board) -> Tuple[float, DirectedMino, List[MOVE]]:
     return maxValue, maxMino, maxPath
 
 # 複数手を決める関数
-def MultiDecide(board:Board) -> List[List[MOVE]]:
+def MultiDecide(board:Board) -> List[List[MoveInt]]:
     global SEARCH_LIMIT, BEAM_WIDTH, firstHold
 
     try:

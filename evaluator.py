@@ -72,7 +72,7 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
     return tetris + heightEval + roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK
 
 # Tスピンの判定
-def IsTSpin (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:List[MOVE]) -> bool:
+def IsTSpin (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:List[MoveInt]) -> bool:
     """
     T-Spinの判定条件
     ①ミノ固定時にTミノの4隅が3つ以上埋まっていること
@@ -112,7 +112,7 @@ def IsTSpin (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:List
 
 # Tスピン-miniであるかどうかの判定
 # Tスピンであることは前提として判定を省略する
-def IsTSpinMini (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:List[MOVE]) -> bool:
+def IsTSpinMini (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:List[MoveInt]) -> bool:
     """
     T-Spin Miniの判定条件
     ①T-Spinの条件を満たしていること
@@ -162,7 +162,7 @@ def IsTSpinMini (joinedMainBoard:List[int], directedMino:DirectedMino, moveList:
     return True
 
 # 経路・ライン数の評価関数
-def EvalPath (moveList:List[MOVE], clearedRowCount:int, joinedMainBoard:List[int], directedMino:DirectedMino, backToBack:bool, ren:int) -> float:
+def EvalPath (moveList:List[MoveInt], clearedRowCount:int, joinedMainBoard:List[int], directedMino:DirectedMino, backToBack:bool, ren:int) -> float:
     t_spin = 0
     isBackToBack = False 
 
