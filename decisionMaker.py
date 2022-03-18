@@ -3,6 +3,9 @@ import evaluator
 from functools import total_ordering
 import heapq
 
+# 回転するミノを考えるかどうか
+quickSearch = False
+
 #時間が立たないともらえない報酬は割引する。
 EVAL_TAU = 0.9
 
@@ -186,31 +189,62 @@ def GetPossibleMoves(
     for mino, path in sideMovedMinos:
         reachableNodes[EncodeDirectedMino(mino)] = path
     undroppedMinos += sideMovedMinos
-    # 右に1回転したもの
-    rightRotatedDirectedMino = Rotate(directedMino, MOVE.R_ROT, board.mainBoard)
-    if rightRotatedDirectedMino is not None:
-        sideMovedMinos = GetSideMovedMinos(board, rightRotatedDirectedMino)
-        for mino, path in sideMovedMinos:
-            path.insert(0, MOVE.R_ROT)
-            reachableNodes[EncodeDirectedMino(mino)] = path
-        undroppedMinos += sideMovedMinos
-        # 右に2回転(180回転)したもの
-        upsideDownRotatedDirectedMino = Rotate(rightRotatedDirectedMino, MOVE.R_ROT, board.mainBoard)
-        if upsideDownRotatedDirectedMino is not None:
-            sideMovedMinos = GetSideMovedMinos(board, upsideDownRotatedDirectedMino)
+
+    if quickSearch: # quickSearchモードの場合、Tミノ以外は形がおなじものであれば考えない
+        if directedMino.mino not in {MINO.O}:
+            # 右に1回転したもの
+            rightRotatedDirectedMino = Rotate(directedMino, MOVE.R_ROT, board.mainBoard)
+            if rightRotatedDirectedMino is not None:
+                sideMovedMinos = GetSideMovedMinos(board, rightRotatedDirectedMino)
+                for mino, path in sideMovedMinos:
+                    path.insert(0, MOVE.R_ROT)
+                    reachableNodes[EncodeDirectedMino(mino)] = path
+                undroppedMinos += sideMovedMinos
+                if directedMino.mino not in {MINO.S, MINO.Z, MINO.I}:
+                    # 右に2回転(180回転)したもの
+                    upsideDownRotatedDirectedMino = Rotate(rightRotatedDirectedMino, MOVE.R_ROT, board.mainBoard)
+                    if upsideDownRotatedDirectedMino is not None:
+                        sideMovedMinos = GetSideMovedMinos(board, upsideDownRotatedDirectedMino)
+                        for mino, path in sideMovedMinos:
+                            path.insert(0, MOVE.R_ROT)
+                            path.insert(0, MOVE.R_ROT)
+                            reachableNodes[EncodeDirectedMino(mino)] = path
+                        undroppedMinos += sideMovedMinos
+            if directedMino.mino not in {MINO.S, MINO.Z, MINO.I}:
+                # 左に1回転したもの
+                leftRotatedDirectedMino = Rotate(directedMino, MOVE.L_ROT, board.mainBoard)
+                if leftRotatedDirectedMino is not None:
+                    sideMovedMinos = GetSideMovedMinos(board, leftRotatedDirectedMino)
+                    for mino, path in sideMovedMinos:
+                        path.insert(0, MOVE.L_ROT)
+                        reachableNodes[EncodeDirectedMino(mino)] = path
+                    undroppedMinos += sideMovedMinos
+    else:
+        # 右に1回転したもの
+        rightRotatedDirectedMino = Rotate(directedMino, MOVE.R_ROT, board.mainBoard)
+        if rightRotatedDirectedMino is not None:
+            sideMovedMinos = GetSideMovedMinos(board, rightRotatedDirectedMino)
             for mino, path in sideMovedMinos:
-                path.insert(0, MOVE.R_ROT)
                 path.insert(0, MOVE.R_ROT)
                 reachableNodes[EncodeDirectedMino(mino)] = path
             undroppedMinos += sideMovedMinos
-    # 左に1回転したもの
-    leftRotatedDirectedMino = Rotate(directedMino, MOVE.L_ROT, board.mainBoard)
-    if leftRotatedDirectedMino is not None:
-        sideMovedMinos = GetSideMovedMinos(board, leftRotatedDirectedMino)
-        for mino, path in sideMovedMinos:
-            path.insert(0, MOVE.L_ROT)
-            reachableNodes[EncodeDirectedMino(mino)] = path
-        undroppedMinos += sideMovedMinos
+            # 右に2回転(180回転)したもの
+            upsideDownRotatedDirectedMino = Rotate(rightRotatedDirectedMino, MOVE.R_ROT, board.mainBoard)
+            if upsideDownRotatedDirectedMino is not None:
+                sideMovedMinos = GetSideMovedMinos(board, upsideDownRotatedDirectedMino)
+                for mino, path in sideMovedMinos:
+                    path.insert(0, MOVE.R_ROT)
+                    path.insert(0, MOVE.R_ROT)
+                    reachableNodes[EncodeDirectedMino(mino)] = path
+                undroppedMinos += sideMovedMinos
+        # 左に1回転したもの
+        leftRotatedDirectedMino = Rotate(directedMino, MOVE.L_ROT, board.mainBoard)
+        if leftRotatedDirectedMino is not None:
+            sideMovedMinos = GetSideMovedMinos(board, leftRotatedDirectedMino)
+            for mino, path in sideMovedMinos:
+                path.insert(0, MOVE.L_ROT)
+                reachableNodes[EncodeDirectedMino(mino)] = path
+            undroppedMinos += sideMovedMinos
     
     # ミノを全て下に落とす
 
@@ -223,34 +257,65 @@ def GetPossibleMoves(
 
     # 回転できるところまで回転する
 
-    for mino, path in droppedMinos:
-        rightRotatedMino = mino
-        leftRotatedMino = mino
-        hasRightRotateEnded = False
-        hasLeftRotateEnded = False
-        rightRotateCount = 1
-        leftRotateCount = 1
-        while True:
-            # 回転数が少なくなるように、R_ROT, L_ROTを交互に実行する
-            if not hasRightRotateEnded:
-                rightRotatedMino = Rotate(rightRotatedMino, MOVE.R_ROT, board.mainBoard)
-                if rightRotatedMino is not None and EncodeDirectedMino(rightRotatedMino) not in reachableNodes: # 回転可能かつまだ到達してない部分
-                    reachableNodes[EncodeDirectedMino(rightRotatedMino)] = path + [MOVE.R_ROT for _ in range(rightRotateCount)]
-                    rightRotateCount += 1
-                else:
-                    hasRightRotateEnded = True
-            
-            if not hasLeftRotateEnded:
-                leftRotatedMino = Rotate(leftRotatedMino, MOVE.L_ROT, board.mainBoard)
-                if leftRotatedMino is not None and EncodeDirectedMino(leftRotatedMino) not in reachableNodes: # 回転可能かつまだ到達してない部分
-                    reachableNodes[EncodeDirectedMino(leftRotatedMino)] = path + [MOVE.L_ROT for _ in range(leftRotateCount)]
-                    leftRotateCount += 1
-                else:
-                    hasLeftRotateEnded = True
-            
-            # どちらの方向にも回転できなくなったら終了
-            if hasRightRotateEnded and hasLeftRotateEnded:
-                break
+    if quickSearch:
+        if directedMino.mino == MINO.T:
+            for mino, path in droppedMinos:
+                rightRotatedMino = mino
+                leftRotatedMino = mino
+                hasRightRotateEnded = False
+                hasLeftRotateEnded = False
+                rightRotateCount = 1
+                leftRotateCount = 1
+                while True:
+                    # 回転数が少なくなるように、R_ROT, L_ROTを交互に実行する
+                    if not hasRightRotateEnded:
+                        rightRotatedMino = Rotate(rightRotatedMino, MOVE.R_ROT, board.mainBoard)
+                        if rightRotatedMino is not None and EncodeDirectedMino(rightRotatedMino) not in reachableNodes: # 回転可能かつまだ到達してない部分
+                            reachableNodes[EncodeDirectedMino(rightRotatedMino)] = path + [MOVE.R_ROT for _ in range(rightRotateCount)]
+                            rightRotateCount += 1
+                        else:
+                            hasRightRotateEnded = True
+                    
+                    if not hasLeftRotateEnded:
+                        leftRotatedMino = Rotate(leftRotatedMino, MOVE.L_ROT, board.mainBoard)
+                        if leftRotatedMino is not None and EncodeDirectedMino(leftRotatedMino) not in reachableNodes: # 回転可能かつまだ到達してない部分
+                            reachableNodes[EncodeDirectedMino(leftRotatedMino)] = path + [MOVE.L_ROT for _ in range(leftRotateCount)]
+                            leftRotateCount += 1
+                        else:
+                            hasLeftRotateEnded = True
+                    
+                    # どちらの方向にも回転できなくなったら終了
+                    if hasRightRotateEnded and hasLeftRotateEnded:
+                        break
+    else:
+        for mino, path in droppedMinos:
+            rightRotatedMino = mino
+            leftRotatedMino = mino
+            hasRightRotateEnded = False
+            hasLeftRotateEnded = False
+            rightRotateCount = 1
+            leftRotateCount = 1
+            while True:
+                # 回転数が少なくなるように、R_ROT, L_ROTを交互に実行する
+                if not hasRightRotateEnded:
+                    rightRotatedMino = Rotate(rightRotatedMino, MOVE.R_ROT, board.mainBoard)
+                    if rightRotatedMino is not None and EncodeDirectedMino(rightRotatedMino) not in reachableNodes: # 回転可能かつまだ到達してない部分
+                        reachableNodes[EncodeDirectedMino(rightRotatedMino)] = path + [MOVE.R_ROT for _ in range(rightRotateCount)]
+                        rightRotateCount += 1
+                    else:
+                        hasRightRotateEnded = True
+                
+                if not hasLeftRotateEnded:
+                    leftRotatedMino = Rotate(leftRotatedMino, MOVE.L_ROT, board.mainBoard)
+                    if leftRotatedMino is not None and EncodeDirectedMino(leftRotatedMino) not in reachableNodes: # 回転可能かつまだ到達してない部分
+                        reachableNodes[EncodeDirectedMino(leftRotatedMino)] = path + [MOVE.L_ROT for _ in range(leftRotateCount)]
+                        leftRotateCount += 1
+                    else:
+                        hasLeftRotateEnded = True
+                
+                # どちらの方向にも回転できなくなったら終了
+                if hasRightRotateEnded and hasLeftRotateEnded:
+                    break
 
     # 結果出力
     possibleMoves = []

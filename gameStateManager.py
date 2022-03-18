@@ -5,16 +5,20 @@
 # -------------
 
 import pyautogui
-import win32gui
 import time
+import argparse
 
 # pyautoguiの遅延を0にする
 pyautogui.PAUSE = 0
 
 # windowをアクティブにする
-window = win32gui.FindWindow(None, "PuyoPuyoTetris")
-win32gui.SetForegroundWindow(window)
-print("Window activated.", flush=True)
+try:
+    import win32gui
+    window = win32gui.FindWindow(None, "PuyoPuyoTetris")
+    win32gui.SetForegroundWindow(window)
+    print("Window activated.", flush=True)
+except:
+    print("win32gui not installed.")
 
 import boardWatcher
 import decisionMaker
@@ -26,6 +30,15 @@ from params.eval import *
 
 # GetOccupiedPositionsの前計算
 InitGetOccupiedPositions()
+
+# 実行時引数の設定
+parser = argparse.ArgumentParser()
+parser.add_argument("-q", "--quickSearch", help="Reduce the number of search nodes, and speed up calculation.", action="store_true")
+parser.add_argument("-m", "--multiPlay", help="Play with AI in multiplayer-mode.", action="store_true")
+args = parser.parse_args()
+
+if args.quickSearch:
+    decisionMaker.quickSearch = True
 
 # -------------
 #
@@ -132,9 +145,7 @@ def PytrisSimulator ():
 # 実機上で思考を再現する（無限ループ、シングルスレッド）
 # menu画面にいて、Startを押せる状態からはじめないとバグる
 def PytrisMover ():
-    isMultiPlay = True
-
-    if isMultiPlay:
+    if args.multiPlay:
         # マルチプレイヤーモード
 
         # sを押すことで先に進めるようにする
@@ -174,9 +185,7 @@ def PytrisMover ():
         
     else:
         # シングルプレイヤーモード
-        
-        # ゲームの再開
-        PressEnter()
+        pass
 
     while True:
         # 初期化
@@ -241,9 +250,11 @@ def PytrisMover ():
             )
 
             # 思考ルーチン
+            decideTimer = Timer()
             if not paths:
                 multiPath = decisionMaker.MultiDecide(board)
                 paths += multiPath
+            print("Making Decition in {}s".format(decideTimer.Stop()), flush=True)
 
             # 移動
             # todo: 連続でおく途中でおきミスしたときや、盤面の状況が変化したときの対処（porinky0424がやります）
@@ -254,9 +265,9 @@ def PytrisMover ():
 
                 # 最初に実行するのがHOLDの時は別に実行する
                 if path[0] is MOVE.HOLD:
-                    time.sleep(0.15) # 安定のためにHOLDの前後にsleepを入れる
+                    time.sleep(0.1) # 安定のためにHOLDの前後にsleepを入れる
                     Move(MOVE.HOLD)
-                    time.sleep(0.15)
+                    time.sleep(0.1)
 
                     # pathからHOLDを取り除く
                     path = path[1:]
@@ -315,7 +326,7 @@ def PytrisMover ():
                 print("Next game started. Reloading...", flush=True)
                 break
 
-def main():    
+def main():
     # # 盤面監視モード
     # PytrisBoardWatcher()
 
