@@ -320,7 +320,7 @@ def main():
     # PytrisBoardWatcher()
 
     # # simulatorモード
-    PytrisSimulator()
+    # PytrisSimulator()
 
     # 実機確認モード
-    # PytrisMover()
+    PytrisMover()
