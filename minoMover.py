@@ -4,7 +4,7 @@ import boardWatcher
 
 # directedMinoをboard上でmoveに従って動かす処理を行い，その動いた先のdirectedMinoを返す
 # 注意；ここで与えられるmoveは正当であることがなんらかの方法で確認されているものとする。valid checkは行わない
-def MoveOneStep (move:MOVE, directedMino:DirectedMino, board:Board) -> DirectedMino:
+def MoveOneStep (move:MoveInt, directedMino:DirectedMino, board:Board) -> DirectedMino:
     if move is MOVE.LEFT:
         return DirectedMino(
             directedMino.mino,
@@ -36,7 +36,7 @@ def MoveOneStep (move:MOVE, directedMino:DirectedMino, board:Board) -> DirectedM
         Error("Invalid kind of moves.")
 
 # directedMinoがmoveをしたときに、directedMinoがどこに移動するかを返す
-def GetMovedDirectedMino (move:MOVE, directedMino:DirectedMino, mainBoard:List[int]) -> DirectedMino:
+def GetMovedDirectedMino (move:MoveInt, directedMino:DirectedMino, mainBoard:List[int]) -> DirectedMino:
     pos = directedMino.pos
     if move is MOVE.LEFT:
         return DirectedMino(directedMino.mino, directedMino.direction, (pos[0]-1, pos[1]))
@@ -56,7 +56,7 @@ def GetMovedDirectedMino (move:MOVE, directedMino:DirectedMino, mainBoard:List[i
 # directedMinoをmoveListに従って動かした結果の移動先のdirectedMinoを返す
 # 置きミスしたときは、Noneを返す
 # todo: より一般的なmoveListに対しても動くようにする
-def InputMove (moveList:List[MOVE], directedMino:DirectedMino, mainBoard:List[int]) -> Union[DirectedMino, bool]:
+def InputMove (moveList:List[MoveInt], directedMino:DirectedMino, mainBoard:List[int]) -> Union[DirectedMino, bool]:
     nextDirectedMino = directedMino
 
     # moveList = [firstHalfMove] + [downの連続列] + [secondHalfMove]に分割する

@@ -6,7 +6,7 @@ DISPLAY_DELTA_TIME = 0.02
 
 # 1つのnowDirectedMinoを置く動きを再現して出力
 # 返り値としておいた後のboardを返す
-def PutMino (moveList:List[MOVE], board:Board) -> Tuple[Board, bool, bool]:
+def PutMino (moveList:List[MoveInt], board:Board) -> Tuple[Board, bool, bool]:
 
     if moveList[0] is MOVE.HOLD:
         PrintBoardWithDirectedMino(board, board.currentMino, True)
@@ -41,7 +41,7 @@ def PutMino (moveList:List[MOVE], board:Board) -> Tuple[Board, bool, bool]:
     ), isTspin, isTspinmini
 
 # ラインをクリアする
-def ClearLinesOfBoard(board:Board) -> Tuple[List[List[MINO]], int]:
+def ClearLinesOfBoard(board:Board) -> Tuple[List[MinoInt], List[MinoInt], int]:
     newMainBoard, newTopRowIdx, clearedRowCount = ClearLines(board.mainBoard, board.topRowIdx)
     time.sleep(DISPLAY_DELTA_TIME)
     PrintBoard(Board(
@@ -85,7 +85,7 @@ def AddFollowingMino (board:Board) -> Board:
 
 # 7種1巡の法則に従ってランダムでミノを生成する
 bags = []
-def GenerateMino () -> MINO:
+def GenerateMino () -> MinoInt:
     global bags
 
     # bagsが空であれば，7種類のミノをランダムに生成してbagsに入れる

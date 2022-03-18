@@ -5,16 +5,16 @@
 # -------------
 
 import pyautogui
-import win32gui
+# import win32gui
 import time
 
 # pyautoguiの遅延を0にする
 pyautogui.PAUSE = 0
 
 # windowをアクティブにする
-window = win32gui.FindWindow(None, "PuyoPuyoTetris")
-win32gui.SetForegroundWindow(window)
-print("Window activated.", flush=True)
+# window = win32gui.FindWindow(None, "PuyoPuyoTetris")
+# win32gui.SetForegroundWindow(window)
+# print("Window activated.", flush=True)
 
 import boardWatcher
 import decisionMaker
@@ -99,7 +99,7 @@ def PytrisSimulator ():
     
     # Multi-Decide
     board = simulator.AddFollowingMino(board)
-    while True:
+    for i in range(10):
         assert type(board.score) == int
         assert len(board.followingMinos) == FOLLOWING_MINOS_COUNT
 
@@ -320,7 +320,7 @@ def main():
     # PytrisBoardWatcher()
 
     # # simulatorモード
-    # PytrisSimulator()
+    PytrisSimulator()
 
     # 実機確認モード
-    PytrisMover()
+    # PytrisMover()

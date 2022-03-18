@@ -52,7 +52,7 @@ def ClearLinesWithoutTopRowIdx(mainBoard:List[int]) -> Tuple[List[int], int]:
 
 # mainBoard内で横一列が揃っている場合に、何ライン除去したかという情報を返す。
 # 実際に変更はしない
-def ClearLinesCalc(mainBoard:List[List[MINO]]) -> int:
+def ClearLinesCalc(mainBoard:List[List[MinoInt]]) -> int:
     # クリアされたrowのインデックスを保存していく
     clearedRowCnt = 0
     for row in mainBoard:

@@ -2,7 +2,7 @@ from lib.classes import *
 from lib.helpers.check import isValidPlace
 
 # moveの方向にdirectedMinoを回転しようとしたとき，directedMinoが回転成功するならば実行後のdirectedMinoを，回転失敗するならばNoneを返す
-def Rotate (directedMino:DirectedMino, move:MOVE, mainBoard:List[int]) -> Union[None, DirectedMino]:
+def Rotate (directedMino:DirectedMino, move:MoveInt, mainBoard:List[int]) -> Union[None, DirectedMino]:
     """
     以下，Tetris Design GuidelineにおけるSRSの内容を要約したものである。
 
@@ -42,7 +42,7 @@ def Rotate (directedMino:DirectedMino, move:MOVE, mainBoard:List[int]) -> Union[
 
 # 何番目の回転が成功したかを返す
 # どの回転も成功しない場合Noneを返す
-def GetRotateNum (directedMino:DirectedMino, move:MOVE, mainBoard:List[int]) -> Union[None, int]:
+def GetRotateNum (directedMino:DirectedMino, move:MoveInt, mainBoard:List[int]) -> Union[None, int]:
     # Iミノの回転入れ
     if directedMino.mino is MINO.I:
         offsets = OFFSETS_I[directedMino.direction][move]

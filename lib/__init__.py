@@ -12,3 +12,4 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 
 # my own modules
 from .helpers import *
+random.seed(0)
