@@ -2,9 +2,12 @@ from lib import *
 import decisionMaker
 
 class Template:
-    def __init__(self, minos:List[DirectedMino]):
+    def __init__(self, minos:List[DirectedMino], noBlankRow:List[int]):
+        # minosはテンプレートに含まれるミノ
+        # noBlankRowはそのテンプレートを構成する途中でブロックの下の空白があってはならない行番号
         self.minos = minos 
         self.occcupiedPositions = [GetOccupiedPositions(mino) for mino in minos]
+        self.noBlankrow = noBlankRow
 
     def contain(self, occupiedPos:List[Tuple[int]]):
         for pos in self.occcupiedPositions:
@@ -152,7 +155,22 @@ def GetTemplateMove(board:Board, template:Template) -> List[List[MoveInt]]:
             boards = nextBoards
 
     if len(boards) > 0:
-        return boards[0][1]
+        for board, path in boards:
+
+            # ブロックの下に空白がある時は将来的にこのテンプレを実行できない可能性が高い
+            blank = False
+            for i in template.noBlankrow:
+                for j in range(board.topRowIdx[i], BOARD_HEIGHT):
+                    if (board.mainBoard[j] & (0b1000000000 >> i) == 0):
+                        blank = True
+                        break
+                if blank:
+                    break
+
+            if not blank:
+                return path
+
+        return []              
     else:
         return [] 
 
@@ -162,28 +180,32 @@ TSD1 = Template([DirectedMino(MINO.L, DIRECTION.E, (0, 38)),
                 DirectedMino(MINO.Z, DIRECTION.N, (4, 38)),
                 DirectedMino(MINO.S, DIRECTION.W, (7, 38)),
                 DirectedMino(MINO.J, DIRECTION.S, (4, 36)),
-                DirectedMino(MINO.O, DIRECTION.N, (8, 39))])
+                DirectedMino(MINO.O, DIRECTION.N, (8, 39))],
+                [])
 
 TSD2 = Template([DirectedMino(MINO.L, DIRECTION.E, (0, 38)),
                 DirectedMino(MINO.I, DIRECTION.N, (4, 39)),
                 DirectedMino(MINO.Z, DIRECTION.N, (5, 37)),
                 DirectedMino(MINO.S, DIRECTION.W, (4, 37)),
                 DirectedMino(MINO.J, DIRECTION.S, (6, 38)),
-                DirectedMino(MINO.O, DIRECTION.N, (8, 39))]) 
+                DirectedMino(MINO.O, DIRECTION.N, (8, 39))],
+                []) 
 
 TSD3 = Template([DirectedMino(MINO.L, DIRECTION.S, (5, 36)),
                 DirectedMino(MINO.I, DIRECTION.N, (4, 39)),
                 DirectedMino(MINO.Z, DIRECTION.E, (2, 38)),
                 DirectedMino(MINO.S, DIRECTION.N, (5, 38)),
                 DirectedMino(MINO.J, DIRECTION.W, (9, 38)),
-                DirectedMino(MINO.O, DIRECTION.N, (0, 39))]) 
+                DirectedMino(MINO.O, DIRECTION.N, (0, 39))],
+                []) 
 
 TSD4 = Template([DirectedMino(MINO.L, DIRECTION.S, (3, 38)),
                 DirectedMino(MINO.I, DIRECTION.N, (4, 39)),
                 DirectedMino(MINO.Z, DIRECTION.E, (5, 37)),
                 DirectedMino(MINO.S, DIRECTION.N, (4, 37)),
                 DirectedMino(MINO.J, DIRECTION.W, (9, 38)),
-                DirectedMino(MINO.O, DIRECTION.N, (0, 39))]) 
+                DirectedMino(MINO.O, DIRECTION.N, (0, 39))],
+                []) 
 
 def GetTSDMove(board:Board):
     move1 = GetTemplateMove(board, TSD1)
@@ -204,4 +226,87 @@ def GetTSDMove(board:Board):
 
     return []
 
-        
+### DT - template
+DT11 = Template([DirectedMino(MINO.L, DIRECTION.E, (7, 38)),
+                DirectedMino(MINO.I, DIRECTION.W, (6, 37)),
+                DirectedMino(MINO.Z, DIRECTION.E, (3, 38)),
+                DirectedMino(MINO.S, DIRECTION.E, (8, 38)),
+                DirectedMino(MINO.J, DIRECTION.W, (5, 38)),
+                DirectedMino(MINO.O, DIRECTION.N, (0, 39)),
+                DirectedMino(MINO.T, DIRECTION.N, (4, 36) )],
+                [4, 5, 7, 8])
+
+DT12 = Template([DirectedMino(MINO.L, DIRECTION.N, (4, 39)),
+                DirectedMino(MINO.I, DIRECTION.W, (6, 37)),
+                DirectedMino(MINO.Z, DIRECTION.N, (8, 38)),
+                DirectedMino(MINO.S, DIRECTION.N, (4, 38)),
+                DirectedMino(MINO.J, DIRECTION.N, (8, 39)),
+                DirectedMino(MINO.O, DIRECTION.N, (0, 39)),
+                DirectedMino(MINO.T, DIRECTION.N, (4, 36) )],
+                [])
+
+DT21 = Template([DirectedMino(MINO.L, DIRECTION.W, (3, 34)),
+                DirectedMino(MINO.I, DIRECTION.W, (9, 35)),
+                DirectedMino(MINO.Z, DIRECTION.N, (5, 35)),
+                DirectedMino(MINO.S, DIRECTION.E, (5, 33)),
+                DirectedMino(MINO.J, DIRECTION.E, (0, 36)),
+                DirectedMino(MINO.O, DIRECTION.N, (7, 36))],
+                [])
+
+DT22 = Template([DirectedMino(MINO.L, DIRECTION.W, (3, 34)),
+                DirectedMino(MINO.I, DIRECTION.W, (9, 35)),
+                DirectedMino(MINO.Z, DIRECTION.E, (6, 34)),
+                DirectedMino(MINO.S, DIRECTION.E, (4, 34)),
+                DirectedMino(MINO.J, DIRECTION.E, (0, 36)),
+                DirectedMino(MINO.O, DIRECTION.N, (7, 36))],
+                [])
+
+DT23 = Template([DirectedMino(MINO.L, DIRECTION.W, (3, 34)),
+                DirectedMino(MINO.I, DIRECTION.W, (9, 35)),
+                DirectedMino(MINO.Z, DIRECTION.N, (7, 36)),
+                DirectedMino(MINO.S, DIRECTION.E, (4, 34)),
+                DirectedMino(MINO.J, DIRECTION.E, (0, 36)),
+                DirectedMino(MINO.O, DIRECTION.N, (6, 34))],
+                [])
+
+DT3 = Template([DirectedMino(MINO.T, DIRECTION.S, (2, 37))],
+                [])
+
+def GetDTMove(board:Board) -> List[List[MoveInt]]:
+    move1 = GetTemplateMove(board, DT11)
+    if len(move1) > 0:
+        return move1
+    
+    move2 = GetTemplateMove(board, DT12)
+    if len(move2) > 0:
+        return move2
+    
+
+    if tempalteOnMainBoard(DT11, board.mainBoard):
+        return GetDT2Move(board)
+
+    return []
+
+def GetDT2Move(board:Board) -> List[List[MoveInt]]:
+    move1 = GetTemplateMove(board, DT21)
+    if len(move1) > 0:
+        return move1
+
+    move2 = GetTemplateMove(board, DT22)
+    if len(move2) > 0:
+        return move2
+
+    move3 = GetTemplateMove(board, DT23)
+    if len(move3) > 0:
+        return move3
+
+    if tempalteOnMainBoard(DT21, board.mainBoard):
+        return GetDT3Move(board)
+
+    return []
+
+def GetDT3Move(board:Board) -> List[List[MoveInt]]:
+    move = GetTemplateMove(board, DT3)
+    return move
+
+    

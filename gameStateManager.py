@@ -112,16 +112,16 @@ def PytrisSimulator ():
             board.minoBagContents
         )
     """
-    
+
     # Multi-Decide
-    # TSDを狙う時は狙う
+    # DTを狙う時は狙う
     board = simulator.AddFollowingMino(board)
     while True:
         assert type(board.score) == int
         assert len(board.followingMinos) == FOLLOWING_MINOS_COUNT
 
         # 思考ルーチン
-        multipath = openTemplate.GetTSDMove(board)
+        multipath = openTemplate.GetDTMove(board)
         if not multipath:
             multipath = decisionMaker.MultiDecide(board)
 
@@ -145,7 +145,8 @@ def PytrisSimulator ():
             )
 
             board = simulator.AddFollowingMino(board)
-
+    
+        
 
 
 # 実機上で思考を再現する（無限ループ、シングルスレッド）
