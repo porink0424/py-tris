@@ -33,6 +33,7 @@ InitGetOccupiedPositions()
 
 # 実行時引数の設定
 parser = argparse.ArgumentParser()
+parser.add_argument("mode", help="Select mode (app/sim)")
 parser.add_argument("-q", "--quickSearch", help="Reduce the number of search nodes, and speed up calculation.", action="store_true")
 parser.add_argument("-m", "--multiPlay", help="Play with AI in multiplayer-mode.", action="store_true")
 args = parser.parse_args()
@@ -327,11 +328,11 @@ def PytrisMover ():
                 break
 
 def main():
-    # # 盤面監視モード
-    # PytrisBoardWatcher()
-
-    # # simulatorモード
-    # PytrisSimulator()
-
-    # 実機確認モード
-    PytrisMover()
+    if args.mode == "sim":
+        # simulatorモード
+        PytrisSimulator()
+    elif args.mode == "app":
+        # 実機確認モード
+        PytrisMover()
+    else:
+        Error("Invalid mode inputted.")

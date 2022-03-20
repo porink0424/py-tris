@@ -1,0 +1,23 @@
+#app {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.inApp {
+    width: 100%;
+}
+
+.inSim {
+    width: 100%;
+}
+
+.options {
+    width: 100%;
+}
+
+.expression {
+    margin: 10px 0;
+}
