@@ -52,11 +52,11 @@ def GetMovedDirectedMino (move:MoveInt, directedMino:DirectedMino, mainBoard:Lis
         Error("Invalid move from GetMovedDirectedMinoPos")
 
 # moveListとdirectedMinoを受け取って、その通りに入力を行う
-# moveList = [downが入っていないfirstHalfMove] + [downの連続列] + [downが入っていないsecondHalfMove]の形のみに対応している
+# moveList = [downが入っていないfirstHalfMove] + [downの連続列] + [secondHalfMove(downが入るうるが、長押しはしない)]の形のみに対応している
 # directedMinoをmoveListに従って動かした結果の移動先のdirectedMinoを返す
 # 置きミスしたときは、Noneを返す
 # todo: より一般的なmoveListに対しても動くようにする
-def InputMove (moveList:List[MoveInt], directedMino:DirectedMino, mainBoard:List[int]) -> Union[DirectedMino, bool]:
+def InputMove (moveList:List[MoveInt], directedMino:DirectedMino, mainBoard:List[int]) -> Union[DirectedMino, None]:
     nextDirectedMino = directedMino
 
     # moveList = [firstHalfMove] + [downの連続列] + [secondHalfMove]に分割する
@@ -67,12 +67,12 @@ def InputMove (moveList:List[MoveInt], directedMino:DirectedMino, mainBoard:List
                 break
             else:
                 downStartIdx += 1
-        downEndIdx = len(moveList)
+        downEndIdx = downStartIdx
         while True:
-            if moveList[downEndIdx-1] is MOVE.DOWN:
+            if moveList[downEndIdx] is not MOVE.DOWN:
                 break
             else:
-                downEndIdx -= 1
+                downEndIdx += 1
         firstHalfMove = moveList[:downStartIdx]
         downCount = len(moveList[downStartIdx:downEndIdx])
         secondHalfMove = moveList[downEndIdx:]

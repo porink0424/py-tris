@@ -259,7 +259,8 @@ def GetPossibleMoves(
 
     if quickSearch:
         if directedMino.mino == MINO.T:
-            for mino, path in droppedMinos:
+            while droppedMinos:
+                mino, path = droppedMinos.pop()
                 rightRotatedMino = mino
                 leftRotatedMino = mino
                 hasRightRotateEnded = False
@@ -273,6 +274,15 @@ def GetPossibleMoves(
                         if rightRotatedMino is not None and EncodeDirectedMino(rightRotatedMino) not in reachableNodes: # 回転可能かつまだ到達してない部分
                             reachableNodes[EncodeDirectedMino(rightRotatedMino)] = path + [MOVE.R_ROT for _ in range(rightRotateCount)]
                             rightRotateCount += 1
+
+                            # 回転中下に1つ落とせるなら落としたものを追加で考える (todo: 1つ以上落とせる場合もなくはなさそう、計算の時間と相談)
+                            oneDroppedDirectedMino = DirectedMino(
+                                rightRotatedMino.mino,
+                                rightRotatedMino.direction,
+                                (rightRotatedMino.pos[0], rightRotatedMino.pos[1] + 1)
+                            )
+                            if isValidPlace(board.mainBoard, GetOccupiedPositions(oneDroppedDirectedMino)):
+                                droppedMinos.append((oneDroppedDirectedMino, path + [MOVE.R_ROT for _ in range(rightRotateCount-1)] + [MOVE.DOWN]))
                         else:
                             hasRightRotateEnded = True
                     
@@ -281,6 +291,15 @@ def GetPossibleMoves(
                         if leftRotatedMino is not None and EncodeDirectedMino(leftRotatedMino) not in reachableNodes: # 回転可能かつまだ到達してない部分
                             reachableNodes[EncodeDirectedMino(leftRotatedMino)] = path + [MOVE.L_ROT for _ in range(leftRotateCount)]
                             leftRotateCount += 1
+
+                            # 回転中下に1つ落とせるなら落としたものを追加で考える (todo: 1つ以上落とせる場合もなくはなさそう、計算の時間と相談)
+                            oneDroppedDirectedMino = DirectedMino(
+                                leftRotatedMino.mino,
+                                leftRotatedMino.direction,
+                                (leftRotatedMino.pos[0], leftRotatedMino.pos[1] + 1)
+                            )
+                            if isValidPlace(board.mainBoard, GetOccupiedPositions(oneDroppedDirectedMino)):
+                                droppedMinos.append((oneDroppedDirectedMino, path + [MOVE.L_ROT for _ in range(leftRotateCount-1)] + [MOVE.DOWN]))
                         else:
                             hasLeftRotateEnded = True
                     
@@ -288,7 +307,8 @@ def GetPossibleMoves(
                     if hasRightRotateEnded and hasLeftRotateEnded:
                         break
     else:
-        for mino, path in droppedMinos:
+        while droppedMinos:
+            mino, path = droppedMinos.pop()
             rightRotatedMino = mino
             leftRotatedMino = mino
             hasRightRotateEnded = False
@@ -302,6 +322,15 @@ def GetPossibleMoves(
                     if rightRotatedMino is not None and EncodeDirectedMino(rightRotatedMino) not in reachableNodes: # 回転可能かつまだ到達してない部分
                         reachableNodes[EncodeDirectedMino(rightRotatedMino)] = path + [MOVE.R_ROT for _ in range(rightRotateCount)]
                         rightRotateCount += 1
+
+                        # 回転中下に1つ落とせるなら落としたものを追加で考える (todo: 1つ以上落とせる場合もなくはなさそう、計算の時間と相談)
+                        oneDroppedDirectedMino = DirectedMino(
+                            rightRotatedMino.mino,
+                            rightRotatedMino.direction,
+                            (rightRotatedMino.pos[0], rightRotatedMino.pos[1] + 1)
+                        )
+                        if isValidPlace(board.mainBoard, GetOccupiedPositions(oneDroppedDirectedMino)):
+                            droppedMinos.append((oneDroppedDirectedMino, path + [MOVE.R_ROT for _ in range(rightRotateCount-1)] + [MOVE.DOWN]))
                     else:
                         hasRightRotateEnded = True
                 
@@ -310,6 +339,15 @@ def GetPossibleMoves(
                     if leftRotatedMino is not None and EncodeDirectedMino(leftRotatedMino) not in reachableNodes: # 回転可能かつまだ到達してない部分
                         reachableNodes[EncodeDirectedMino(leftRotatedMino)] = path + [MOVE.L_ROT for _ in range(leftRotateCount)]
                         leftRotateCount += 1
+
+                        # 回転中下に1つ落とせるなら落としたものを追加で考える (todo: 1つ以上落とせる場合もなくはなさそう、計算の時間と相談)
+                        oneDroppedDirectedMino = DirectedMino(
+                            leftRotatedMino.mino,
+                            leftRotatedMino.direction,
+                            (leftRotatedMino.pos[0], leftRotatedMino.pos[1] + 1)
+                        )
+                        if isValidPlace(board.mainBoard, GetOccupiedPositions(oneDroppedDirectedMino)):
+                            droppedMinos.append((oneDroppedDirectedMino, path + [MOVE.L_ROT for _ in range(leftRotateCount-1)] + [MOVE.DOWN]))
                     else:
                         hasLeftRotateEnded = True
                 

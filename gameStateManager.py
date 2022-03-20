@@ -4,13 +4,6 @@
 #
 # -------------
 
-import pyautogui
-import time
-import argparse
-
-# pyautoguiの遅延を0にする
-pyautogui.PAUSE = 0
-
 # windowをアクティブにする
 try:
     import win32gui
@@ -32,6 +25,7 @@ from params.eval import *
 InitGetOccupiedPositions()
 
 # 実行時引数の設定
+import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("mode", help="Select mode (app/sim)")
 parser.add_argument("-q", "--quickSearch", help="Reduce the number of search nodes, and speed up calculation.", action="store_true")
