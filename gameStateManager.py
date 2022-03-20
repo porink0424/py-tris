@@ -47,29 +47,6 @@ if args.quickSearch:
 #
 # -------------
 
-# ゲーム画面を認識して標準出力に出力する関数（無限ループ）
-def PytrisBoardWatcher ():
-    print("\n\nPy-tris Board Watcher\n\n")
-
-    # 盤面を出力する分の行数を確保する
-    for _ in range(DISPLAYED_BOARD_HEIGHT):
-        print("", flush=True)
-    
-    # boardオブジェクトの生成
-    board = Board()
-
-    # メインループ
-    while True:
-        a = Timer()
-        board.currentMino = boardWatcher.GetCurrentMino()
-        board.mainBoard = boardWatcher.GetMainBoard()
-        board.followingMinos = boardWatcher.GetFollowingMinos()
-        board.holdMino = boardWatcher.GetHoldMino()
-        if board.currentMino is not None:
-            PrintBoardWithDirectedMino(board, board.currentMino, True, a.Stop())
-        else:
-            PrintBoard(board, True, a.Stop())
-
 # simulator上で思考を再現する（無限ループ）
 def PytrisSimulator ():
     print("\n\nPy-tris Simulator\n\n")
