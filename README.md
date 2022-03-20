@@ -12,6 +12,12 @@
 Python3
 ```
 
+GUIの実行
+
+```
+yarn 1.22.17
+```
+
 対象にしているアプリケーション
 
 ```
@@ -24,11 +30,9 @@ PuyoPuyo Tetris (in Steam)
 ```
 PyAutoGUI==0.9.53
 mss==6.1.0
-playsound==1.3.0
 Pillow==8.1.0
 colored==1.4.3
 cython=0.29.28
-keyboard==0.13.5
 Pymem==1.8.5
 vgamepad==0.0.7
 pywin32==303

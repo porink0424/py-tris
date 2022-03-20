@@ -126,20 +126,6 @@ def PytrisMover ():
     if args.multiPlay:
         # マルチプレイヤーモード
 
-        # sを押すことで先に進めるようにする
-        import keyboard
-
-        # print("Are you 1P? (y/n)")
-        # while True:
-        #     if keyboard.read_key() == "y":
-        #         boardWatcher.is1P = False
-        #         print("'y' pressed.")
-        #         break
-        #     if keyboard.read_key() == "n":
-        #         print("'n' pressed.")
-        #         break
-
-        # todo: 上記のkeyboardが効かなくなってしまったので2Pと仮定して進める
         boardWatcher.is1P = False
         
         # キャラクターセレクト画面になるまで待機
