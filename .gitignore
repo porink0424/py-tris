@@ -5,3 +5,6 @@ __pycache__
 *.c
 *.so
 build/*
+
+# node modules
+gui/node_modules
