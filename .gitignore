@@ -8,3 +8,7 @@ build/*
 
 # node modules
 gui/node_modules
+
+# output files
+gui/out
+yarn-error.log
