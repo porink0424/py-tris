@@ -24,6 +24,10 @@ from params.eval import *
 # GetOccupiedPositionsの前計算
 InitGetOccupiedPositions()
 
+# 探索の深さの設定
+INIT_SEARCH_LIMIT = 4
+INIT_BEAM_WIDTH = [3,3,3]
+
 # 実行時引数の設定
 import argparse
 parser = argparse.ArgumentParser()
@@ -43,6 +47,10 @@ if args.quickSearch:
 
 # simulator上で思考を再現する（無限ループ）
 def PytrisSimulator ():
+    # 初期化
+    decisionMaker.SEARCH_LIMIT = INIT_SEARCH_LIMIT
+    decisionMaker.BEAM_WIDTH = INIT_BEAM_WIDTH
+
     print("\n\nPy-tris Simulator\n\n")
 
     # 適当に盤面を生成
@@ -147,8 +155,8 @@ def PytrisMover ():
 
     while True:
         # 初期化
-        decisionMaker.SEARCH_LIMIT = 4
-        decisionMaker.BEAM_WIDTH = [3, 3, 3]
+        decisionMaker.SEARCH_LIMIT = INIT_SEARCH_LIMIT
+        decisionMaker.BEAM_WIDTH = INIT_BEAM_WIDTH
         paths = []
 
         # ゲーム開始待機状態になるまで待機

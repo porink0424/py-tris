@@ -397,8 +397,8 @@ def GetNextMoves(board:Board) -> List[Tuple[DirectedMino, List[MoveInt]]]:
     return NextMoves
 
 
-SEARCH_LIMIT = 4
-BEAM_WIDTH = [3, 3, 3]
+SEARCH_LIMIT = None # initialized in gameStateManager
+BEAM_WIDTH = None # initialized in gameStateManager
 firstHold = True
 def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> Tuple[int, List[List[MOVE]]]:
     state_queue = []
@@ -488,7 +488,7 @@ def MultiDecide(board:Board) -> List[List[MoveInt]]:
         if firstHold:
             for path in maxMultiPath:
                 if path[0] is MOVE.HOLD:
-                    SEARCH_LIMIT = 5
+                    SEARCH_LIMIT += 1
                     BEAM_WIDTH.append(3)
                     firstHold = False
                     break
