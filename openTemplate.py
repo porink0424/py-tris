@@ -146,7 +146,7 @@ def GetTemplateMove(board:Board, template:Template) -> List[List[MoveInt]]:
 
                     nextBoards.append((nextBoard, accumPath + [path]))
         
-        if len(nextBoards) == 0:
+        if not nextBoards:
             for board, accumPath in boards:
                 if tempalteOnMainBoard(template, board.mainBoard):
                     return accumPath
@@ -154,7 +154,7 @@ def GetTemplateMove(board:Board, template:Template) -> List[List[MoveInt]]:
         else:
             boards = nextBoards
 
-    if len(boards) > 0:
+    if boards:
         for board, path in boards:
 
             # ブロックの下に空白がある時は将来的にこのテンプレを実行できない可能性が高い
@@ -209,19 +209,19 @@ TSD4 = Template([DirectedMino(MINO.L, DIRECTION.S, (3, 38)),
 
 def GetTSDMove(board:Board):
     move1 = GetTemplateMove(board, TSD1)
-    if len(move1) > 0:
+    if move1:
         return move1 
     
     move2 = GetTemplateMove(board, TSD2)
-    if len(move2) > 0:
+    if move2:
         return move2
 
     move3 = GetTemplateMove(board, TSD3)
-    if len(move3) > 0:
+    if move3:
         return move3
 
     move4 = GetTemplateMove(board, TSD4)
-    if len(move4) > 0:
+    if move4:
         return move4
 
     return []
@@ -274,11 +274,11 @@ DT3 = Template([DirectedMino(MINO.T, DIRECTION.S, (2, 37))],
 
 def GetDTMove(board:Board) -> List[List[MoveInt]]:
     move1 = GetTemplateMove(board, DT11)
-    if len(move1) > 0:
+    if move1:
         return move1
     
     move2 = GetTemplateMove(board, DT12)
-    if len(move2) > 0:
+    if move2:
         return move2
     
 
@@ -289,15 +289,15 @@ def GetDTMove(board:Board) -> List[List[MoveInt]]:
 
 def GetDT2Move(board:Board) -> List[List[MoveInt]]:
     move1 = GetTemplateMove(board, DT21)
-    if len(move1) > 0:
+    if move1:
         return move1
 
     move2 = GetTemplateMove(board, DT22)
-    if len(move2) > 0:
+    if move2:
         return move2
 
     move3 = GetTemplateMove(board, DT23)
-    if len(move3) > 0:
+    if move3:
         return move3
 
     if tempalteOnMainBoard(DT21, board.mainBoard):
@@ -310,3 +310,15 @@ def GetDT3Move(board:Board) -> List[List[MoveInt]]:
     return move
 
     
+### Customize Template
+def GetCustomTemplateMove(board:Board) -> List[List[MoveInt]]:
+
+    # DT　
+    multipath = GetDTMove(board)
+    if multipath:
+        return multipath
+
+    # TSD
+    multipath = GetTSDMove(board)
+
+    return multipath

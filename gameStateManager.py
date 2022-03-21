@@ -121,7 +121,7 @@ def PytrisSimulator ():
         assert len(board.followingMinos) == FOLLOWING_MINOS_COUNT
 
         # 思考ルーチン
-        multipath = openTemplate.GetDTMove(board)
+        multipath = openTemplate.GetCustomTemplateMove(board)
         if not multipath:
             multipath = decisionMaker.MultiDecide(board)
 
