@@ -2,8 +2,7 @@ from lib import *
 from params.eval import *
 
 # 盤面自体の評価関数
-# mainBoardはミノを埋め込んだだけでまだRowを消していない盤面
-def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
+def EvalMainBoard (mainBoard:List[int], topRowIdx:List[int]) -> float:
     # 凸凹具合を見る
     # 前の列との差分をみて，その差分の合計を凸凹具合とする
     
@@ -18,7 +17,7 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
     continuousBlank = 0
     colBlockCount = 0
     for colIdx in range(BOARD_WIDTH):
-        for rowIdx in range(topRowIdx[colIdx] + cleardRowCount, BOARD_HEIGHT):
+        for rowIdx in range(topRowIdx[colIdx], BOARD_HEIGHT):
             # ブロックがある
             if mainBoard[rowIdx] & (0b1000000000 >> colIdx) != 0:
                 colBlockCount += 1
@@ -53,7 +52,8 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
     topRowIdxSorted = copy.copy(topRowIdx)
     topRowIdxSorted.sort()
     # 盤面の高さを見る
-    height = BOARD_HEIGHT - topRowIdxSorted[0] - cleardRowCount
+    height = BOARD_HEIGHT - topRowIdxSorted[0]
+    
     # 高さが一番低い列が他の列に対して3以上の高さの差がある、かつブロックの下に隙間がない時、
     # テトリスできる可能性が高い。
     tetris = 0
