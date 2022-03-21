@@ -145,7 +145,6 @@ def PytrisSimulator ():
             )
 
             board = simulator.AddFollowingMino(board)
-    
         
 
 

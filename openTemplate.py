@@ -1,3 +1,4 @@
+from unittest import getTestCaseNames
 from lib import *
 import decisionMaker
 
@@ -309,6 +310,19 @@ def GetDT3Move(board:Board) -> List[List[MoveInt]]:
     move = GetTemplateMove(board, DT3)
     return move
 
+
+### Gassho TSD
+GasshoTSD1 = Template([DirectedMino(MINO.L, DIRECTION.N, (8, 37)),
+                    DirectedMino(MINO.I, DIRECTION.W, (0, 37)),
+                    DirectedMino(MINO.Z, DIRECTION.E, (4, 38)),
+                    DirectedMino(MINO.S, DIRECTION.E, (6, 38)),
+                    DirectedMino(MINO.J, DIRECTION.E, (1, 37)),
+                    DirectedMino(MINO.O, DIRECTION.N, (8, 39)),
+                    DirectedMino(MINO.T, DIRECTION.N, (2, 39) )],
+                    [7, 8, 9])
+
+def GetGasshoTSDMove(board:Board):
+    return GetTemplateMove(board, GasshoTSD1)
     
 ### Customize Template
 def GetCustomTemplateMove(board:Board) -> List[List[MoveInt]]:
@@ -320,5 +334,10 @@ def GetCustomTemplateMove(board:Board) -> List[List[MoveInt]]:
 
     # TSD
     multipath = GetTSDMove(board)
+    if multipath:
+        return multipath
+
+    # Gassho TSD
+    multipath = GetGasshoTSDMove(board)
 
     return multipath
