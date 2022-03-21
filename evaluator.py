@@ -43,9 +43,9 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
                     (colIdx + 2 < BOARD_WIDTH and mainBoard[rowIdx] & (0b1000000000 >> (colIdx + 2)) == 0)):
                     continue
 
-                blankUnderBlock += 1
+                blankUnderBlock += colBlockCount
             else:
-                blankUnderBlock += 1
+                blankUnderBlock += colBlockCount
 
         continuousBlank = 0
         colBlockCount = 0
