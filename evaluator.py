@@ -66,8 +66,10 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
         heightEval += height * EVAL_HEIGHT_UPPER_THAN10
     elif height >= 5:
         heightEval += height * EVAL_HEIGHT_UPPER_THAN5
-    else:
+    elif height >= 1:
         heightEval += height * EVAL_HEIGHT
+    else:
+        heightEval += EVAL_PERFECT_CLEAR
     
     return tetris + heightEval + roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK
 
