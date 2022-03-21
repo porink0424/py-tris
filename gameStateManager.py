@@ -4,13 +4,6 @@
 #
 # -------------
 
-import pyautogui
-import time
-import argparse
-
-# pyautoguiの遅延を0にする
-pyautogui.PAUSE = 0
-
 # windowをアクティブにする
 try:
     import win32gui
@@ -34,8 +27,14 @@ import evaluator
 import openTemplate
 
 
+# 探索の深さの設定
+INIT_SEARCH_LIMIT = 4
+INIT_BEAM_WIDTH = [3,3,3]
+
 # 実行時引数の設定
+import argparse
 parser = argparse.ArgumentParser()
+parser.add_argument("mode", help="Select mode (app/sim)")
 parser.add_argument("-q", "--quickSearch", help="Reduce the number of search nodes, and speed up calculation.", action="store_true")
 parser.add_argument("-m", "--multiPlay", help="Play with AI in multiplayer-mode.", action="store_true")
 args = parser.parse_args()
@@ -49,31 +48,12 @@ if args.quickSearch:
 #
 # -------------
 
-# ゲーム画面を認識して標準出力に出力する関数（無限ループ）
-def PytrisBoardWatcher ():
-    print("\n\nPy-tris Board Watcher\n\n")
-
-    # 盤面を出力する分の行数を確保する
-    for _ in range(DISPLAYED_BOARD_HEIGHT):
-        print("", flush=True)
-    
-    # boardオブジェクトの生成
-    board = Board()
-
-    # メインループ
-    while True:
-        a = Timer()
-        board.currentMino = boardWatcher.GetCurrentMino()
-        board.mainBoard = boardWatcher.GetMainBoard()
-        board.followingMinos = boardWatcher.GetFollowingMinos()
-        board.holdMino = boardWatcher.GetHoldMino()
-        if board.currentMino is not None:
-            PrintBoardWithDirectedMino(board, board.currentMino, True, a.Stop())
-        else:
-            PrintBoard(board, True, a.Stop())
-
 # simulator上で思考を再現する（無限ループ）
 def PytrisSimulator ():
+    # 初期化
+    decisionMaker.SEARCH_LIMIT = INIT_SEARCH_LIMIT
+    decisionMaker.BEAM_WIDTH = INIT_BEAM_WIDTH
+
     print("\n\nPy-tris Simulator\n\n")
 
     # 適当に盤面を生成
@@ -154,20 +134,6 @@ def PytrisMover ():
     if args.multiPlay:
         # マルチプレイヤーモード
 
-        # sを押すことで先に進めるようにする
-        import keyboard
-
-        # print("Are you 1P? (y/n)")
-        # while True:
-        #     if keyboard.read_key() == "y":
-        #         boardWatcher.is1P = False
-        #         print("'y' pressed.")
-        #         break
-        #     if keyboard.read_key() == "n":
-        #         print("'n' pressed.")
-        #         break
-
-        # todo: 上記のkeyboardが効かなくなってしまったので2Pと仮定して進める
         boardWatcher.is1P = False
         
         # キャラクターセレクト画面になるまで待機
@@ -195,8 +161,8 @@ def PytrisMover ():
 
     while True:
         # 初期化
-        decisionMaker.SEARCH_LIMIT = 4
-        decisionMaker.BEAM_WIDTH = [3, 3, 3]
+        decisionMaker.SEARCH_LIMIT = INIT_SEARCH_LIMIT
+        decisionMaker.BEAM_WIDTH = INIT_BEAM_WIDTH
         paths = []
 
         # ゲーム開始待機状態になるまで待機
@@ -333,11 +299,11 @@ def PytrisMover ():
                 break
 
 def main():
-    # # 盤面監視モード
-    # PytrisBoardWatcher()
-
-    # # simulatorモード
-    PytrisSimulator()
-
-    # 実機確認モード
-    # PytrisMover()
+    if args.mode == "sim":
+        # simulatorモード
+        PytrisSimulator()
+    elif args.mode == "app":
+        # 実機確認モード
+        PytrisMover()
+    else:
+        Error("Invalid mode inputted.")

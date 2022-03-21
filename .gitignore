@@ -5,3 +5,14 @@ __pycache__
 *.c
 *.so
 build/*
+
+# node modules
+gui/node_modules
+
+# output files
+gui/out
+yarn-error.log
+gui/output.txt
+
+# others
+.DS_Store

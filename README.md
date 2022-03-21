@@ -6,35 +6,49 @@
 
 ## Pre-Requests
 
-プログラムの実行
+プログラムの実行環境
 
 ```
-Python3
+Python3 3.9.1
 ```
 
-対象にしているアプリケーション
+実行に必要なpythonのモジュール
+
+```
+PyAutoGUI==0.9.53
+mss==6.1.0
+Pillow==8.1.0
+colored==1.4.3
+cython=0.29.28
+Pymem==1.8.5
+vgamepad==0.0.7
+pywin32==303
+```
+
+GUIの実行に必要なパッケージ
+
+```
+yarn 1.22.17
+```
+
+実行対象
 
 ```
 Windows10
 PuyoPuyo Tetris (in Steam)
 ```
 
-### Python Modules Required
 
-```
-PyAutoGUI==0.9.53
-mss==6.1.0
-playsound==1.3.0
-Pillow==8.1.0
-colored==1.4.3
-cython=0.29.28
-keyboard==0.13.5
-Pymem==1.8.5
-vgamepad==0.0.7
-pywin32==303
-```
 
 ## Usage
+
+### パッケージ化
+
+```
+yarn
+
+yarn run make
+```
 
 ### コンパイル
 
@@ -42,10 +56,18 @@ pywin32==303
 python setup.py build_ext --inplace
 ```
 
-### 実行
+### コマンドラインからの実行
+
+- simulatorでの実行を見たい場合
 
 ```
-python main.py
+python main.py sim
+```
+
+- アプリケーション上で実行したい場合
+
+```
+python main.py app
 ```
 
 ### 注意点

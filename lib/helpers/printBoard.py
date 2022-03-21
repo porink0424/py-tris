@@ -36,19 +36,19 @@ def PrintBoard(board:Board, reset=False, elapsedTime=None, displayAll=False, dis
             mino = board.holdMino
             for j in range(SHAPE_WIDTH):
                 if SHAPE[mino][alreadyDisplayedLineCount][j] == 1:
-                    print("{}■{}".format(COLOR_CODES[mino], attr('reset')), end="", flush=True)
+                    print("{}￭{}".format(COLOR_CODES[mino], attr('reset')), end="", flush=True)
                 else:
-                    print("{}■{}".format(COLOR_CODES[MINO.NONE], attr('reset')), end="", flush=True)
-            print(" ", attr('reset'), end="", flush=True)
+                    print("{}￮{}".format(COLOR_CODES[MINO.NONE], attr('reset')), end="", flush=True)
+            print("", attr('reset'), end="", flush=True)
         else:
-            print("          ", end="", flush=True)
+            print("     ", end="", flush=True)
 
         row = board.mainBoard[i + BOARD_HEIGHT - DISPLAYED_BOARD_HEIGHT]
         for j in range(BOARD_WIDTH):
             if row & (0b1000000000 >> j) > 0:
-                print('{}■{}'.format(COLOR_CODES[MINO.JAMA], attr('reset')), end="", flush=True)
+                print('{}￭{}'.format(COLOR_CODES[MINO.JAMA], attr('reset')), end="", flush=True)
             else:
-                print('{}■{}'.format(COLOR_CODES[MINO.NONE], attr('reset')), end="", flush=True)
+                print('{}￮{}'.format(COLOR_CODES[MINO.NONE], attr('reset')), end="", flush=True)
         
         if 0 <= alreadyDisplayedLineCount < len(board.followingMinos) * (SHAPE_HEIGHT + 1): # NEXTミノを表示させる行
             if alreadyDisplayedLineCount % (SHAPE_HEIGHT + 1) != SHAPE_HEIGHT: # 空白の行ではない
@@ -56,9 +56,9 @@ def PrintBoard(board:Board, reset=False, elapsedTime=None, displayAll=False, dis
                 print(" ", end="", flush=True)
                 for j in range(SHAPE_WIDTH):
                     if SHAPE[mino][alreadyDisplayedLineCount % (SHAPE_HEIGHT + 1)][j] == 1:
-                        print("{}■{}".format(COLOR_CODES[mino], attr('reset')), end="", flush=True)
+                        print("{}￭{}".format(COLOR_CODES[mino], attr('reset')), end="", flush=True)
                     else:
-                        print("{}■{}".format(COLOR_CODES[MINO.NONE], attr('reset')), end="", flush=True)
+                        print("{}￮{}".format(COLOR_CODES[MINO.NONE], attr('reset')), end="", flush=True)
                 print("", flush=True)
             else: # 空白の行
                 print("", flush=True)
