@@ -4,11 +4,13 @@ import decisionMaker
 class Template:
     def __init__(self, minos:List[DirectedMino], noBlankRow:List[int]):
         # minosはテンプレートに含まれるミノ
+        # occupiedPositionsはminosに対応するpositions
         # noBlankRowはそのテンプレートを構成する途中でブロックの下の空白があってはならない行番号
         self.minos = minos 
         self.occcupiedPositions = [GetOccupiedPositions(mino) for mino in minos]
         self.noBlankrow = noBlankRow
-
+    
+    # templateが引数occupiedPositionsを含むかどうか判定
     def contain(self, occupiedPositions:List[Tuple[int]]):
         for pos in self.occcupiedPositions:
             match = True 
@@ -64,6 +66,7 @@ def ExistsTemplateOnMainBoard(template:Template, mainBoard:List[int]) -> bool:
 # 第2引数のtemplateに対応するMOVEが存在するならそれを返す。
 def GetTemplateMove(board:Board, template:Template) -> List[List[MoveInt]]:
 
+    # boardsは(盤面、それに至るミノの動き)のリスト
     boards = [(board, [])]
     for _ in range(decisionMaker.SEARCH_LIMIT):
         nextBoards = []
@@ -71,6 +74,8 @@ def GetTemplateMove(board:Board, template:Template) -> List[List[MoveInt]]:
             moves = [(mino, path, GetOccupiedPositions(mino)) for mino, path in decisionMaker.GetNextMoves(board)]
 
             for mino, path, positions in moves:
+
+                # もしtemplateに含まれるpositionsにミノを動かした時だけ、次の盤面に遷移
                 if template.contain(positions):
                     # ラインの消去
                     joindBoard, joinedTopRowIdx = JoinDirectedMinoToBoard(mino, board.mainBoard, board.topRowIdx)
@@ -103,7 +108,9 @@ def GetTemplateMove(board:Board, template:Template) -> List[List[MoveInt]]:
                     nextBoards.append((nextBoard, accumPath + [path]))
         
         if not nextBoards:
+            # templateを作るミノの動きがない時
             for board, accumPath in boards:
+                # すでにテンプレートが盤面にあるならそれにいたるパスを返す
                 if ExistsTemplateOnMainBoard(template, board.mainBoard):
                     return accumPath
             return []
