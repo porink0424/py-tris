@@ -9,10 +9,10 @@ class Template:
         self.occcupiedPositions = [GetOccupiedPositions(mino) for mino in minos]
         self.noBlankrow = noBlankRow
 
-    def contain(self, occupiedPos:List[Tuple[int]]):
+    def contain(self, occupiedPositions:List[Tuple[int]]):
         for pos in self.occcupiedPositions:
             match = True 
-            for pos_i, occupiedPos_i in zip(pos, occupiedPos):
+            for pos_i, occupiedPos_i in zip(pos, occupiedPositions):
                 if pos_i != occupiedPos_i:
                     match = False 
                     break
@@ -52,58 +52,9 @@ class Template:
 
         return "\n".join(map(lambda x : "".join(x),boardStr))
 
-"""
-テンプレートを作る時、活用
-
--> x
-|
-v
-y
-
-MINO.L
-   N     E   S   W
-    #   #   #@# ##
-  #@#   @   #    @
-        ##       #
-
-MINO.I
-    N     E  S    W
-   #@##   #  @    #
-         @# ####  @
-          #       #
-          #       #
-
-MINO.Z
-   N     E    S    W
-  ##     #   #@     #
-   @#   @#    ##   #@
-        #          #
-
-MINO.S
-   N    E     S    W
-   ##   #     @#   #
-  #@    @#   ##    #@
-         #          #
-
-MINO.J
-   N    E    S    W
-  #     ##  #@#   #
-  #@#   @     #   @
-        #        ##
-
-MINO.O
-  ##
-  @#
-
-MINO.T
-   N    E     S     W 
-   #    #    #@#    #
-  #@#   @#    #    #@
-        #           #
-""" 
 
 # テンプレートが盤面に再現されていかどうか判定
-def tempalteOnMainBoard(template:Template, mainBoard:List[int]) -> bool:
+def ExistsTemplateOnMainBoard(template:Template, mainBoard:List[int]) -> bool:
     for pos in template.occcupiedPositions:
         for pos0, pos1 in pos:
             if mainBoard[pos1] & (0b1000000000 >> pos0) == 0:
@@ -119,36 +70,41 @@ def GetTemplateMove(board:Board, template:Template) -> List[List[MoveInt]]:
         for board, accumPath in boards:
             moves = [(mino, path, GetOccupiedPositions(mino)) for mino, path in decisionMaker.GetNextMoves(board)]
 
-            for mino, path, pos in moves:
-                if template.contain(pos):
+            for mino, path, positions in moves:
+                if template.contain(positions):
+                    # ラインの消去
                     joindBoard, joinedTopRowIdx = JoinDirectedMinoToBoard(mino, board.mainBoard, board.topRowIdx)
                     newMainBoard, newTopRowIdx, _ = ClearLines(joindBoard, joinedTopRowIdx)
-                    nextBoard = board
+
+                    # boardAfterHoldは
+                    # もしHoldをしていたらその操作だけ行った後の盤面
+                    # そうではないときは元の盤面
+                    boardAfterHold = board
                     if path[0] is MOVE.HOLD:
-                        nextBoard = BoardAfterHold(board)
+                        boardAfterHold = BoardAfterHold(board)
 
                     nextBoard = Board(
                         newMainBoard,
                         DirectedMino(
-                            nextBoard.followingMinos[0],
+                            boardAfterHold.followingMinos[0],
                             FIRST_MINO_DIRECTION,
                             FIRST_MINO_POS
                         ),
-                        nextBoard.followingMinos[1:] + [MINO.NONE],
-                        nextBoard.holdMino,
+                        boardAfterHold.followingMinos[1:] + [MINO.NONE],
+                        boardAfterHold.holdMino,
                         True,
                         newTopRowIdx,
-                        nextBoard.score,
-                        nextBoard.backToBack,
-                        nextBoard.ren,
-                        nextBoard.minoBagContents
+                        boardAfterHold.score,
+                        boardAfterHold.backToBack,
+                        boardAfterHold.ren,
+                        boardAfterHold.minoBagContents
                     )
 
                     nextBoards.append((nextBoard, accumPath + [path]))
         
         if not nextBoards:
             for board, accumPath in boards:
-                if tempalteOnMainBoard(template, board.mainBoard):
+                if ExistsTemplateOnMainBoard(template, board.mainBoard):
                     return accumPath
             return []
         else:
@@ -282,7 +238,7 @@ def GetDTMove(board:Board) -> List[List[MoveInt]]:
         return move2
     
 
-    if tempalteOnMainBoard(DT11, board.mainBoard):
+    if ExistsTemplateOnMainBoard(DT11, board.mainBoard):
         return GetDT2Move(board)
 
     return []
@@ -300,7 +256,7 @@ def GetDT2Move(board:Board) -> List[List[MoveInt]]:
     if move3:
         return move3
 
-    if tempalteOnMainBoard(DT21, board.mainBoard):
+    if ExistsTemplateOnMainBoard(DT21, board.mainBoard):
         return GetDT3Move(board)
 
     return []

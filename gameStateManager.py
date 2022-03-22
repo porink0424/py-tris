@@ -13,17 +13,18 @@ try:
 except:
     print("win32gui not installed.")
 
-import boardWatcher
-import decisionMaker
-import minoMover
-import simulator
-import evaluator
-import openTemplate
 from lib import *
 from params.eval import *
 
 # GetOccupiedPositionsの前計算
 InitGetOccupiedPositions()
+
+import boardWatcher
+import decisionMaker
+import minoMover
+import simulator
+import evaluator
+import openTemplateMaker
 
 # 探索の深さの設定
 INIT_SEARCH_LIMIT = 4
@@ -92,14 +93,14 @@ def PytrisSimulator ():
     """
 
     # Multi-Decide
-    # DTを狙う時は狙う
+    # テンプレを狙える時は狙う
     board = simulator.AddFollowingMino(board)
     while True:
         assert type(board.score) == int
         assert len(board.followingMinos) == FOLLOWING_MINOS_COUNT
 
         # 思考ルーチン
-        multipath = openTemplate.GetCustomTemplateMove(board)
+        multipath = openTemplateMaker.GetCustomTemplateMove(board)
         if not multipath:
             multipath = decisionMaker.MultiDecide(board)
 

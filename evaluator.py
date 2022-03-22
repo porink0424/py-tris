@@ -41,9 +41,13 @@ def EvalMainBoard (mainBoard:List[int], topRowIdx:List[int]) -> float:
                 if ((colIdx + 1 < BOARD_WIDTH and rowIdx < topRowIdx[colIdx + 1]) and 
                     (colIdx + 2 < BOARD_WIDTH and mainBoard[rowIdx] & (0b1000000000 >> (colIdx + 2)) == 0)):
                     continue
-
+                
+                # 空白を見つけた時は
+                # その上にあるブロックの数だけ、評価値に影響を与えることにする。
                 blankUnderBlock += colBlockCount
             else:
+                # 空白を見つけた時は
+                # その上にあるブロックの数だけ、評価値に影響を与えることにする。
                 blankUnderBlock += colBlockCount
 
         continuousBlank = 0
