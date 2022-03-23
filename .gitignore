@@ -5,3 +5,6 @@ __pycache__
 *.c
 *.so
 build/*
+
+# misc
+tetris.png

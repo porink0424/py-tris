@@ -7,6 +7,7 @@ from .drop import *
 from .input import *
 from .joinMino import *
 from .lineClear import *
+from .minoOrder import *
 from .position import *
 from .printBoard import *
 from .rotate import *
