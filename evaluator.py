@@ -193,10 +193,14 @@ def EvalPath (moveList:List[MoveInt], clearedRowCount:int, joinedMainBoard:List[
 
     isBackToBack = isBackToBack and backToBack
 
+    evalSoftDrop = EVAL_SOFTDROP if MOVE.DROP in moveList else 0
+    evalRen = EVAL_REN[ren] if ren < len(EVAL_REN) else EVAL_REN[-1]
+
     eval = t_spin + \
            EVAL_LINE_CLEAR[clearedRowCount] + \
            (EVAL_BACKTOBACK if isBackToBack else 0) + \
-           EVAL_REN[ren]
+           evalRen + \
+           evalSoftDrop
     return eval
 
 def Score(isTspin:bool, isTspinmini:bool, clearedRowCount:int, backToBack:bool, ren:int) -> Tuple[int, bool, int]:
