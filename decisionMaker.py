@@ -19,23 +19,23 @@ class State():
         self.path = path
         self.accumPath = accumPath + [path]
         self.tau = tau
-
+        
         # ライン消去
-        joinedBoard, joinedTopRowIdx = JoinDirectedMinoToBoard(self.mino, self.board.mainBoard, self.board.topRowIdx)
-        newMainBoard, newTopRowIdx, clearedRowCount = ClearLines(joinedBoard, joinedTopRowIdx)
-
+        JoinDirectedMinoToBoardUncopy(mino, board.mainBoard, board.topRowIdx)
+        clearedRowCount = ClearLinesCalc(board.mainBoard)
+        
         # 評価値の計算
-        isTspin = evaluator.IsTSpin(joinedBoard, mino, path)
-        isTspinmini = isTspin and evaluator.IsTSpinMini(joinedBoard, mino, path)
-        self.accumPathValue = accumPathValue + self.tau * evaluator.EvalPath(path, clearedRowCount, joinedBoard, mino, board.backToBack, board.ren)
-        self.eval = self.accumPathValue + self.tau * evaluator.EvalMainBoard(newMainBoard, newTopRowIdx)
-
+        isTspin = evaluator.IsTSpin(board.mainBoard, mino, path)
+        isTspinmini = isTspin and evaluator.IsTSpinMini(board.mainBoard, mino, path)
+        self.accumPathValue = accumPathValue + self.tau * evaluator.EvalPath(path, clearedRowCount, board.mainBoard, mino, board.backToBack, board.ren)
+        self.eval = self.accumPathValue + self.tau * evaluator.EvalMainBoard(board.mainBoard, clearedRowCount, board.topRowIdx)
+        
         # スコアの計算
         self.score, self.backToBack, self.ren = evaluator.Score(isTspin, isTspinmini, clearedRowCount, board.backToBack, board.ren)
         self.score += accumScore
 
-        self.newMainBoard = newMainBoard
-        self.newTopRowIdx = newTopRowIdx
+        # Boardを元に戻す
+        DeleteDirectedMinoFromBoardUncopy(mino, board.mainBoard, board.topRowIdx)
         
     def __eq__(self, other):
         return self.eval == other.eval
@@ -45,12 +45,16 @@ class State():
     
     # 実際に遷移する
     def Transit(self):
+        # ライン消去
+        joinedBoard, joinedTopRowIdx = JoinDirectedMinoToBoard(self.mino, self.board.mainBoard, self.board.topRowIdx)
+        newMainBoard, newTopRowIdx, _ = ClearLines(joinedBoard, joinedTopRowIdx)
+
         # ミノを置いた後の盤面の生成
         if self.path[0] is MOVE.HOLD:
             self.board = BoardAfterHold(self.board)
     
         clearedBoard = Board(
-            self.newMainBoard,
+            newMainBoard,
             DirectedMino(
                 self.board.followingMinos[0],
                 FIRST_MINO_DIRECTION,
@@ -59,7 +63,7 @@ class State():
             self.board.followingMinos[1:] + [MINO.NONE],
             self.board.holdMino,
             True,
-            self.newTopRowIdx,
+            newTopRowIdx,
             self.score,
             self.backToBack,
             self.ren,
