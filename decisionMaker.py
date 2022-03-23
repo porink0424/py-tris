@@ -406,13 +406,14 @@ SEARCH_LIMIT = None # initialized in gameStateManager
 BEAM_WIDTH = None # initialized in gameStateManager
 firstHold = True
 def Search (board:Board, mino:DirectedMino, path:List[MOVE], limit:int) -> Tuple[int, List[List[MOVE]]]:
+    global BEAM_WIDTH
+
     state_queue = []
     heapq.heapify(state_queue)
     init_state = State(board, mino, path, 0, board.score, [])
     init_state.Transit()
     heapq.heappush(state_queue, init_state)
 
-    assert limit == len(BEAM_WIDTH)
     for beamWidth in BEAM_WIDTH:
         next_state_queue = []
         heapq.heapify(next_state_queue)
@@ -497,7 +498,7 @@ def MultiDecide(board:Board) -> List[List[MoveInt]]:
                     BEAM_WIDTH.append(3)
                     firstHold = False
                     break
-    
+
         maxMultiPath = maxMultiPath[:SEARCH_LIMIT]
     
     # 実行するなかでassertionが出てしまったら、負けを認める
