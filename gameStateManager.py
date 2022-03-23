@@ -223,8 +223,11 @@ def PytrisMover ():
             # 思考ルーチン
             decideTimer = Timer()
             if not paths:
-                multiPath = decisionMaker.MultiDecide(board)
+                multiPath = openTemplateMaker.GetCustomTemplateMove(board)
+                if not multiPath:
+                    multiPath = decisionMaker.MultiDecide(board)
                 paths += multiPath
+
             print("Making Decition in {}s".format(decideTimer.Stop()), flush=True)
 
             # 移動
