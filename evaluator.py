@@ -42,10 +42,14 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
                 if ((colIdx + 1 < BOARD_WIDTH and rowIdx < topRowIdx[colIdx + 1]) and 
                     (colIdx + 2 < BOARD_WIDTH and mainBoard[rowIdx] & (0b1000000000 >> (colIdx + 2)) == 0)):
                     continue
-
-                blankUnderBlock += 1
+                
+                # 空白を見つけた時は
+                # その上にあるブロックの数だけ、評価値に影響を与えることにする。
+                blankUnderBlock += colBlockCount
             else:
-                blankUnderBlock += 1
+                # 空白を見つけた時は
+                # その上にあるブロックの数だけ、評価値に影響を与えることにする。
+                blankUnderBlock += colBlockCount
 
         continuousBlank = 0
         colBlockCount = 0
@@ -54,6 +58,7 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
     topRowIdxSorted.sort()
     # 盤面の高さを見る
     height = BOARD_HEIGHT - topRowIdxSorted[0] - cleardRowCount
+    
     # 高さが一番低い列が他の列に対して3以上の高さの差がある、かつブロックの下に隙間がない時、
     # テトリスできる可能性が高い。
     tetris = 0
@@ -66,8 +71,10 @@ def EvalMainBoard (mainBoard, cleardRowCount:int, topRowIdx:List[int]) -> float:
         heightEval += height * EVAL_HEIGHT_UPPER_THAN10
     elif height >= 5:
         heightEval += height * EVAL_HEIGHT_UPPER_THAN5
-    else:
+    elif height >= 1:
         heightEval += height * EVAL_HEIGHT
+    else:
+        heightEval += EVAL_PERFECT_CLEAR
     
     return tetris + heightEval + roughness * EVAL_ROUGHNESS + blankUnderBlock * EVAL_BLANK_UNDER_BLOCK
 

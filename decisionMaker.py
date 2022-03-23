@@ -19,17 +19,21 @@ class State():
         self.path = path
         self.accumPath = accumPath + [path]
         self.tau = tau
+        
         # ライン消去
         JoinDirectedMinoToBoardUncopy(mino, board.mainBoard, board.topRowIdx)
         clearedRowCount = ClearLinesCalc(board.mainBoard)
+        
         # 評価値の計算
         isTspin = evaluator.IsTSpin(board.mainBoard, mino, path)
         isTspinmini = isTspin and evaluator.IsTSpinMini(board.mainBoard, mino, path)
         self.accumPathValue = accumPathValue + self.tau * evaluator.EvalPath(path, clearedRowCount, board.mainBoard, mino, board.backToBack, board.ren)
         self.eval = self.accumPathValue + self.tau * evaluator.EvalMainBoard(board.mainBoard, clearedRowCount, board.topRowIdx)
+        
         # スコアの計算
         self.score, self.backToBack, self.ren = evaluator.Score(isTspin, isTspinmini, clearedRowCount, board.backToBack, board.ren)
         self.score += accumScore
+
         # Boardを元に戻す
         DeleteDirectedMinoFromBoardUncopy(mino, board.mainBoard, board.topRowIdx)
         
@@ -44,6 +48,7 @@ class State():
         # ライン消去
         joinedBoard, joinedTopRowIdx = JoinDirectedMinoToBoard(self.mino, self.board.mainBoard, self.board.topRowIdx)
         newMainBoard, newTopRowIdx, _ = ClearLines(joinedBoard, joinedTopRowIdx)
+
         # ミノを置いた後の盤面の生成
         if self.path[0] is MOVE.HOLD:
             self.board = BoardAfterHold(self.board)
