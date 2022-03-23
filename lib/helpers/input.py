@@ -12,8 +12,8 @@ try:
 except:
     pass
 
-KEY_HOLD_TIME = 0.02
-KEY_RELEASE_TIME = 0.02
+KEY_HOLD_TIME = 0.017
+KEY_RELEASE_TIME = 0.017
 
 def Move (move:MOVE):
     if move is MOVE.LEFT:

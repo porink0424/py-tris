@@ -4,6 +4,7 @@ from .color import *
 from .debug import *
 from .deleteMino import *
 from .drop import *
+from .hold import *
 from .input import *
 from .joinMino import *
 from .lineClear import *

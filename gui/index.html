@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>py-tris</title>
+        <link rel="stylesheet" href="main.css">
+    </head>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <body>
+        <div id="app">
+            <div class="inApp">
+                <input id="inApp" type="radio" name="inApp" value="inApp" v-model="mode">
+                <label for="inApp">実際のアプリ上で動かす</label>
+            </div>
+            <div class="inSim">
+                <input id="inSim" type="radio" name="inApp" value="inSim" v-model="mode">
+                <label for="inSim">シミュレータ上で動かす</label>
+            </div>
+            <div class="options">
+                <div class="options__multiPlay">
+                    <input id="multiPlay" type="checkbox" v-model="multiPlay">
+                    <label for="multiPlay">マルチプレイモード</label>
+                </div>
+                <div class="options__quickSearch">
+                    <input id="quickSearch" type="checkbox" v-model="quickSearch">
+                    <label for="quickSearch">クイックサーチモード</label>
+                </div>
+            </div>
+            <p class="expression">{{ expression }}</p>
+            <div class="buttons">
+                <button class="buttons__stop" v-on:click="Stop">停止</button>
+                <button class="buttons__start" v-on:click="Start">開始</button>
+            </div>
+        </div>
+        <script src="app.js"></script>
+    </body>
+</html>

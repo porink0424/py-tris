@@ -13,6 +13,17 @@ def JoinDirectedMinoToBoard (directedMino:DirectedMino, mainBoard:List[int], top
     return copiedMainBoard, copiedTopRowIdx
 
 # directedMinoをmainBoardに埋め込む
+# topRowIdxの処理はしない
+def JoinDirectedMinoToBoardWithoutTopRowIdx (directedMino:DirectedMino, mainBoard:List[int]) -> List[int]:
+    copiedMainBoard = copy.copy(mainBoard)
+    occupiedPositions = GetOccupiedPositions(directedMino)
+    for pos0, pos1 in occupiedPositions:
+        assert 0 <= pos1 < BOARD_HEIGHT
+        copiedMainBoard[pos1] |= (0b1000000000 >> pos0)
+    
+    return copiedMainBoard
+
+# directedMinoをmainBoardに埋め込む
 # 埋め込んだ結果は引数のboardとtopRowIdxに反映される。
 def JoinDirectedMinoToBoardUncopy (directedMino:DirectedMino, mainBoard:List[int], topRowIdx:List[int]):
     occupiedPositions = GetOccupiedPositions(directedMino)

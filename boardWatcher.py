@@ -16,7 +16,7 @@ def GetAddrFromBaseAndOffsets(baseAddr:int, offsets:List[int]) -> int:
         addr = mem.read_int(addr + offset)
     return addr + offsets[-1]
 
-def GetFollowingMinos() -> List[MINO]:
+def GetFollowingMinos() -> List[MinoInt]:
     followingMinos = []
     for i in range(FOLLOWING_MINOS_COUNT):
         try: # todo: エラー処理
@@ -58,7 +58,7 @@ def GetFollowingMinos() -> List[MINO]:
     return followingMinos
 
 # holdミノを返す
-def GetHoldMino() -> MINO:
+def GetHoldMino() -> MinoInt:
     try: # todo: エラー処理
         if is1P:
             mino = mem.read_int(GetAddrFromBaseAndOffsets(
@@ -227,7 +227,7 @@ def GetPosOfCurrentMino() -> Union[Tuple[int], None]:
         return None
 
 # 現在のミノの種類を取得
-def GetMinoTypeOfCurrentMino() -> Union[MINO, None]:
+def GetMinoTypeOfCurrentMino() -> Union[MinoInt, None]:
     try: # todo: エラー処理
         if is1P:
             mino = mem.read_int(GetAddrFromBaseAndOffsets(
@@ -269,7 +269,7 @@ def GetMinoTypeOfCurrentMino() -> Union[MINO, None]:
         return None
 
 # 現在のミノの方向を取得
-def GetDirectionOfCurrentMino() -> Union[DIRECTION, None]:
+def GetDirectionOfCurrentMino() -> Union[DirectionInt, None]:
     try: # todo: エラー処理
         if is1P:
             direction = mem.read_int(GetAddrFromBaseAndOffsets(
