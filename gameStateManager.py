@@ -25,6 +25,7 @@ import minoMover
 import simulator
 import evaluator
 import openTemplateMaker
+import perfectClear
 
 # 探索の深さの設定
 INIT_SEARCH_LIMIT = 4
@@ -59,7 +60,7 @@ def PytrisSimulator ():
     board = Board()
 
     board.followingMinos = [simulator.GenerateMino() for _ in range(FOLLOWING_MINOS_COUNT)]
-
+    board.minoBagContents = ReturnFullBag()
    
     print("\n\n\n")
     PrintBoard(board)
@@ -100,7 +101,9 @@ def PytrisSimulator ():
         assert len(board.followingMinos) == FOLLOWING_MINOS_COUNT
 
         # 思考ルーチン
-        multipath = openTemplateMaker.GetCustomTemplateMove(board)
+        multipath = perfectClear.PerfectClear(board)
+        if not multipath:
+            multipath = openTemplateMaker.GetCustomTemplateMove(board)
         if not multipath:
             multipath = decisionMaker.MultiDecide(board)
 
@@ -124,6 +127,7 @@ def PytrisSimulator ():
             )
 
             board = simulator.AddFollowingMino(board)
+            # board.updateMinoBagContents()
         
 
 

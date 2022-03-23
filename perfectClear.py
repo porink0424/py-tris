@@ -1,6 +1,4 @@
 from lib import *
-from enum import Enum, auto
-
 
 
 
@@ -14,7 +12,6 @@ class PCState():
 
 pcState = PCState.Wait
 pcReturnValueQueue = [] # 返り値キュー
-
 
 
 
@@ -48,17 +45,17 @@ def ReturnCorrespondingMinoMove(
     ) -> List[MOVE]:
     if mino is MINO.T:
         return tMove
-    elif nextMino is MINO.O:
+    elif mino is MINO.O:
         return oMove
-    elif nextMino is MINO.Z:
+    elif mino is MINO.Z:
         return zMove
-    elif nextMino is MINO.I:
+    elif mino is MINO.I:
         return iMove
-    elif nextMino is MINO.L:
+    elif mino is MINO.L:
         return lMove
-    elif nextMino is MINO.S:
+    elif mino is MINO.S:
         return sMove
-    elif nextMino is MINO.J:
+    elif mino is MINO.J:
         return jMove
 
 
@@ -70,7 +67,7 @@ def PerfectClear(board:Board) -> List[Tuple[DirectedMino, List[MOVE]]]:
 
     if pcReturnValueQueue: # pcState is not PCState.Wait
         # 返り値キューが空でなければ思考済みなので前から取って返すだけ
-        return (board.currentMino, pcReturnValueQueue.pop(0)) #FIXME: hold 非対応
+        return [pcReturnValueQueue.pop(0)]
 
     elif pcState is PCState.Wait:
         minoOrder = CheckMinoOrder(board.currentMino.mino, board.followingMinos)
@@ -176,15 +173,15 @@ def PerfectClear(board:Board) -> List[Tuple[DirectedMino, List[MOVE]]]:
                             return [] # TODO
 
                 # I の動き
-                iMove = [MOVE.L_ROT, MOVE.RIGHT, MOVE.RIGHT, MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
+                iMove = [MOVE.L_ROT, MOVE.RIGHT, MOVE.RIGHT, MOVE.RIGHT, MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
                 if not minoOrder.SZ:
                     iMove = ReflectMoves(iMove)
 
             pcReturnValueQueue = AssignPCMinoMoves(
-                board.currentMino.mino + board.followingMinos,
+                [board.currentMino.mino] + board.followingMinos,
                 tMove, oMove, zMove, iMove, lMove, sMove, jMove
             )
-            return (board.currentMino, pcReturnValueQueue.pop(0))
+            return [pcReturnValueQueue.pop(0)]
 
     # elif pcState is PCState.
     else:

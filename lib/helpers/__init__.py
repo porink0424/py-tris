@@ -13,4 +13,4 @@ from .position import *
 from .printBoard import *
 from .rotate import *
 from .timer import *
-from .warning import *
+from lib.warning import *

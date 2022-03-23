@@ -93,13 +93,13 @@ def CheckMinoOrder(currentMino:MINO, followingMinos:List[MINO]) -> MinoOrder:
         if minoOrder.OL is None:
             if nextMino is MINO.O:
                 minoOrder.OL = True
-            elif nextMino in MINO.L:
+            elif nextMino is MINO.L:
                 minoOrder.OL = False
 
         if minoOrder.OJ is None:
             if nextMino is MINO.O:
                 minoOrder.OJ = True
-            elif nextMino in MINO.J:
+            elif nextMino is MINO.J:
                 minoOrder.OJ = False
 
         if minoOrder.IT is None:

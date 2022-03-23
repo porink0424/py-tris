@@ -40,3 +40,8 @@ class Board():
                     break
             else:
                 self.topRowIdx[pos[0]] = BOARD_HEIGHT
+
+    def updateMinoBagContents(self):
+        self.minoBagContents.remove(self.currentMino.mino)
+        if len(self.minoBagContents) == 0:
+            self.minoBagContents = ReturnFullBag()
