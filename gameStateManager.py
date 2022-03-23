@@ -5,13 +5,13 @@
 # -------------
 
 # windowをアクティブにする
-try:
-    import win32gui
-    window = win32gui.FindWindow(None, "PuyoPuyoTetris")
-    win32gui.SetForegroundWindow(window)
-    print("Window activated.", flush=True)
-except:
-    print("win32gui not installed.")
+# try:
+#     import win32gui
+#     window = win32gui.FindWindow(None, "PuyoPuyoTetris")
+#     win32gui.SetForegroundWindow(window)
+#     print("Window activated.", flush=True)
+# except:
+#     print("win32gui not installed.")
 
 from lib import *
 from params.eval import *

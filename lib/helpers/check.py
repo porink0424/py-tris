@@ -40,7 +40,7 @@ def isBoardTopAligned(mainBoard:List[int]) -> bool:
             if row == 0b1111111111:
                 alignedBoardTop = i
                 return True
-            else
+            else:
                 return False
     alignedBoardTop = BOARD_HEIGHT
     return True

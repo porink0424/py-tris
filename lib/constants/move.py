@@ -1,11 +1,4 @@
-class MOVE(Enum):
-    LEFT = auto()
-    RIGHT = auto()
-    DOWN = auto()
-    DROP = auto()
-    HOLD = auto()
-    R_ROT = auto()
-    L_ROT = auto()
+from typing import List
 
 # MOVEはクラス定数
 # 型の検査がなくなるため高速化

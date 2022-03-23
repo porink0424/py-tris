@@ -4,11 +4,11 @@ from enum import Enum, auto
 
 
 
-class PCState(Enum):
-    FirstSZTLeft = auto()
-    FirstSZTRight = auto()
-    Second = auto()
-    Wait = auto()
+class PCState():
+    Wait = 0
+    FirstSZTLeft = 1
+    FirstSZTRight = 2
+    Second = 3
 
 
 
