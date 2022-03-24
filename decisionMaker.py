@@ -254,7 +254,7 @@ def GetPossibleMoves(
     # ミノを全て下に落とす
 
     for mino, path in undroppedMinos:
-        dropCount = DropFromTop(mino, board.topRowIdx)
+        dropCount = DropFromTop(board.mainBoard,  board.topRowIdx, mino)
         mino.pos = (mino.pos[0], mino.pos[1] + dropCount)
         path += [MOVE.DOWN for _ in range(dropCount)]
         reachableNodes[EncodeDirectedMino(mino)] = path
