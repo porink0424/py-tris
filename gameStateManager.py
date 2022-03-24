@@ -27,6 +27,7 @@ import evaluator
 import openTemplateMaker
 import perfectClear
 
+
 # 探索の深さの設定
 INIT_SEARCH_LIMIT = 4
 INIT_BEAM_WIDTH = [3,3,3]
@@ -108,6 +109,8 @@ def PytrisSimulator ():
             multipath = decisionMaker.MultiDecide(board)
 
         for path in multipath:
+            time.sleep(.2) #DEBUG
+
             board, isTspin, isTspinmini = simulator.PutMino(path, board)
 
             newMainBoard, newTopRowIdx, clearedRowCount = simulator.ClearLinesOfBoard(board)
@@ -127,7 +130,6 @@ def PytrisSimulator ():
             )
 
             board = simulator.AddFollowingMino(board)
-            # board.updateMinoBagContents()
         
 
 
@@ -232,17 +234,21 @@ def PytrisMover ():
                     multiPath = decisionMaker.MultiDecide(board)
                 paths += multiPath
 
-            print("Making Decition in {}s".format(decideTimer.Stop()), flush=True)
+            print("Making Decision in {}s".format(decideTimer.Stop()), flush=True)
 
             # 移動
             # todo: 連続でおく途中でおきミスしたときや、盤面の状況が変化したときの対処（porinky0424がやります）
             mainBoard = board.mainBoard
             while paths:
+                mainBoard.updateMinoBagContents()
                 path = paths.pop(0)
                 currentMino = boardWatcher.GetMinoTypeOfCurrentMino()
 
                 # 最初に実行するのがHOLDの時は別に実行する
                 if path[0] is MOVE.HOLD:
+                    if mainBoard.holdMino is MINO.NONE:
+                                firstHold = True
+
                     time.sleep(0.1) # 安定のためにHOLDの前後にsleepを入れる
                     Move(MOVE.HOLD)
                     time.sleep(0.1)
@@ -271,6 +277,9 @@ def PytrisMover ():
                 # おいた後の盤面を生成
                 joinedMainBoard = JoinDirectedMinoToBoardWithoutTopRowIdx(directedMino, mainBoard)
                 mainBoard, clearedRowCount = ClearLinesWithoutTopRowIdx(joinedMainBoard)
+                if firstHold:
+                    mainBoard.updateMinoBagContents() # first MOVE.HOLD
+                    firstHold = False
 
                 # 試合が終了して、次のゲームが始まっていないか気にしながら次の操作ができるような状態になるまで待機
                 isGameReady = False

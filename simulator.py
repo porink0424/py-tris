@@ -1,21 +1,32 @@
 from lib import *
 import minoMover
 import evaluator
+import time # debug
 
 DISPLAY_DELTA_TIME = 0.02
 
 # 1つのnowDirectedMinoを置く動きを再現して出力
 # 返り値としておいた後のboardを返す
+firstHold = False
 def PutMino (moveList:List[MoveInt], board:Board) -> Tuple[Board, bool, bool]:
 
+    global firstHold
+
+    board.updateMinoBagContents()
     if moveList[0] is MOVE.HOLD:
+        if board.holdMino is MINO.NONE:
+            firstHold = True
         PrintBoardWithDirectedMino(board, board.currentMino, True)
         moveList = moveList[1:]
         board = BoardAfterHold(board)
+        if firstHold:
+            board.updateMinoBagContents() # first MOVE.HOLD
+            firstHold = False
 
     # moveListに従って1つずつ動かしていく
     nextDirectedMino = board.currentMino
     for move in moveList:
+        # time.sleep(.2)
         PrintBoardWithDirectedMino(board, nextDirectedMino, True)
         nextDirectedMino = minoMover.MoveOneStep(move, nextDirectedMino, board)
         time.sleep(DISPLAY_DELTA_TIME)
@@ -90,7 +101,32 @@ def GenerateMino () -> MinoInt:
 
     # bagsが空であれば，7種類のミノをランダムに生成してbagsに入れる
     if not bags:
-        bags = random.sample([
+        # bags = random.sample([
+        #     MINO.I,
+        #     MINO.J,
+        #     MINO.L,
+        #     MINO.O,
+        #     MINO.S,
+        #     MINO.T,
+        #     MINO.Z
+        # ], 7)
+        bags = [
+            MINO.Z,
+            MINO.L,
+            MINO.I,
+            MINO.O,
+            MINO.T,
+            MINO.S,
+            MINO.J,
+            # #
+            # MINO.T,
+            # MINO.J,
+            # MINO.S,
+            # MINO.O,
+            # MINO.I,
+            # MINO.L,
+            # MINO.Z
+        ] + random.sample([
             MINO.I,
             MINO.J,
             MINO.L,
@@ -99,5 +135,5 @@ def GenerateMino () -> MinoInt:
             MINO.T,
             MINO.Z
         ], 7)
-    
-    return bags.pop()
+
+    return bags.pop(0)
