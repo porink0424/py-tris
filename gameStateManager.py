@@ -109,8 +109,6 @@ def PytrisSimulator ():
             multipath = decisionMaker.MultiDecide(board)
 
         for path in multipath:
-            time.sleep(.2) #DEBUG
-
             board, isTspin, isTspinmini = simulator.PutMino(path, board)
 
             newMainBoard, newTopRowIdx, clearedRowCount = simulator.ClearLinesOfBoard(board)
