@@ -3,12 +3,15 @@ from lib.helpers.check import isValidPlace
 
 # 受け取ったdirectedMinoをいけるところまで下に落とす。何個分おとせるかを返す
 # 高速化のため、ミノが今積まれている盤面より上にあるという制約をつける。
-def DropFromTop(directedMino:DirectedMino, topRowIdx:List[int]) -> int:
+def DropFromTop(mainBoard:List[int], topRowIdx:List[int], directedMino:DirectedMino) -> int:
     occupiedPositions = GetOccupiedPositions(directedMino)
 
     dropCount = BOARD_HEIGHT 
     for pos0, pos1 in occupiedPositions:
-        assert topRowIdx[pos0] > pos1
+
+        # ミノが今積まれている盤面より上にあるという制約が満たされていない時は制約のない関数を呼ぶ。
+        if topRowIdx[pos0] <= pos1:
+            return Drop(mainBoard, directedMino)
         dropCount = min(dropCount, abs(topRowIdx[pos0] - pos1) - 1)
     
     return dropCount
