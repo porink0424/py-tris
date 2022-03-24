@@ -244,7 +244,7 @@ def PytrisMover ():
 
                 # 最初に実行するのがHOLDの時は別に実行する
                 if path[0] is MOVE.HOLD:
-                    if mainBoard.holdMino is MINO.NONE:
+                    if mainBoard.holdMino == MINO.NONE:
                                 firstHold = True
 
                     time.sleep(0.1) # 安定のためにHOLDの前後にsleepを入れる
