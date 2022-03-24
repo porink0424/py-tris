@@ -4,14 +4,14 @@
 #
 # -------------
 
-# windowをアクティブにする
-# try:
-#     import win32gui
-#     window = win32gui.FindWindow(None, "PuyoPuyoTetris")
-#     win32gui.SetForegroundWindow(window)
-#     print("Window activated.", flush=True)
-# except:
-#     print("win32gui not installed.")
+windowをアクティブにする
+try:
+    import win32gui
+    window = win32gui.FindWindow(None, "PuyoPuyoTetris")
+    win32gui.SetForegroundWindow(window)
+    print("Window activated.", flush=True)
+except:
+    print("win32gui not installed.")
 
 from lib import *
 from params.eval import *
@@ -109,8 +109,6 @@ def PytrisSimulator ():
             multipath = decisionMaker.MultiDecide(board)
 
         for path in multipath:
-            time.sleep(.2) #DEBUG
-
             board, isTspin, isTspinmini = simulator.PutMino(path, board)
 
             newMainBoard, newTopRowIdx, clearedRowCount = simulator.ClearLinesOfBoard(board)
