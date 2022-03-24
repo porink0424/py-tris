@@ -16,5 +16,5 @@ class MINO():
 # intのエイリアスとしてMinIntを定義
 MinoInt = int
 
-def ReturnFullBag() -> List[MINO]:
+def ReturnFullBag() -> List[MinoInt]:
     return [MINO.T, MINO.O, MINO.Z, MINO.I, MINO.L, MINO.S, MINO.J]

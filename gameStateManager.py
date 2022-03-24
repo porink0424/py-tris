@@ -247,7 +247,7 @@ def PytrisMover ():
                 # 最初に実行するのがHOLDの時は別に実行する
                 if path[0] is MOVE.HOLD:
                     if mainBoard.holdMino is MINO.NONE:
-                                firstHold = True
+                        pcFirstHold = True
 
                     time.sleep(0.1) # 安定のためにHOLDの前後にsleepを入れる
                     Move(MOVE.HOLD)
@@ -277,9 +277,9 @@ def PytrisMover ():
                 # おいた後の盤面を生成
                 joinedMainBoard = JoinDirectedMinoToBoardWithoutTopRowIdx(directedMino, mainBoard)
                 mainBoard, clearedRowCount = ClearLinesWithoutTopRowIdx(joinedMainBoard)
-                if firstHold:
+                if pcFirstHold:
                     mainBoard.updateMinoBagContents() # first MOVE.HOLD
-                    firstHold = False
+                    pcFirstHold = False
 
                 # 試合が終了して、次のゲームが始まっていないか気にしながら次の操作ができるような状態になるまで待機
                 isGameReady = False

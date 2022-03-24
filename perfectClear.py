@@ -61,6 +61,8 @@ def ReturnCorrespondingMinoMove(
 
 
 
+# 各ミノの直近の動き
+# 未定義だとエラーになりうるので一応定義しておく
 tMove = []
 oMove = []
 zMove = []
@@ -68,6 +70,8 @@ iMove = []
 lMove = []
 sMove = []
 jMove = []
+
+pcFirstHold = False # used differently from firstHold
 
 # CAUTION: ミノの左右移動を埋め込みにしている部分あり
 def PerfectClear(board:Board) -> List[List[MoveInt]]:
@@ -144,8 +148,7 @@ def PerfectClear(board:Board) -> List[List[MoveInt]]:
                         return [] # TODO: hold
 
             #----- 長方形側 (OLJ,I) -----#
-            # I がOLJよりも最後かどうか判定
-
+            #TODO: I がOLJよりも最後かどうか判定して hold するなりなんなり
 
             if minoOrder.O_LJ: # OLJ or OJL
                 # TODO: hold
@@ -213,297 +216,6 @@ def PerfectClear(board:Board) -> List[List[MoveInt]]:
         else:
             return [pcReturnValueQueue.pop(0)]
 
-    #     threeMinos = [board.currentMino.mino, board.followingMinos[0], board.followingMinos[1]]
-    #     threeMinosSet = set(threeMinos)
-
-    #     # IITJ
-    #     if threeMinosSet == {MINO.J, MINO.I, MINO.T}: # IITJ
-    #         jMove = [MOVE.R_ROT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1)] + [MOVE.L_ROT]
-    #         iMove = [MOVE.RIGHT, MOVE.DROP]
-    #         tMove = [MOVE.R_ROT, MOVE.R_ROT, MOVE.RIGHT, MOVE.DROP]
-
-    #     # IITL
-    #     elif (
-    #         threeMinos == [MINO.T, MINO.I, MINO.L] or 
-    #         threeMinos == [MINO.T, MINO.L, MINO.I] or
-    #         threeMinos == [MINO.I, MINO.T, MINO.L]
-    #     ): # IITL
-    #         tMove = [MOVE.R_ROT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1)] + [MOVE.L_ROT]
-    #         iMove = [MOVE.RIGHT, MOVE.DROP]
-    #         lMove = [MOVE.R_ROT, MOVE.R_ROT, MOVE.RIGHT, MOVE.DROP]
-    #     elif (
-    #         threeMinos == [MINO.L, MINO.I, MINO.T] or 
-    #         threeMinos == [MINO.L, MINO.T, MINO.I]
-    #     ): # IITL
-    #         tMove = [MOVE.R_ROT, MOVE.R_ROT, MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-    #         iMove = [MOVE.L_ROT, MOVE.DROP] #FIXME
-    #         lMove = [MOVE.R_ROT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1)] + [MOVE.RIGHT]
-
-    #     # ITJS
-    #     elif (
-    #         threeMinos == [MINO.T, MINO.J, MINO.S] or 
-    #         threeMinos == [MINO.T, MINO.S, MINO.J]
-    #     ): # ITJS
-    #         tMove = [MOVE.R_ROT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1 - 1)] + [MOVE.L_ROT, MOVE.DROP]
-    #         jMove = [MOVE.R_ROT, MOVE.DROP]
-    #         if threeMinos == [MINO.T, MINO.J, MINO.S]:
-    #             sMove = [MOVE.R_ROT, MOVE.RIGHT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1 - 1)] + [MOVE.R_ROT, MOVE.DROP] # FIXME
-    #         else:
-    #             sMove = [MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-    #     elif threeMinos == [MINO.J, MINO.S, MINO.T]: # ITJS
-    #         jMove = [MOVE.R_ROT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1)] + [MOVE.L_ROT]
-    #         sMove = [MOVE.R_ROT, MOVE.DROP] #FIXME
-    #         tMove = [MOVE.R_ROT, MOVE.R_ROT, MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-
-    #     # IILZ
-    #     elif (
-    #         threeMinos == [MINO.Z, MINO.I, MINO.L] or 
-    #         threeMinos == [MINO.Z, MINO.L, MINO.I] or
-    #         threeMinos == [MINO.I, MINO.Z, MINO.L]
-    #     ): # IILZ
-    #         zMove = [MOVE.L_ROT, MOVE.RIGHT, MOVE.RIGHT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1 - 2)] + [MOVE.L_ROT]
-    #         iMove = [MOVE.RIGHT, MOVE.DROP]
-    #         lMove = [MOVE.R_ROT, MOVE.R_ROT, MOVE.RIGHT, MOVE.DROP]
-
-    #     # IJSZ
-    #     elif (
-    #         threeMinos == [MINO.Z, MINO.J, MINO.S] or 
-    #         threeMinos == [MINO.Z, MINO.S, MINO.J]
-    #     ):
-    #         zMove = [MOVE.R_ROT, MOVE.RIGHT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1 - 2)] + [MOVE.L_ROT]
-    #         sMove = [MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-    #         jMove = [MOVE.R_ROT, MOVE.DROP]
-    #     elif (
-    #         threeMinos == [MINO.J, MINO.Z, MINO.S]
-    #     ):
-    #         jMove = [MOVE.RIGHT, MOVE.DROP]
-    #         zMove = [MOVE.R_ROT, MOVE.DROP]
-    #         sMove = [MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-
-    #     # IITO
-    #     elif (
-    #         threeMinos == [MINO.I, MINO.T, MINO.O] or 
-    #         threeMinos == [MINO.T, MINO.I, MINO.O] or 
-    #         threeMinos == [MINO.T, MINO.O, MINO.I]
-    #     ):
-    #         tMove = [MOVE.R_ROT, MOVE.DROP]
-    #         iMove = [MOVE.RIGHT, MOVE.DROP]
-    #         oMove = [MOVE.RIGHT, MOVE.DROP]
-            
-    #     # IIOJ
-    #     elif (
-    #         threeMinos == [MINO.I, MINO.O, MINO.J] or 
-    #         threeMinos == [MINO.O, MINO.I, MINO.J] or 
-    #         threeMinos == [MINO.O, MINO.J, MINO.I]
-    #     ):
-    #         iMove = [MOVE.RIGHT, MOVE.DROP]
-    #         oMove = [MOVE.DROP]
-    #         jMove = [MOVE.R_ROT, MOVE.R_ROT, MOVE.RIGHT, MOVE.DROP]
-            
-    #     # IIJS
-    #     elif (
-    #         threeMinos == [MINO.I, MINO.S, MINO.J] or 
-    #         threeMinos == [MINO.S, MINO.I, MINO.J] or 
-    #         threeMinos == [MINO.S, MINO.J, MINO.I]
-    #     ):
-    #         iMove = [MOVE.RIGHT, MOVE.DROP]
-    #         sMove = [MOVE.RIGHT, MOVE.DROP]
-    #         jMove = [MOVE.RIGHT, MOVE.DROP]
-            
-    #     # IITS
-    #     elif (
-    #         threeMinos == [MINO.I, MINO.T, MINO.S] or 
-    #         threeMinos == [MINO.T, MINO.I, MINO.S]
-    #     ):
-    #         iMove = [MOVE.L_ROT, MOVE.DROP]
-    #         tMove = [MOVE.R_ROT, MOVE.RIGHT, MOVE.DROP]
-    #         sMove = [MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-            
-    #     # ITLJ
-    #     elif (
-    #         threeMinos == [MINO.T, MINO.J, MINO.L] or 
-    #         threeMinos == [MINO.T, MINO.L, MINO.J]
-    #     ):
-    #         tMove = [MOVE.R_ROT, MOVE.DROP]
-    #         lMove = [MOVE.L_ROT, MOVE.RIGHT, MOVE.DROP]
-    #         jMove = [MOVE.L_ROT, MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-            
-    #     # ITSZ
-    #     elif (
-    #         threeMinos == [MINO.T, MINO.S, MINO.Z] or
-    #         threeMinos == [MINO.T, MINO.S, MINO.Z]
-    #     ):
-    #         tMove = [MOVE.R_ROT, MOVE.DROP]
-    #         sMove = [MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-    #         zMove = [MOVE.RIGHT, MOVE.DROP]
-
-    #     # IOJT
-    #     elif (
-    #         threeMinos == [MINO.O, MINO.J, MINO.T]
-    #     ):
-    #         oMove = [MOVE.DROP]
-    #         jMove = [MOVE.RIGHT, MOVE.DROP]
-    #         tMove = [MOVE.R_ROT, MOVE.R_ROT, MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-
-    #     # else
-    #     else:
-    #         pcState = PCState.Wait
-    #         pcReturnValueQueue = []
-    #         return []
-        
-    #     # return
-    #     pcReturnValueQueue = AssignPCMinoMoves(
-    #         threeMinos,
-    #         tMove, oMove, zMove, iMove, lMove, sMove, jMove
-    #     )
-    #     return [pcReturnValueQueue.pop(0)]
-
-    # elif pcState is PCState.FirstSZTLeft:
-    #     threeMinos = [board.currentMino.mino, board.followingMinos[0], board.followingMinos[1]]
-    #     threeMinosSet = set(threeMinos)
-
-    #     # IITJ
-    #     if threeMinosSet == {MINO.L, MINO.I, MINO.T}: # IITJ
-    #         lMove = [MOVE.L_ROT, MOVE.RIGHT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1)] + [MOVE.R_ROT]
-    #         iMove = [MOVE.LEFT, MOVE.DROP]
-    #         tMove = [MOVE.R_ROT, MOVE.R_ROT, MOVE.DROP]
-
-    #     # IITL
-    #     elif (
-    #         threeMinos == [MINO.T, MINO.I, MINO.J] or 
-    #         threeMinos == [MINO.T, MINO.J, MINO.I] or
-    #         threeMinos == [MINO.I, MINO.T, MINO.J]
-    #     ): # IITL
-    #         tMove = [MOVE.L_ROT, MOVE.RIGHT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1)] + [MOVE.R_ROT]
-    #         iMove = [MOVE.RIGHT, MOVE.DROP]
-    #         jMove = [MOVE.R_ROT, MOVE.R_ROT, MOVE.DROP]
-    #     elif (
-    #         threeMinos == [MINO.J, MINO.I, MINO.T] or 
-    #         threeMinos == [MINO.J, MINO.T, MINO.I]
-    #     ): # IITL
-    #         tMove = [MOVE.R_ROT, MOVE.R_ROT, MOVE.LEFT, MOVE.DROP]
-    #         iMove = [MOVE.R_ROT, MOVE.DROP] #FIXME
-    #         jMove = [MOVE.L_ROT, MOVE.RIGHT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1)] + [MOVE.LEFT]
-
-    #     # # ITJS
-    #     # elif (
-    #     #     threeMinos == [MINO.T, MINO.L, MINO.S] or 
-    #     #     threeMinos == [MINO.T, MINO.S, MINO.L]
-    #     # ): # ITJS
-    #     #     tMove = [MOVE.R_ROT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1)] + [MOVE.L_ROT]
-    #     #     jMove = [MOVE.R_ROT, MOVE.DROP]
-    #     #     if threeMinos == [MINO.T, MINO.J, MINO.S]:
-    #     #         sMove = [MOVE.R_ROT, MOVE.RIGHT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1)] + [MOVE.R_ROT] # FIXME
-    #     #     else:
-    #     #         sMove = [MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-    #     # elif threeMinos == [MINO.J, MINO.S, MINO.T]: # ITJS
-    #     #     jMove = [MOVE.R_ROT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1)] + [MOVE.L_ROT]
-    #     #     sMove = [MOVE.R_ROT, MOVE.DROP] #FIXME
-    #     #     tMove = [MOVE.R_ROT, MOVE.R_ROT, MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-
-    #     # # IILZ
-    #     # elif (
-    #     #     threeMinos == [MINO.Z, MINO.I, MINO.L] or 
-    #     #     threeMinos == [MINO.Z, MINO.L, MINO.I] or
-    #     #     threeMinos == [MINO.I, MINO.Z, MINO.L]
-    #     # ): # IILZ
-    #     #     zMove = [MOVE.R_ROT, MOVE.RIGHT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1 - 2)] + [MOVE.L_ROT]
-    #     #     iMove = [MOVE.RIGHT, MOVE.DROP]
-    #     #     lMove = [MOVE.R_ROT, MOVE.R_ROT, MOVE.RIGHT, MOVE.DROP]
-
-    #     # # IJSZ
-    #     # elif (
-    #     #     threeMinos == [MINO.Z, MINO.J, MINO.S] or 
-    #     #     threeMinos == [MINO.Z, MINO.S, MINO.J]
-    #     # ):
-    #     #     zMove = [MOVE.R_ROT, MOVE.RIGHT] + [MOVE.DOWN for _ in range(alignedBoardTop - FIRST_MINO_POS[1] - 1 - 2)] + [MOVE.L_ROT]
-    #     #     sMove = [MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-    #     #     jMove = [MOVE.R_ROT, MOVE.DROP]
-    #     # elif (
-    #     #     threeMinos == [MINO.J, MINO.Z, MINO.S]
-    #     # ):
-    #     #     jMove = [MOVE.RIGHT, MOVE.DROP]
-    #     #     zMove = [MOVE.R_ROT, MOVE.DROP]
-    #     #     sMove = [MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-
-    #     # # IITO
-    #     # elif (
-    #     #     threeMinos == [MINO.I, MINO.T, MINO.O] or 
-    #     #     threeMinos == [MINO.T, MINO.I, MINO.O] or 
-    #     #     threeMinos == [MINO.T, MINO.O, MINO.I]
-    #     # ):
-    #     #     tMove = [MOVE.R_ROT, MOVE.DROP]
-    #     #     iMove = [MOVE.RIGHT, MOVE.DROP]
-    #     #     oMove = [MOVE.RIGHT, MOVE.DROP]
-            
-    #     # # IIOJ
-    #     # elif (
-    #     #     threeMinos == [MINO.I, MINO.O, MINO.J] or 
-    #     #     threeMinos == [MINO.O, MINO.I, MINO.J] or 
-    #     #     threeMinos == [MINO.O, MINO.J, MINO.I]
-    #     # ):
-    #     #     iMove = [MOVE.RIGHT, MOVE.DROP]
-    #     #     oMove = [MOVE.DROP]
-    #     #     jMove = [MOVE.R_ROT, MOVE.R_ROT, MOVE.RIGHT, MOVE.DROP]
-            
-    #     # # IIJS
-    #     # elif (
-    #     #     threeMinos == [MINO.I, MINO.S, MINO.J] or 
-    #     #     threeMinos == [MINO.S, MINO.I, MINO.J] or 
-    #     #     threeMinos == [MINO.S, MINO.J, MINO.I]
-    #     # ):
-    #     #     iMove = [MOVE.RIGHT, MOVE.DROP]
-    #     #     sMove = [MOVE.RIGHT, MOVE.DROP]
-    #     #     jMove = [MOVE.RIGHT, MOVE.DROP]
-            
-    #     # # IITS
-    #     # elif (
-    #     #     threeMinos == [MINO.I, MINO.T, MINO.S] or 
-    #     #     threeMinos == [MINO.T, MINO.I, MINO.S]
-    #     # ):
-    #     #     iMove = [MOVE.L_ROT, MOVE.DROP]
-    #     #     tMove = [MOVE.R_ROT, MOVE.RIGHT, MOVE.DROP]
-    #     #     sMove = [MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-            
-    #     # # ITLJ
-    #     # elif (
-    #     #     threeMinos == [MINO.T, MINO.J, MINO.L] or 
-    #     #     threeMinos == [MINO.T, MINO.L, MINO.J]
-    #     # ):
-    #     #     tMove = [MOVE.R_ROT, MOVE.DROP]
-    #     #     lMove = [MOVE.L_ROT, MOVE.RIGHT, MOVE.DROP]
-    #     #     jMove = [MOVE.L_ROT, MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-            
-    #     # # ITSZ
-    #     # elif (
-    #     #     threeMinos == [MINO.T, MINO.S, MINO.Z] or
-    #     #     threeMinos == [MINO.T, MINO.S, MINO.Z]
-    #     # ):
-    #     #     tMove = [MOVE.R_ROT, MOVE.DROP]
-    #     #     sMove = [MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-    #     #     zMove = [MOVE.RIGHT, MOVE.DROP]
-
-    #     # # IOJT
-    #     # elif (
-    #     #     threeMinos == [MINO.O, MINO.J, MINO.T]
-    #     # ):
-    #     #     oMove = [MOVE.DROP]
-    #     #     jMove = [MOVE.RIGHT, MOVE.DROP]
-    #     #     tMove = [MOVE.R_ROT, MOVE.R_ROT, MOVE.RIGHT, MOVE.RIGHT, MOVE.DROP]
-
-    #     # else
-    #     else:
-    #         pcState = PCState.Wait
-    #         pcReturnValueQueue = []
-    #         return []
-        
-    #     # return
-    #     pcReturnValueQueue = AssignPCMinoMoves(
-    #         threeMinos,
-    #         tMove, oMove, zMove, iMove, lMove, sMove, jMove
-    #     )
-    #     return [pcReturnValueQueue.pop(0)]
-
     else:
         # あきらめて帰る
         pcState = PCState.Wait
@@ -511,6 +223,9 @@ def PerfectClear(board:Board) -> List[List[MoveInt]]:
         return []
 
 
+# 一巡目のパフェ積みが終わった状態で使う。
+# minoNum 個のミノを，パフェから溢れないようにしながら積んでいけるかを全探索により調べる。
+# 高々3,4個であるうえに，パフェからあふれる場合は枝刈りをするので，実用上充分高速に動く。
 def SearchPCSecondMove(board:Board, minoNum:int) -> List[List[MoveInt]]:
 
     # boardsは(盤面、それに至るミノの動き)のリスト

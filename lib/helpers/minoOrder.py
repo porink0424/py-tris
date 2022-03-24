@@ -132,34 +132,3 @@ def CheckMinoOrder(currentMino:MINO, followingMinos:List[MINO]) -> MinoOrder:
     minoOrder.OLJ_I = not (minoOrder.IO or minoOrder.IL or minoOrder.IJ)
 
     return minoOrder
-
-
-# CheckMinoOrdewr により一括で調べられるようにしたので以下は使わない
-
-# パフェ積みの一巡目を開始する時に，S と Z のどちらが先に来るかを調べる
-def doesSComeEarlierThanZ(currentMino:MINO, followingMinos:List[MINO]) -> bool:
-    if currentMino is MINO.S:
-        return True
-    elif currentMino is MINO.Z:
-        return False
-    else:
-        for nextMino in followingMinos:
-            if nextMino is MINO.S:
-                return True
-            elif nextMino is MINO.Z:
-                return False
-        Error("Invalid usage of doesSComeEarlierThanZ.")
-
-# パフェ積みの JOL を横置きするか縦置きできるか判定するため，このうちOが最初に来るかどうかを調べる
-def doesOComeEarlierThanJL(currentMino:MINO, followingMinos:List[MINO]) -> bool:
-    if currentMino is MINO.O:
-        return True
-    elif currentMino in set([MINO.J, MINO.L]):
-        return False
-    else:
-        for nextMino in followingMinos:
-            if nextMino is MINO.O:
-                return True
-            elif nextMino in set([MINO.J, MINO.L]):
-                return False
-        Error("Invalid usage of doesOComeEarlierThanJL.")
