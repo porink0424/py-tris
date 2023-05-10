@@ -2,6 +2,12 @@
 
 ぷよテトのテトリスAIをつくるプロジェクト
 
+## DEMOムービー
+
+左がAIです。
+
+https://github.com/porinky0424/py-tris/assets/83964523/e8db6bd2-88ad-4df1-abb2-5654bd80d0b3
+
 ## Pre-Requests
 
 プログラムの実行環境
