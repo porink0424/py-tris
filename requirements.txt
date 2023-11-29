@@ -1,0 +1,8 @@
+PyAutoGUI==0.9.53
+mss==6.1.0
+Pillow==8.1.0
+colored==1.4.3
+cython=0.29.28
+Pymem==1.8.5
+vgamepad==0.0.7
+pywin32==303
